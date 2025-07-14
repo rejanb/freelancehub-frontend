@@ -1,0 +1,7 @@
+<router-outlet />
+<p>login works!</p>
+    <form (ngSubmit)="onLogin()">
+      <input [(ngModel)]="username" name="username" required>
+      <input [(ngModel)]="password" name="password" type="password" required>
+      <button type="submit">Login</button>
+    </form>
