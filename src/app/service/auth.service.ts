@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {ApiConst} from '../const/api-const';
+import {RegisterFormData} from '../model/models';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +21,8 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}users/logout/`, {refresh});
   }
 
-  register(user: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}users/`, user);
+  register(user: RegisterFormData): Observable<any> {
+    return this.http.post(`${this.baseUrl}users/register/`, user);
   }
 
   sendPasswordReset(email: string): Observable<any> {

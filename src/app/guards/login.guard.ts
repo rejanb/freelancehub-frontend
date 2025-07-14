@@ -8,6 +8,7 @@ export const loginGuard: CanActivateFn = (route, state) => {
   const router= inject(Router)
   const currentUser = token.getCurrentUser();
   const tokens = token.getToken();
+  console.log('yo')
   if(!tokens){
     return true
   }

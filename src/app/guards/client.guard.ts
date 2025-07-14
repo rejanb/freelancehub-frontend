@@ -5,6 +5,7 @@ import {ApiConst, RoleConst} from '../const/api-const';
 
 export const clientGuard: CanActivateFn = (route, state) => {
   const token= inject(TokenService)
+  console.log('yo')
   const router= inject(Router)
   const currentUser = token.getCurrentUser()
 
