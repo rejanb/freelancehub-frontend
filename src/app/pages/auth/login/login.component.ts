@@ -2,8 +2,9 @@ import {Component, inject} from '@angular/core';
 import {AuthService} from '../../../service/auth.service';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {Router, RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
 import {TokenService} from '../../../utils/token.service';
+import {ApiConst} from '../../../const/api-const';
 
 @Component({
   selector: 'app-login',
@@ -14,16 +15,20 @@ import {TokenService} from '../../../utils/token.service';
 })
 export class LoginComponent {
 
-  username = '';
+  email = '';
   password = '';
 
-  constructor(private auth: AuthService, private token: TokenService) {}
+  constructor(private auth: AuthService, private token: TokenService,  private router: Router) {}
 
 
   onLogin() {
-    this.auth.login(this.username, this.password).subscribe((res: any) => {
+    this.auth.login(this.email, this.password).subscribe((res: any) => {
+      console.log('Login successful:', res);
+      console.log('User:', {name: res.user, type: res.user_type, email: res.email, id: res.id});
+      this.token.setLocal(ApiConst.userKey,   {name: res.user, type: res.user_type, email: res.email, id: res.id});
+      this.token.setLocal(ApiConst.tokenKey, {refresh: res.refresh, access: res.access});
+      this.router.navigate(['dashboard']);
 
-      this.token.setLocal('authToken', res.auth_token);
     });
   }
 }

@@ -1,22 +1,23 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {ApiConst} from '../const/api-const';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  baseUrl = 'http://localhost:8000/api/auth/';
+  baseUrl = ApiConst.API_URL
 
   constructor(private http: HttpClient) {}
 
-  login(username: string, password: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}token/login/`, { username, password });
+  login(email: string, password: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}users/login/`, { email, password });
   }
 
-  logout(): Observable<any> {
-    return this.http.post(`${this.baseUrl}token/logout/`, {});
+  logout(refresh: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}users/logout/`, {refresh});
   }
 
   register(user: any): Observable<any> {

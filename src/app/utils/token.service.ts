@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import {ApiConst} from '../const/api-const';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,8 @@ export class TokenService {
    * @param data - The data to be stored.
    */
   setLocal(key: string, data: unknown): void {
+    console.log(data)
+    console.log(JSON.stringify(data))
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (e){
@@ -58,11 +61,14 @@ export class TokenService {
   //     return !!this.getLocal(ApiConst.CURRENT_USER);
   // }
 
-  // /**
-  //  * get the current user
-  //  */
-  // getCurrentUser(): CurrentUserInterface {
-  //   return <CurrentUserInterface>this.getLocal(ApiConst.CURRENT_USER);
-  // }
+  /**
+   * get the current user
+   */
+  getCurrentUser(): any {
+    return this.getLocal(ApiConst.userKey);
+  }
 
+  getToken(): any {
+    return this.getLocal(ApiConst.tokenKey);
+  }
 }
