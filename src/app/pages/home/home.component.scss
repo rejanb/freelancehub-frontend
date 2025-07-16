@@ -1,0 +1,60 @@
+/* Full screen background */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* Background with gradient */
+.home-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #4f46e5, #3b82f6);
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  padding: 2rem;
+}
+
+.home-message {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+.home-buttons {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.btn {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 12px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.btn-login {
+  background-color: #f97316; 
+  color: white;
+}
+
+.btn-login:hover {
+  background-color: #ea580c;
+}
+
+
+.btn-register {
+  background-color: #10b981; 
+  color: white;
+}
+
+.btn-register:hover {
+  background-color: #059669;
+}

@@ -1,69 +1,81 @@
-<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-  <div>
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+  <h2 class="form-title">Register</h2>
+
+
+  <div class="form-group">
     <label for="username">Username</label>
     <input id="username" formControlName="username" />
-    <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+    <div class="error" *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
       <small *ngIf="registerForm.get('username')?.errors?.['required']">Username is required.</small>
-      <small *ngIf="registerForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters.</small>
+      <small *ngIf="registerForm.get('username')?.errors?.['minlength']">Minimum 3 characters.</small>
     </div>
   </div>
 
-  <div>
+
+  <div class="form-group">
     <label for="email">Email</label>
     <input id="email" formControlName="email" />
-    <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+    <div class="error" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
       <small *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</small>
       <small *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email format.</small>
     </div>
   </div>
 
-  <div>
+  
+  <div class="form-group">
     <label for="password">Password</label>
     <input id="password" type="password" formControlName="password" />
-    <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+    <div class="error" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
       <small *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</small>
-      <small *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.</small>
+      <small *ngIf="registerForm.get('password')?.errors?.['minlength']">Minimum 8 characters.</small>
     </div>
   </div>
 
-  <div>
+  
+  <div class="form-group">
     <label for="password_confirm">Confirm Password</label>
     <input id="password_confirm" type="password" formControlName="password_confirm" />
-    <div *ngIf="registerForm.hasError('mismatch') && registerForm.get('password_confirm')?.touched">
+    <div class="error" *ngIf="registerForm.hasError('mismatch') && registerForm.get('password_confirm')?.touched">
       <small>Passwords do not match.</small>
     </div>
   </div>
 
-  <div>
+  
+  <div class="form-group">
     <label for="user_type">User Type</label>
     <select id="user_type" formControlName="user_type">
       <option value="" disabled>Select a user type</option>
       <option *ngFor="let type of userTypes" [value]="type">{{ type }}</option>
     </select>
-    <div *ngIf="registerForm.get('user_type')?.invalid && registerForm.get('user_type')?.touched">
+    <div class="error" *ngIf="registerForm.get('user_type')?.invalid && registerForm.get('user_type')?.touched">
       <small>User type is required.</small>
     </div>
   </div>
 
-  <div>
+  <div class="form-group">
     <label for="bio">Bio</label>
-    <textarea id="bio" formControlName="bio"></textarea>
-    <div *ngIf="registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched">
+    <textarea id="bio" formControlName="bio" rows="4"></textarea>
+    <div class="error" *ngIf="registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched">
       <small *ngIf="registerForm.get('bio')?.errors?.['required']">Bio is required.</small>
-      <small *ngIf="registerForm.get('bio')?.errors?.['maxlength']">Bio cannot exceed 500 characters.</small>
+      <small *ngIf="registerForm.get('bio')?.errors?.['maxlength']">Max 500 characters.</small>
     </div>
   </div>
 
-  <div>
+
+  <div class="form-group">
     <label>Skills</label>
-    <div *ngFor="let skill of skillControls; let i = index">
+    <div class="skill-row" *ngFor="let skill of skillControls; let i = index">
       <input [formControl]="skill" />
-      <button type="button" (click)="removeSkill(i)">Remove</button>
+      <button type="button" class="remove-btn" (click)="removeSkill(i)">Remove</button>
     </div>
-    <input #newSkill />
-    <button type="button" (click)="addSkill(newSkill.value); newSkill.value = ''">Add Skill</button>
+    <div class="skill-input">
+      <input #newSkill placeholder="New skill" />
+      <button type="button" class="add-btn" (click)="addSkill(newSkill.value); newSkill.value = ''">Add Skill</button>
+    </div>
   </div>
 
-  <button type="submit" [disabled]="registerForm.invalid">Register</button>
+
+  <div class="form-actions">
+    <button type="submit" [disabled]="registerForm.invalid">Register</button>
+  </div>
 </form>
-test register
