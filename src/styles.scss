@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import "primeicons/primeicons.css";
+@import 'primeflex/primeflex.scss';
+//@import 'node_modules/primeflex/primeflex.css';
+
 html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
   Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
@@ -7,7 +10,7 @@ html {
 
 body {
   margin: 0;
-  padding: 2rem;
+  //padding: 2rem;
   min-height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -15,4 +18,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: light-dark(var(--p-surface-0), var(--p-surface-950));
+}
+
+.p-password {
+  width: 100%;
+}
+
+.p-dropdown{
+  width: 100%;
+}
+
+.p-calender {
+  width: 100%;
 }

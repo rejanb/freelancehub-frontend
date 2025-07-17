@@ -12,11 +12,27 @@ import {
 } from '@angular/forms';
 import {Router, RouterLink, RouterLinkActive, RouterModule, RouterOutlet} from '@angular/router';
 import {AuthService} from '../../../service/auth.service';
+import {InputTextModule} from 'primeng/inputtext';
+import {PasswordModule} from 'primeng/password';
+import {DropdownModule} from 'primeng/dropdown';
+import {ButtonModule} from 'primeng/button';
+import {MessagesModule} from 'primeng/messages';
+import {MessageModule} from 'primeng/message';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterOutlet, RouterModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterOutlet, RouterModule, RouterLink, RouterLinkActive,
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    InputTextModule,
+    PasswordModule,
+    DropdownModule,
+    ButtonModule,
+    MessagesModule,
+    MessageModule,
+  ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })

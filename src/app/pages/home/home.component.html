@@ -1,3 +1,104 @@
-<p>home works!</p>
-<button (click)="login()">Login</button>
-<button (click)="register()">Register</button>
+<!--<p>home works!</p>-->
+<!--<button (click)="login()">Login</button>-->
+<!--<button (click)="register()">Register</button>-->
+<!-- app.component.html -->
+<!--<div class="home-container">-->
+<!--  <p-panel header="Welcome to CollabWork!">-->
+<!--    <div class="intro-section">-->
+<!--      <h1>Boost Your Freelance Workflow</h1>-->
+<!--      <p>Collaborate, manage, and succeed with our unique workspace canvas for clients and freelancers.</p>-->
+<!--      <div class="cta-buttons">-->
+<!--        <button pButton type="button" label="Sign Up" class="p-button-success"></button>-->
+<!--        <button pButton type="button" label="Log In" class="p-button-secondary"></button>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </p-panel>-->
+
+<!--  <div class="features-section">-->
+<!--    <p-carousel [value]="features" [numVisible]="3" [circular]="true" [autoplayInterval]="4000">-->
+<!--      <ng-template pTemplate="item" let-feature>-->
+<!--        <p-card [header]="feature.title" [subheader]="feature.subtitle">-->
+<!--          <p>{{ feature.description }}</p>-->
+<!--        </p-card>-->
+<!--      </ng-template>-->
+<!--    </p-carousel>-->
+<!--  </div>-->
+
+<!--  <div class="demo-section">-->
+<!--    <p-panel header="Workspace Preview">-->
+<!--      <img src="assets/demo-workspace.png" alt="Workspace Canvas Demo" style="width:100%;max-width:600px;">-->
+<!--    </p-panel>-->
+<!--  </div>-->
+
+<!--  <div class="info-section">-->
+<!--    <p-panel header="Why CollabWork?">-->
+<!--      <ul>-->
+<!--        <li>Visual workspace with draggable project cards</li>-->
+<!--        <li>Real-time collaboration tools</li>-->
+<!--        <li>Personalized insights and quick actions</li>-->
+<!--        <li>Secure, easy onboarding for clients and freelancers</li>-->
+<!--      </ul>-->
+<!--    </p-panel>-->
+<!--  </div>-->
+<!--</div>-->
+<!-- app.component.html -->
+<header class="fh-header">
+  <i class="pi pi-briefcase fh-logo"></i>
+  <span class="fh-title">freelancehub</span>
+  <span class="fh-slogan">Empowering Clients & Freelancers</span>
+</header>
+
+<div class="home-container">
+  <!-- app.component.html -->
+  <p-panel>
+    <ng-template pTemplate="header">
+<!--      <div class="fh-welcome-header">-->
+<!--        <i class="pi pi-star-fill fh-welcome-icon"></i>-->
+<!--        <span class="fh-welcome-title">Welcome to <span class="fh-highlight">freelancehub!</span></span>-->
+<!--      </div>-->
+<!--      <div class="fh-welcome-subtitle">-->
+<!--        Your journey to seamless collaboration starts here.-->
+<!--      </div>-->
+    </ng-template>
+    <div class="intro-section">
+      <h1>Boost Your Freelance Workflow</h1>
+      <p>Collaborate, manage, and succeed with our unique workspace canvas for clients and freelancers.</p>
+      <div class="cta-buttons">
+        <button pButton (click)="register()" type="button" label="Sign Up" class="p-button-success"></button>
+        <button pButton (click)="login()" type="button" label="Log In" class="p-button-secondary"></button>
+      </div>
+    </div>
+  </p-panel>
+
+
+  <div class="features-section">
+    <p-carousel [value]="features" [numVisible]="3" [circular]="true" [autoplayInterval]="4000">
+      <ng-template pTemplate="item" let-feature>
+        <p-card [header]="feature.title" [subheader]="feature.subtitle">
+          <p>{{ feature.description }}</p>
+        </p-card>
+      </ng-template>
+    </p-carousel>
+  </div>
+
+  <div class="demo-section">
+    <p-panel header="Workspace Preview">
+      <img src="assets/demo-workspace.png" alt="Workspace Canvas Demo" style="width:100%;max-width:600px;">
+    </p-panel>
+  </div>
+
+  <div class="info-section">
+    <p-panel header="Why freelancehub?">
+      <ul>
+        <li>Visual workspace with draggable project cards</li>
+        <li>Real-time collaboration tools</li>
+        <li>Personalized insights and quick actions</li>
+        <li>Secure, easy onboarding for clients and freelancers</li>
+      </ul>
+    </p-panel>
+  </div>
+</div>
+
+<footer class="fh-footer">
+  &copy; 2024 freelancehub. All rights reserved.
+</footer>

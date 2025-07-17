@@ -1,0 +1,257 @@
+///* app.component.css */
+//.home-container {
+//  max-width: 900px;
+//  margin: 0 auto;
+//  padding: 2rem;
+//}
+//.intro-section {
+//  text-align: center;
+//  margin-bottom: 2rem;
+//}
+//.cta-buttons button {
+//  margin: 0 0.5rem;
+//}
+//.features-section {
+//  margin: 2rem 0;
+//}
+//.demo-section {
+//  margin: 2rem 0;
+//  text-align: center;
+//}
+//.info-section {
+//  margin: 2rem 0;
+//}
+///* app.component.css */
+//.fh-welcome-header {
+//  display: flex;
+//  align-items: center;
+//  gap: 0.7rem;
+//  background: linear-gradient(90deg, #1976d2 60%, #43a047 100%);
+//  padding: 0.7rem 1rem;
+//  border-radius: 6px 6px 0 0;
+//}
+//
+//.fh-welcome-icon {
+//  font-size: 1.7rem;
+//  color: #fff700;
+//  text-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+//}
+//
+//.fh-welcome-title {
+//  font-size: 1.3rem;
+//  font-weight: 700;
+//  color: #fff;
+//  letter-spacing: 1px;
+//}
+//
+//.fh-highlight {
+//  color: #fff700;
+//}
+//
+//.fh-welcome-subtitle {
+//  font-size: 1rem;
+//  color: #1976d2;
+//  margin-top: 0.3rem;
+//  margin-left: 2.5rem;
+//  font-style: italic;
+//  font-weight: 500;
+//}
+///* app.component.css */
+//body, .home-container {
+//  background: #fff !important;
+//  font-family: 'Inter', 'Roboto', 'Open Sans', sans-serif;
+//}
+//
+//.fh-header {
+//  background: #1976d2;
+//  color: #fff;
+//  padding: 1.2rem 2rem;
+//  display: flex;
+//  align-items: center;
+//  gap: 1rem;
+//  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+//}
+//
+//.fh-logo {
+//  font-size: 2rem;
+//  color: #43a047;
+//}
+//
+//.fh-title {
+//  font-size: 1.7rem;
+//  font-weight: 700;
+//  letter-spacing: 1px;
+//}
+//
+//.fh-slogan {
+//  margin-left: 1.5rem;
+//  font-size: 1rem;
+//  font-weight: 400;
+//  opacity: 0.85;
+//}
+//
+//.home-container {
+//  max-width: 900px;
+//  margin: 2rem auto 0 auto;
+//  padding: 2rem;
+//}
+//
+//.p-panel, .p-card {
+//  background: #f5f7fa !important;
+//  border-radius: 8px;
+//}
+//
+//.intro-section {
+//  text-align: center;
+//  margin-bottom: 2rem;
+//}
+//
+//.cta-buttons button {
+//  margin: 0 0.5rem;
+//}
+//
+//.features-section {
+//  margin: 2rem 0;
+//}
+//
+//.demo-section {
+//  margin: 2rem 0;
+//  text-align: center;
+//}
+//
+//.info-section {
+//  margin: 2rem 0;
+//}
+//
+//.fh-footer {
+//  background: #f5f7fa;
+//  color: #222;
+//  text-align: center;
+//  padding: 1rem 0;
+//  font-size: 1rem;
+//  margin-top: 2rem;
+//  border-top: 1px solid #e0e3e8;
+//}
+
+/* app.component.css */
+body, .home-container {
+  background: #f9fafb !important;
+  font-family: 'Inter', 'Roboto', 'Open Sans', sans-serif;
+  color: #1f2937;
+}
+
+.fh-header {
+  background: linear-gradient(90deg, #2563eb 70%, #22d3ee 100%);
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+
+.fh-logo {
+  font-size: 2rem;
+  color: #22d3ee;
+}
+
+.fh-title {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.fh-slogan {
+  margin-left: 1.5rem;
+  font-size: 1rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.home-container {
+  max-width: 80vw;
+  margin: 2rem auto 0 auto;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(31, 41, 55, 0.06);
+  background: #fff;
+}
+
+.p-panel, .p-card {
+  background: #f3f4f6 !important;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(31, 41, 55, 0.04);
+  border: none;
+}
+
+.intro-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.cta-buttons button {
+  margin: 0 0.5rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.08);
+}
+
+.features-section,
+.demo-section,
+.info-section {
+  margin: 2rem 0;
+}
+
+.demo-section {
+  text-align: center;
+}
+
+.fh-footer {
+  background: #f3f4f6;
+  color: #6b7280;
+  text-align: center;
+  padding: 1rem 0;
+  font-size: 1rem;
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+
+/* Welcome panel header (from previous step) */
+.fh-welcome-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: linear-gradient(90deg, #2563eb 60%, #22d3ee 100%);
+  padding: 0.7rem 1rem;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.fh-welcome-icon {
+  font-size: 1.7rem;
+  color: #fde68a;
+  text-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+.fh-welcome-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.fh-highlight {
+  color: #fde68a;
+}
+
+.fh-welcome-subtitle {
+  font-size: 1rem;
+  color: #2563eb;
+  margin-top: 0.3rem;
+  margin-left: 2.5rem;
+  font-style: italic;
+  font-weight: 500;
+}

@@ -1,69 +1,83 @@
-<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-  <div>
-    <label for="username">Username</label>
-    <input id="username" formControlName="username" />
-    <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
-      <small *ngIf="registerForm.get('username')?.errors?.['required']">Username is required.</small>
-      <small *ngIf="registerForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters.</small>
-    </div>
-  </div>
+<!-- Centered full-page container -->
+<div class="flex justify-content-center align-items-center min-h-screen bg-gray-100">
+  <!-- Card -->
+  <div class="surface-card p-5 shadow-3 border-round w-full sm:w-30rem">
 
-  <div>
-    <label for="email">Email</label>
-    <input id="email" formControlName="email" />
-    <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-      <small *ngIf="registerForm.get('email')?.errors?.['required']">Email is required.</small>
-      <small *ngIf="registerForm.get('email')?.errors?.['email']">Invalid email format.</small>
-    </div>
-  </div>
+    <!-- Title -->
+    <h2 class="text-center mb-3 text-900 font-bold">Register</h2>
+<!--    <p class="text-center text-600 mb-4">Kindly fill in this form to register.</p>-->
 
-  <div>
-    <label for="password">Password</label>
-    <input id="password" type="password" formControlName="password" />
-    <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-      <small *ngIf="registerForm.get('password')?.errors?.['required']">Password is required.</small>
-      <small *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 8 characters.</small>
-    </div>
-  </div>
+    <!-- Form -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="p-fluid">
 
-  <div>
-    <label for="password_confirm">Confirm Password</label>
-    <input id="password_confirm" type="password" formControlName="password_confirm" />
-    <div *ngIf="registerForm.hasError('mismatch') && registerForm.get('password_confirm')?.touched">
-      <small>Passwords do not match.</small>
-    </div>
-  </div>
+      <!-- Username -->
+      <div class="field mb-3">
+        <label for="username" class="block text-900 mb-1">Username</label>
+        <input id="username" pInputText formControlName="username"  style="width: 100%" />
+        <p-message  variant="simple" size="small"  severity="error" *ngIf="registerForm.get('username')?.errors?.['required'] && registerForm.get('username')?.touched" text="Username is required."></p-message>
+        <p-message  variant="simple" size="small"  severity="error" *ngIf="registerForm.get('username')?.errors?.['minlength'] && registerForm.get('username')?.touched" text="Minimum 3 characters."></p-message>
+      </div>
 
-  <div>
-    <label for="user_type">User Type</label>
-    <select id="user_type" formControlName="user_type">
-      <option value="" disabled>Select a user type</option>
-      <option *ngFor="let type of userTypes" [value]="type">{{ type }}</option>
-    </select>
-    <div *ngIf="registerForm.get('user_type')?.invalid && registerForm.get('user_type')?.touched">
-      <small>User type is required.</small>
-    </div>
-  </div>
+      <!-- Email -->
+      <div class="field mb-3">
+        <label for="email" class="block text-900 mb-1">Email</label>
+        <input id="email" pInputText formControlName="email" style="width: 100%" />
+        <p-message  variant="simple" size="small"  severity="error" *ngIf="registerForm.get('email')?.errors?.['required'] && registerForm.get('email')?.touched" text="Email is required."></p-message>
+        <p-message  variant="simple" size="small"  severity="error" *ngIf="registerForm.get('email')?.errors?.['email'] && registerForm.get('email')?.touched" text="Invalid email format."></p-message>
+      </div>
 
-  <div>
-    <label for="bio">Bio</label>
-    <textarea id="bio" formControlName="bio"></textarea>
-    <div *ngIf="registerForm.get('bio')?.invalid && registerForm.get('bio')?.touched">
-      <small *ngIf="registerForm.get('bio')?.errors?.['required']">Bio is required.</small>
-      <small *ngIf="registerForm.get('bio')?.errors?.['maxlength']">Bio cannot exceed 500 characters.</small>
-    </div>
-  </div>
 
-  <div>
-    <label>Skills</label>
-    <div *ngFor="let skill of skillControls; let i = index">
-      <input [formControl]="skill" />
-      <button type="button" (click)="removeSkill(i)">Remove</button>
-    </div>
-    <input #newSkill />
-    <button type="button" (click)="addSkill(newSkill.value); newSkill.value = ''">Add Skill</button>
-  </div>
+      <!-- Password -->
+      <div class="field w-full">
+        <label for="password" class="block text-900 mb-1">Password</label>
+        <p-password id="password" formControlName="password"   inputStyleClass="w-full"   toggleMask  />
+        <p-message  variant="simple" size="small"  severity="error" *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched" text="Password is required."></p-message>
+        <p-message  variant="simple" size="small"   severity="error" *ngIf="registerForm.get('password')?.errors?.['minlength'] && registerForm.get('password')?.touched" text="Minimum 8 characters."></p-message>
+      </div>
 
-  <button type="submit" [disabled]="registerForm.invalid">Register</button>
-</form>
-test register
+      <!-- Confirm Password -->
+      <div class="field w-full">
+        <label for="password_confirm" class="block text-900 mb-1 "   >Confirm Password</label>
+        <p-password  id="password_confirm" formControlName="password_confirm" toggleMask inputStyleClass="w-full"/>
+        <p-message variant="simple" size="small" severity="error" *ngIf="registerForm.hasError('mismatch') && registerForm.get('password_confirm')?.touched" text="Passwords do not match."></p-message>
+      </div>
+
+      <!-- User Type -->
+      <div class="field mb-3">
+        <label for="user_type" class="block text-900 mb-1 w-full">User Type</label>
+        <p-dropdown id="user_type" [options]="userTypes" formControlName="user_type" placeholder="Select a user type" class="w-full" />
+        <p-message variant="simple" size="small" severity="error" *ngIf="registerForm.get('user_type')?.errors?.['required'] && registerForm.get('user_type')?.touched" text="User type is required."></p-message>
+      </div>
+
+      <!-- Bio -->
+      <div class="field mb-3">
+        <label for="bio" class="block text-900 mb-1">Bio</label>
+        <textarea id="bio" pInputTextarea rows="3" formControlName="bio" class="w-full"></textarea>
+        <p severity="error" variant="simple" size="small" *ngIf="registerForm.get('bio')?.errors?.['required'] && registerForm.get('bio')?.touched" text="Bio is required."></p>
+        <p severity="error" variant="simple" size="small" *ngIf="registerForm.get('bio')?.errors?.['maxlength'] && registerForm.get('bio')?.touched" text="Max 500 characters."></p>
+      </div>
+
+      <!-- Skills -->
+      <div class="field " >
+        <label class="block text-900 mb-1">Skills</label>
+        <div *ngFor="let skill of skillControls; let i = index" class="p-inputgroup mb-2">
+          <input [formControl]="skill" pInputText style="width: 90%" />
+          <button pButton type="button" icon="pi pi-times" class="p-button-danger" (click)="removeSkill(i)"></button>
+        </div>
+        <div class="p-inputgroup">
+          <input #newSkill pInputText placeholder="New Skill"  style="width: 90%"/>
+          <button pButton type="button" icon="pi pi-plus" class="p-button-success" (click)="addSkill(newSkill.value); newSkill.value = ''"></button>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button pButton type="submit" label="Register" [disabled]="registerForm.invalid" class="p-button p-button-primary w-full mt-3"></button>
+
+      <!-- Login Link -->
+      <p class="text-center text-sm mt-4">
+        Already have an account?
+        <a class="text-primary hover:underline cursor-pointer">Log in</a>
+      </p>
+    </form>
+  </div>
+</div>

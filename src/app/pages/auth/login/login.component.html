@@ -1,7 +1,40 @@
 <router-outlet />
-<p>login works!</p>
-    <form (ngSubmit)="onLogin()">
-      <input [(ngModel)]="email" name="email" required>
-      <input [(ngModel)]="password" name="password" type="password" required>
-      <button type="submit">Login</button>
+
+<!-- Centered full-page container -->
+<div class="flex justify-content-center align-items-center min-h-screen bg-gray-100">
+  <!-- Card -->
+  <div class="surface-card p-5 shadow-3 border-round w-full sm:w-30rem">
+
+    <!-- Title -->
+    <h2 class="text-center mb-3 text-900 font-bold">Login</h2>
+    <!--    <p class="text-center text-600 mb-4">Kindly fill in this form to register.</p>-->
+
+    <!-- Form -->
+    <form  (ngSubmit)="onLogin()" class="p-fluid">
+
+
+
+      <!-- Email -->
+      <div class="field mb-3">
+        <label for="email" class="block text-900 mb-1">Email</label>
+        <input id="email" pInputText [(ngModel)]="email" name="email" style="width: 100%" />
+      </div>
+
+
+      <!-- Password -->
+      <div class="field w-full">
+        <label for="password" class="block text-900 mb-1">Password</label>
+        <p-password id="password" [(ngModel)]="password" name="password" [feedback]="false" inputStyleClass="w-full"   toggleMask  />
+      </div>
+
+      <!-- Submit -->
+      <button pButton type="submit" label="Login" class="p-button p-button-primary w-full mt-3"></button>
+
+      <!-- Login Link -->
+      <p class="text-center text-sm mt-4">
+        Already have an account?
+        <a class="text-primary hover:underline cursor-pointer">Log in</a>
+      </p>
     </form>
+  </div>
+</div>

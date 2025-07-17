@@ -1,6 +1,7 @@
 import {Routes} from '@angular/router';
 import {LayoutComponent} from './layout/layout.component';
 import {OverviewComponent} from './overview/overview.component';
+import {ProjectComponent} from './project/project.component';
 
 export const dashboardRoutes: Routes = [
   {
@@ -8,7 +9,8 @@ export const dashboardRoutes: Routes = [
     component: LayoutComponent,
     children: [
       { path: 'overview', component: OverviewComponent },
-      { path: '', redirectTo: 'overview', pathMatch: 'full' }
+      { path: 'project', component: ProjectComponent },
+      { path: '', redirectTo: 'project', pathMatch: 'full' }
     ]
   }
 ]
