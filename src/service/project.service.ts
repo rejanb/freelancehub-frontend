@@ -33,6 +33,6 @@ export class ProjectService {
   }
 
   deleteProject(id: string): Observable<any> {
-    return this.api.delete<any>(`${this.baseUrl}/${id}`);
+    return this.api.delete<any>(`${this.baseUrl}${id}/`);
   }
 }

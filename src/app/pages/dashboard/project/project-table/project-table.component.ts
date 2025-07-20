@@ -9,13 +9,17 @@ import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {Router} from '@angular/router';
 import {ApiResponse} from '../../../../model/models';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {Toast} from 'primeng/toast';
+import {ConfirmDialog} from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-project-table',
   standalone: true,
-  imports: [CommonModule, TableModule, ButtonModule, InputTextModule, FormsModule, IconField, InputIcon],
+  imports: [CommonModule, TableModule, ButtonModule, InputTextModule, FormsModule, IconField, InputIcon, Toast, ConfirmDialog],
   templateUrl: './project-table.component.html',
-  styleUrl: './project-table.component.scss'
+  styleUrl: './project-table.component.scss',
+  providers: [ConfirmationService, MessageService]
 })
 export class ProjectTableComponent implements OnInit {
   projects: any[] = [];
@@ -25,7 +29,11 @@ export class ProjectTableComponent implements OnInit {
   rows = 12;
   loading = false;
 
-  constructor(private projectService: ProjectService, private router: Router) {}
+  constructor(private projectService: ProjectService,
+              private router: Router,
+              private confirmationService: ConfirmationService,
+              private messageService: MessageService
+  ) {}
 
   ngOnInit() {
     // Initial load
@@ -71,13 +79,16 @@ export class ProjectTableComponent implements OnInit {
   }
 
   onDelete(project: any) {
-    if (confirm('Are you sure you want to delete this project?')) {
       this.projectService.deleteProject(project.id).subscribe({
         next: () => {
+          this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'Record deleted' });
           this.loadProjects({ first: 0, rows: this.rows });
+        },
+        error: (error: any) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error?.detail || 'Failed to delete record' });
         }
       });
-    }
+
   }
 
   // PrimeNG lazy loading event for pagination, sorting, filtering
@@ -92,4 +103,37 @@ export class ProjectTableComponent implements OnInit {
     onAddProject() {
     this.router.navigate(['/dashboard/project/add'], { state: { header: 'Add' } });
   }
+
+
+
+  delete(event: Event, project: any) {
+    console.log(project)
+
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to delete this record?',
+      header: 'Are you sure?',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger',
+      },
+
+      accept: () => {
+        this.onDelete(project);
+
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+      },
+    });
+  }
+
+  protected readonly event = event;
 }
