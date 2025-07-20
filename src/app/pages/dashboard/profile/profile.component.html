@@ -1,0 +1,121 @@
+<div class="profile-container">
+  <p-card header="User Profile" class="w-full">
+    <!-- Success Message -->
+    <p-message *ngIf="successMessage" severity="success" [text]="successMessage" class="mb-3"></p-message>
+    
+    <!-- Error Message -->
+    <p-message *ngIf="errorMessage" severity="error" [text]="errorMessage" class="mb-3"></p-message>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="p-fluid">
+      <!-- Profile Picture Section -->
+      <div class="flex flex-column align-items-center mb-4">
+        <p-avatar 
+          [image]="currentUser?.profile_picture || 'https://via.placeholder.com/150'" 
+          size="xlarge" 
+          shape="circle"
+          class="mb-3">
+        </p-avatar>
+        
+        <p-fileUpload 
+          mode="basic" 
+          chooseLabel="Change Photo"
+          accept="image/*"
+          maxFileSize="1000000"
+          (onSelect)="onFileSelect($event)"
+          class="mb-3">
+        </p-fileUpload>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Basic Information -->
+      <div class="grid">
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="username">Username</label>
+            <input 
+              id="username" 
+              pInputText 
+              formControlName="username" 
+              [disabled]="isLoading"
+              placeholder="Enter your username" />
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <div class="field">
+            <label for="email">Email</label>
+            <input 
+              id="email" 
+              pInputText 
+              formControlName="email" 
+              [disabled]="isLoading"
+              placeholder="Enter your email" />
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="field">
+            <label for="bio">Bio</label>
+            <textarea 
+              id="bio" 
+              pTextarea 
+              formControlName="bio" 
+              rows="4"
+              [disabled]="isLoading"
+              placeholder="Tell us about yourself..."></textarea>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="field">
+            <label for="skills">Skills (comma-separated)</label>
+            <input 
+              id="skills" 
+              pInputText 
+              formControlName="skills" 
+              [disabled]="isLoading"
+              placeholder="e.g., JavaScript, Python, Design, Writing..." />
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 justify-content-end mt-4">
+        <button 
+          pButton 
+          type="button" 
+          label="Change Password" 
+          class="p-button-outlined"
+          (click)="onChangePassword()">
+        </button>
+        
+        <button 
+          pButton 
+          type="submit" 
+          [label]="isLoading ? 'Saving...' : 'Save Changes'" 
+          class="p-button-primary"
+          [disabled]="profileForm.invalid || isLoading"
+          [loading]="isLoading">
+        </button>
+      </div>
+    </form>
+
+    <p-divider></p-divider>
+
+    <!-- Danger Zone -->
+    <div class="danger-zone mt-4">
+      <h5 class="text-red-500">Danger Zone</h5>
+      <p class="text-sm text-600 mb-3">
+        Once you delete your account, there is no going back. Please be certain.
+      </p>
+      <button 
+        pButton 
+        type="button" 
+        label="Delete Account" 
+        class="p-button-danger p-button-outlined"
+        (click)="onDeleteAccount()">
+      </button>
+    </div>
+  </p-card>
+</div> 

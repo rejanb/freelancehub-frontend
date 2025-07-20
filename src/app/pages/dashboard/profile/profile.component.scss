@@ -1,0 +1,22 @@
+.profile-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.danger-zone {
+  border: 1px solid #f87171;
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: #fef2f2;
+}
+
+.field {
+  margin-bottom: 1rem;
+}
+
+.field label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+} 
