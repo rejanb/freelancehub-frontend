@@ -28,10 +28,9 @@ export class LoginComponent {
 
   onLogin() {
     this.auth.login(this.email, this.password).subscribe((res: any) => {
-      console.log('Login successful:', res);
-      console.log('User:', {name: res.user, type: res.user_type, email: res.email, id: res.id});
       this.token.setLocal(ApiConst.userKey,   {name: res.user, type: res.user_type, email: res.email, id: res.id});
-      this.token.setLocal(ApiConst.tokenKey, {refresh: res.refresh, access: res.access});
+      this.auth.setAccessToken(res.access);
+      this.auth.setRefreshToken(res.refresh);
       this.router.navigate(['dashboard']);
 
     });

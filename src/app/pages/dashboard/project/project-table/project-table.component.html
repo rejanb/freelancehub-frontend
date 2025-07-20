@@ -1,0 +1,93 @@
+
+<div class="card" style="padding-left: 20px;
+    padding-right: 10px;">
+  <p-table [value]="filteredProjects"
+           #dt2
+            [scrollable]="true"
+           scrollHeight="100vh"
+           [tableStyle]="{ 'min-width': '100rem' }"
+           [paginator]="true"
+           [rows]="rows"
+           [totalRecords]="totalRecords"
+           [rowsPerPageOptions]="[ 10, 20, 30 ]"
+           [lazy]="true"
+           (onLazyLoad)="onLazyLoad($event)"
+           [loading]="loading"
+           [styleClass]="'p-datatable-sm'"
+           >
+    <ng-template pTemplate="caption">
+      <div class="flex items-center justify-between" >
+        <span class="text-xl font-bold">Projects</span>
+      </div>
+
+        <div class="flex align-items-end" style="padding-top: 15px; padding-bottom: 15px" >
+          <p-button label="Add" icon="pi pi-plus" iconPos="right" size="small" (click)="onAddProject()" />
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              (input)="onSearch($event)"
+              placeholder="Search "
+            />
+<!--            (input)="dt2.filterGlobal($event.target?.value, 'contains')"-->
+          </p-iconfield>
+        </div>
+      </ng-template>
+    <ng-template pTemplate="header">
+            <tr>
+              <th>Title</th>
+              <th>Budget</th>
+              <th>Deadline</th>
+              <th>Client</th>
+              <th>Created </th>
+              <th>Updated </th>
+              <th>Status</th>
+              <th>Category</th>
+              <th>Location</th>
+              <th>Skills</th>
+              <th>Freelancer</th>
+              <th>Completed </th>
+              <th>Featured</th>
+              <th  class="stickh" >Actions</th>
+            </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-project>
+            <tr>
+              <td>{{ project.title }}</td>
+              <td>{{ project.budget }}</td>
+              <td>{{ project.deadline | date:'short' }}</td>
+              <td>{{ project.client?.username || project.client }}</td>
+              <td>{{ project.created_at | date:'short' }}</td>
+              <td>{{ project.updated_at | date:'short' }}</td>
+              <td>{{ project.status }}</td>
+              <td>{{ project.category?.name || project.category }}</td>
+              <td>{{ project.location }}</td>
+              <td>
+                <ng-container *ngIf="project.skills_required && project.skills_required.length; else noSkills">
+                  <span *ngFor="let skill of project.skills_required" class="skill">{{ skill }}</span>
+                </ng-container>
+                <ng-template #noSkills>-</ng-template>
+              </td>
+              <td>{{ project.selected_freelancer?.username || project.selected_freelancer || '-' }}</td>
+              <td>{{ project.completed_at ? (project.completed_at | date:'short') : '-' }}</td>
+              <td>{{ project.is_featured ? 'Yes' : 'No' }}</td>
+              <td   class="stick">
+                <div class="flex">
+                  <button pButton type="button" icon="pi pi-pencil" (click)="onUpdate(project)" class="p-button-sm p-button-text"></button>
+                  <button pButton type="button" icon="pi pi-trash" (click)="onDelete(project)" class="p-button-sm p-button-danger p-button-text"></button>
+                </div>
+
+              </td>
+            </tr>
+    </ng-template>
+    <ng-template pTemplate="empty">
+      <tr>
+        <td colspan="18" class="text-center">No data found</td>
+      </tr>
+    </ng-template>
+<!--    <ng-template pTemplate="footer"> In total there are {{ products ? products.length : 0 }} products. </ng-template>-->
+  </p-table>
+</div>

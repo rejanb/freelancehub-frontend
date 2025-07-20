@@ -1,7 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import "primeicons/primeicons.css";
 @import 'primeflex/primeflex.scss';
-//@import 'node_modules/primeflex/primeflex.css';
+
 
 html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
@@ -29,5 +29,55 @@ body {
 }
 
 .p-calender {
+display: block;
+}
+
+.p-datepicker{
+  display: block !important;
+}
+.w-full {
   width: 100%;
+}
+.form-container{
+  max-height: 100vh;
+  overflow-y: auto;
+  padding-right: 30px;
+  padding-left: 20px;
+  width: -webkit-fill-available;
+}
+.overlay-spinner {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.5);
+  z-index: 9999;
+}
+
+.user{
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.stick{
+  position: sticky;
+  right: 0;
+  background: aliceblue ;
+  border-left: 1px solid #c7bebe !important;
+}
+.stickh{
+  position: sticky;
+  right: 0;
+  z-index: 4;
+  background: aliceblue !important;
+  border-left: 1px solid #c7bebe !important;
+}
+.p-datatable-tbody > tr > td {
+  font-size: 14px !important;
+}
+.p-datatable-table-container {
+  height: auto !important;
 }

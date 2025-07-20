@@ -9,12 +9,14 @@ import {MenuModule} from 'primeng/menu';
 import {BadgeModule} from 'primeng/badge';
 import {AvatarModule} from 'primeng/avatar';
 import {MenuItem} from 'primeng/api';
-
+import { CommonModule } from '@angular/common';
+import { DrawerModule } from 'primeng/drawer'
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [
+  imports: [CommonModule,
     RouterOutlet,
+    DrawerModule,
     Menubar,MenuModule, BadgeModule, RippleModule, AvatarModule
   ],
   templateUrl: './layout.component.html',
@@ -25,6 +27,10 @@ export class LayoutComponent  implements OnInit {
 
   items: MenuItem[] | undefined;
 
+  isSidebarOpen: boolean = true;
+  sidebar = {
+
+  }
   ngOnInit() {
     this.items = [
       {
@@ -61,7 +67,11 @@ export class LayoutComponent  implements OnInit {
           {
             label: 'Logout',
             icon: 'pi pi-sign-out',
-            shortcut: '⌘+Q'
+            shortcut: '⌘+Q',
+            command: () => {
+              this.onLogout();
+            }
+
           }
         ]
       },
@@ -72,19 +82,23 @@ export class LayoutComponent  implements OnInit {
   }
 
   onLogout() {
-    const refresh = this.token.getToken().refresh;
+    const refresh = this.auth.getRefreshToken()
     if (refresh)  {
-      this.auth.logout(refresh).subscribe((res: any) => {
-        console.log('Logout successful:', res);
+      // this.auth.logout(refresh).subscribe((res: any) => {
+      //   console.log('Logout successful:', res);
         this.token.clearLocal(ApiConst.userKey);
-        this.token.clearLocal(ApiConst.tokenKey);
+        this.token.clearLocal(ApiConst.access);
+        this.token.clearLocal(ApiConst.refresh);
         this.router.navigate(['login']);
-      }, (error: any) => {
-        console.error('Logout failed:', error);
-      });
+      // }, (error: any) => {
+      //   console.error('Logout failed:', error);
+      // });
 
     }
 
   }
 
+  toggle() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
 }

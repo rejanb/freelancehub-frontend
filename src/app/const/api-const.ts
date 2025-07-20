@@ -5,6 +5,8 @@ export class ApiConst {
 
   static userKey: string = 'user';
   static tokenKey: string = 'auth';
+  static access: string = 'access';
+  static refresh: string = 'refresh';
 
 }
 

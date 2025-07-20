@@ -1,90 +1,10 @@
 <!--&lt;!&ndash; Centered full-page container for Project Form &ndash;&gt;-->
 <!--<div class="flex justify-content-center align-items-center min-h-screen bg-gray-100">-->
 <!--  &lt;!&ndash; Card &ndash;&gt;-->
-<!--  <div class="surface-card p-5 shadow-3 border-round w-full sm:w-30rem lg:w-6 xl:w-7">-->
-    <!-- Form -->
-<div style="max-height: 80vh; overflow-y: auto; padding-right: 10px;">
-  <h2 class="text-center mb-4 text-900 font-bold">Create / Edit Project</h2>
+<!--  <div class="surface-card p-5 shadow-3 border-round w-full sm:w-30rem lg:w-6 xl:w-11">-->
+<!--     Form-->
+<!-- <app-project-form></app-project-form> -->
+ <app-project-table/>
 
-  <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="p-fluid grid formgrid">
-
-    <div class="field col-12 ">
-      <label for="title">Title</label>
-      <input id="title" pInputText formControlName="title" style="width: 100%" />
-    </div>
-
-    <div class="field col-12">
-      <label for="description">Description</label>
-      <textarea id="description" pInputTextarea formControlName="description"  style="width: 100%"></textarea>
-    </div>
-
-    <div class="field col-12 md:col-4">
-      <label for="budget">Budget</label>
-      <input id="budget" pInputText type="number" formControlName="budget"  style="width: 100%"  />
-    </div>
-
-    <div class="field col-12 md:col-4 ">
-      <label for="deadline">Deadline</label>
-      <p-calendar id="deadline" formControlName="deadline"   inputStyleClass="w-full" ></p-calendar>
-    </div>
-
-    <div class="field col-12 md:col-4">
-      <label for="status">Status</label>
-      <p-dropdown id="status" [options]="statusOptions" formControlName="status"  inputStyleClass="w-full" > ></p-dropdown>
-    </div>
-
-    <div class="field col-12 md:col-6">
-      <label for="category">Category</label>
-      <p-dropdown id="category" [options]="categories" optionLabel="name" formControlName="category"  inputStyleClass="w-full" ></p-dropdown>
-    </div>
-
-    <div class="field col-12">
-      <label for="client">Client</label>
-      <p-dropdown id="client" [options]="clients" optionLabel="username" formControlName="client"  inputStyleClass="w-full" ></p-dropdown>
-    </div>
-
-    <div class="field col-12 md:col-6">
-      <label for="selected_freelancer">Selected Freelancer</label>
-      <p-dropdown id="selected_freelancer" [options]="freelancers" optionLabel="username" formControlName="selected_freelancer"></p-dropdown>
-    </div>
-
-    <div class="field col-12 md:col-6">
-      <label for="location">Location</label>
-      <input id="location" pInputText formControlName="location" />
-    </div>
-
-    <div class="field col-12 md:col-6">
-      <label for="tags">Tags (comma separated)</label>
-      <input id="tags" pInputText formControlName="tags" />
-    </div>
-
-    <div class="field col-12 md:col-6">
-      <label for="skills_required">Skills Required (comma separated)</label>
-      <input id="skills_required" pInputText formControlName="skills_required" />
-    </div>
-
-    <div class="field-checkbox col-12 md:col-4">
-      <p-checkbox formControlName="is_public" binary="true" inputId="is_public"></p-checkbox>
-      <label for="is_public">Public</label>
-    </div>
-
-    <div class="field-checkbox col-12 md:col-4">
-      <p-checkbox formControlName="is_featured" binary="true" inputId="is_featured"></p-checkbox>
-      <label for="is_featured">Featured</label>
-    </div>
-
-    <div class="field col-12 md:col-6">
-      <label for="attachments">Attachments</label>
-      <p-fileUpload name="attachments" customUpload="true" (uploadHandler)="onFileUpload($event)"></p-fileUpload>
-    </div>
-
-    <div class="field col-12 md:col-6" style="width: 100%">
-      <label for="completed_at">Completed At</label>
-      <p-calendar id="completed_at" formControlName="completed_at"  ></p-calendar>
-    </div>
-
-    <div class="col-12 mt-3">
-      <button pButton type="submit" label="Save Project" [disabled]="projectForm.invalid" class="w-full"></button>
-    </div>
-  </form>
-</div>
+<!--  </div>-->
+<!--  </div>-->

@@ -7,3 +7,10 @@ export interface RegisterFormData {
   bio: string;
   skills: string[];
 }
+
+export interface ApiResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}

@@ -8,6 +8,8 @@ import {CheckboxModule} from 'primeng/checkbox';
 import {FileUploadModule} from 'primeng/fileupload';
 import {ButtonModule} from 'primeng/button';
 import {PasswordModule} from 'primeng/password';
+import {FormComponent} from './form/form.component';
+import { ProjectTableComponent } from './project-table/project-table.component';
 
 @Component({
   selector: 'app-project',
@@ -15,7 +17,7 @@ import {PasswordModule} from 'primeng/password';
   imports: [
     FormsModule,
     ReactiveFormsModule,
-
+    ProjectTableComponent,
     // PrimeNG Modules
     InputTextModule,
     TextareaModule,
@@ -24,7 +26,9 @@ import {PasswordModule} from 'primeng/password';
     CheckboxModule,
     FileUploadModule,
     ButtonModule,
-    PasswordModule,],
+    PasswordModule,
+    FormComponent,
+  ],
   templateUrl: './project.component.html',
   styleUrl: './project.component.scss'
 })

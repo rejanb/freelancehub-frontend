@@ -32,7 +32,6 @@
               }
             ],
             "styles": [
-              "/node_modules/primeflex/primeflex.css",
               "primeflex/themes/primeone-light.css",
               "primeflex/themes/primeone-dark.css",
               "src/styles.scss"
@@ -94,7 +93,6 @@
               }
             ],
             "styles": [
-              "node_modules/@primeng/themes/aura/theme.css",
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeflex/primeflex.css",
               "src/styles.scss"
