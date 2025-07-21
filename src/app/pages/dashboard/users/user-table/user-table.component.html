@@ -1,0 +1,23 @@
+<table class="table-auto w-full border-collapse border border-gray-300">
+  <thead>
+    <tr class="bg-gray-100">
+      <th class="border px-4 py-2">ID</th>
+      <th class="border px-4 py-2">Username</th>
+      <th class="border px-4 py-2">Email</th>
+      <th class="border px-4 py-2">User Type</th>
+      <th class="border px-4 py-2">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let user of users">
+      <td class="border px-4 py-2">{{ user.id }}</td>
+      <td class="border px-4 py-2">{{ user.username }}</td>
+      <td class="border px-4 py-2">{{ user.email }}</td>
+      <td class="border px-4 py-2">{{ user.user_type }}</td>
+      <td class="border px-4 py-2 space-x-2">
+        <button (click)="onEdit(user)" class="p-button p-button-sm p-button-info">Edit</button>
+        <button (click)="onDelete(user)" class="p-button p-button-sm p-button-danger">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

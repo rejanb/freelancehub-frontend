@@ -1,0 +1,26 @@
+<table class="table-auto w-full border border-gray-300">
+  <thead class="bg-gray-100">
+    <tr>
+      <th class="px-4 py-2 border">User ID</th>
+      <th class="px-4 py-2 border">Contract ID</th>
+      <th class="px-4 py-2 border">Amount</th>
+      <th class="px-4 py-2 border">Status</th>
+      <th class="px-4 py-2 border">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let payment of payments">
+      <td class="px-4 py-2 border">{{ payment.userId }}</td>
+      <td class="px-4 py-2 border">{{ payment.contractId }}</td>
+      <td class="px-4 py-2 border">{{ payment.amount }}</td>
+      <td class="px-4 py-2 border">{{ payment.status }}</td>
+      <td class="px-4 py-2 border space-x-2">
+        <button class="p-button p-button-info" (click)="edit.emit(payment)">Edit</button>
+        <button class="p-button p-button-danger" (click)="deletePayment(payment.id)">Delete</button>
+      </td>
+    </tr>
+    <tr *ngIf="payments.length === 0">
+      <td colspan="5" class="text-center text-gray-500 py-4">No payments found.</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,35 @@
+<div class="p-4 space-y-6">
+
+  <form [formGroup]="jobForm" (ngSubmit)="onSubmit()" class="grid gap-4 md:grid-cols-2 bg-white p-4 rounded shadow">
+    <input type="text" placeholder="Title" formControlName="title" class="p-inputtext w-full" />
+    <textarea placeholder="Description" formControlName="description" class="p-inputtext w-full"></textarea>
+    <input type="number" placeholder="Budget" formControlName="budget" class="p-inputtext w-full" />
+    <input type="date" placeholder="Deadline" formControlName="deadline" class="p-inputtext w-full" />
+    <button type="submit" class="p-button p-button-success w-full">
+      {{ editingJobId ? 'Update' : 'Create' }}
+    </button>
+  </form>
+
+  <table class="table-auto w-full border border-gray-300">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border px-4 py-2">Title</th>
+        <th class="border px-4 py-2">Budget</th>
+        <th class="border px-4 py-2">Deadline</th>
+        <th class="border px-4 py-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let job of jobs" class="hover:bg-gray-50">
+        <td class="border px-4 py-2">{{ job.title }}</td>
+        <td class="border px-4 py-2">{{ job.budget }}</td>
+        <td class="border px-4 py-2">{{ job.deadline }}</td>
+        <td class="border px-4 py-2">
+          <button (click)="editJob(job)" class="p-button p-button-sm p-button-info">Edit</button>
+          <button (click)="deleteJob(job.id)" class="p-button p-button-sm p-button-danger">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

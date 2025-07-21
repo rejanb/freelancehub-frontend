@@ -1,0 +1,26 @@
+<table class="table-auto w-full border border-gray-300">
+  <thead class="bg-gray-100">
+    <tr>
+      <th class="px-4 py-2 border">Job ID</th>
+      <th class="px-4 py-2 border">User ID</th>
+      <th class="px-4 py-2 border">Budget</th>
+      <th class="px-4 py-2 border">Time</th>
+      <th class="px-4 py-2 border">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let proposal of proposals">
+      <td class="px-4 py-2 border">{{ proposal.jobId }}</td>
+      <td class="px-4 py-2 border">{{ proposal.userId }}</td>
+      <td class="px-4 py-2 border">{{ proposal.budgetOffer }}</td>
+      <td class="px-4 py-2 border">{{ proposal.estimatedTime }}</td>
+      <td class="px-4 py-2 border space-x-2">
+        <button class="p-button p-button-info" (click)="edit.emit(proposal)">Edit</button>
+        <button class="p-button p-button-danger" (click)="deleteProposal(proposal.id)">Delete</button>
+      </td>
+    </tr>
+    <tr *ngIf="proposals.length === 0">
+      <td colspan="5" class="text-center text-gray-500 py-4">No proposals available.</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,13 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="grid gap-4 md:grid-cols-2 bg-white p-4 rounded shadow">
+  <input type="text" placeholder="Title" formControlName="title" class="p-inputtext w-full" />
+  
+  <textarea placeholder="Description" formControlName="description" class="p-inputtext w-full"></textarea>
+  
+  <input type="number" placeholder="Budget" formControlName="budget" class="p-inputtext w-full" />
+  
+  <input type="date" placeholder="Deadline" formControlName="deadline" class="p-inputtext w-full" />
+  
+  <button type="submit" class="p-button p-button-success w-full">
+    {{ jobToEdit ? 'Update' : 'Create' }} Job
+  </button>
+</form>

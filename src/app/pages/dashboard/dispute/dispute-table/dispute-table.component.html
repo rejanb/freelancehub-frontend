@@ -1,0 +1,26 @@
+<table class="table-auto w-full border border-gray-300">
+  <thead class="bg-gray-100">
+    <tr>
+      <th class="px-4 py-2 border">User ID</th>
+      <th class="px-4 py-2 border">Payment ID</th>
+      <th class="px-4 py-2 border">Reason</th>
+      <th class="px-4 py-2 border">Status</th>
+      <th class="px-4 py-2 border">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let dispute of disputes">
+      <td class="px-4 py-2 border">{{ dispute.userId }}</td>
+      <td class="px-4 py-2 border">{{ dispute.paymentId }}</td>
+      <td class="px-4 py-2 border">{{ dispute.reason }}</td>
+      <td class="px-4 py-2 border">{{ dispute.status }}</td>
+      <td class="px-4 py-2 border space-x-2">
+        <button class="p-button p-button-info" (click)="edit.emit(dispute)">Edit</button>
+        <button class="p-button p-button-danger" (click)="deleteDispute(dispute.id)">Delete</button>
+      </td>
+    </tr>
+    <tr *ngIf="disputes.length === 0">
+      <td colspan="5" class="text-center text-gray-500 py-4">No disputes found.</td>
+    </tr>
+  </tbody>
+</table>

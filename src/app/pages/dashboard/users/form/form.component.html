@@ -1,0 +1,27 @@
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+    <div>
+        <label>Username</label>
+        <input formControlName="username" />
+    </div>
+    <div>
+        <label>Email</label>
+        <input formControlName="email" type="email" />
+    </div>
+    <div>
+        <label>Password</label>
+        <input formControlName="password" type="password" />
+    </div>
+    <div>
+        <label>User Type</label>
+        <input formControlName="user_type" />
+    </div>
+    <div>
+        <label>Bio</label>
+        <textarea formControlName="bio"></textarea>
+    </div>
+    <div>
+        <label>Skills</label>
+        <input formControlName="skills" />
+    </div>
+    <button type="submit" [disabled]="userForm.invalid">Save</button>
+</form>

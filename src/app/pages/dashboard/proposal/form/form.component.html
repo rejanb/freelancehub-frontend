@@ -1,0 +1,10 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="grid gap-4 bg-white p-4 rounded shadow">
+  <input type="text" placeholder="Job ID" formControlName="jobId" class="p-inputtext w-full" />
+  <input type="text" placeholder="User ID" formControlName="userId" class="p-inputtext w-full" />
+  <textarea placeholder="Cover Letter" formControlName="coverLetter" class="p-inputtext w-full"></textarea>
+  <input type="number" placeholder="Budget Offer" formControlName="budgetOffer" class="p-inputtext w-full" />
+  <input type="text" placeholder="Estimated Time" formControlName="estimatedTime" class="p-inputtext w-full" />
+  <button type="submit" class="p-button p-button-success w-full">
+    {{ proposalToEdit ? 'Update Proposal' : 'Submit Proposal' }}
+  </button>
+</form>

@@ -1,0 +1,26 @@
+<table class="table-auto w-full border border-gray-300">
+  <thead class="bg-gray-100">
+    <tr>
+      <th class="px-4 py-2 border">Title</th>
+      <th class="px-4 py-2 border">Budget</th>
+      <th class="px-4 py-2 border">Deadline</th>
+      <th class="px-4 py-2 border">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let job of jobs">
+      <td class="px-4 py-2 border">{{ job.title }}</td>
+      <td class="px-4 py-2 border">{{ job.budget }}</td>
+      <td class="px-4 py-2 border">{{ job.deadline | date }}</td>
+      <td class="px-4 py-2 border space-x-2">
+        <button class="p-button p-button-info" (click)="edit.emit(job)">Edit</button>
+        <button class="p-button p-button-danger" (click)="deleteJob(job.id)">Delete</button>
+      </td>
+    </tr>
+    <tr *ngIf="jobs.length === 0">
+      <td colspan="4" class="px-4 py-4 text-center text-gray-500 border">
+        No jobs available.
+      </td>
+    </tr>
+  </tbody>
+</table>

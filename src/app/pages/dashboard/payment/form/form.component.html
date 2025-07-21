@@ -1,0 +1,15 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="grid gap-4 bg-white p-4 rounded shadow">
+  <input type="text" placeholder="User ID" formControlName="userId" class="p-inputtext w-full" />
+  <input type="text" placeholder="Contract ID" formControlName="contractId" class="p-inputtext w-full" />
+  <input type="number" placeholder="Amount" formControlName="amount" class="p-inputtext w-full" />
+  <input type="text" placeholder="Payment Method" formControlName="method" class="p-inputtext w-full" />
+  <select formControlName="status" class="p-inputtext w-full">
+    <option value="pending">Pending</option>
+    <option value="completed">Completed</option>
+    <option value="refunded">Refunded</option>
+  </select>
+  <input type="datetime-local" formControlName="timestamp" class="p-inputtext w-full" />
+  <button type="submit" class="p-button p-button-success w-full">
+    {{ paymentToEdit ? 'Update Payment' : 'Add Payment' }}
+  </button>
+</form>
