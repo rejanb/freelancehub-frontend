@@ -1,5 +1,9 @@
 import { Routes } from '@angular/router';
 import { clientGuard } from '../../../guards/client.guard';
+import {JobListComponent} from './job-list/job-list.component';
+import {JobFormComponent} from './job-form/job-form.component';
+import {JobDetailComponent} from './job-detail/job-detail.component';
+import {JobProposalsComponent} from './job-proposals/job-proposals.component';
 
 export const jobsRoutes: Routes = [
   {
@@ -7,27 +11,27 @@ export const jobsRoutes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./job-list/job-list.component').then(m => m.JobListComponent)
+        component: JobListComponent
       },
       {
-        path: 'create',
-        loadComponent: () => import('./job-form/job-form.component').then(m => m.JobFormComponent),
-        canActivate: [clientGuard]
+        path: 'add',
+        component: JobFormComponent,
+        // canActivate: [clientGuard]
       },
       {
         path: 'edit/:id',
-        loadComponent: () => import('./job-form/job-form.component').then(m => m.JobFormComponent),
-        canActivate: [clientGuard]
+        component: JobFormComponent,
+        // canActivate: [clientGuard]
       },
       {
         path: ':id',
-        loadComponent: () => import('./job-detail/job-detail.component').then(m => m.JobDetailComponent)
+        component:JobDetailComponent,
       },
       {
         path: ':id/proposals',
-        loadComponent: () => import('./job-proposals/job-proposals.component').then(m => m.JobProposalsComponent),
-        canActivate: [clientGuard]
+        component: JobProposalsComponent,
+        // canActivate: [clientGuard]
       }
     ]
   }
-]; 
+];

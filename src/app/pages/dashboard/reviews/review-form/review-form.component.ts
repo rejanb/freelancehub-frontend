@@ -30,9 +30,9 @@ import { ReviewService, Review } from '../../../../../service/review.service';
         <p-card>
           <div class="flex justify-content-between align-items-center mb-4">
             <h2 class="m-0">Write a Review</h2>
-            <button 
-              pButton 
-              icon="pi pi-arrow-left" 
+            <button
+              pButton
+              icon="pi pi-arrow-left"
               label="Back"
               class="p-button-text"
               routerLink="/dashboard/reviews">
@@ -43,13 +43,13 @@ import { ReviewService, Review } from '../../../../../service/review.service';
             <!-- Overall Rating -->
             <div class="field">
               <label class="block font-bold mb-2">Overall Rating *</label>
-              <p-rating 
+              <p-rating
                 formControlName="rating"
-                [cancel]="false"
+
                 [stars]="5">
               </p-rating>
-              <small 
-                class="p-error" 
+              <small
+                class="p-error"
                 *ngIf="reviewForm.get('rating')?.invalid && reviewForm.get('rating')?.touched">
                 Overall rating is required
               </small>
@@ -58,16 +58,16 @@ import { ReviewService, Review } from '../../../../../service/review.service';
             <!-- Review Text -->
             <div class="field">
               <label class="block font-bold mb-2">Review *</label>
-              <textarea 
-                pInputTextarea 
+              <textarea
+                pInputTextarea
                 formControlName="review_text"
                 [rows]="5"
                 [autoResize]="true"
                 placeholder="Share your experience..."
                 [class.ng-invalid]="reviewForm.get('review_text')?.invalid && reviewForm.get('review_text')?.touched">
               </textarea>
-              <small 
-                class="p-error" 
+              <small
+                class="p-error"
                 *ngIf="reviewForm.get('review_text')?.invalid && reviewForm.get('review_text')?.touched">
                 Review text is required (minimum 20 characters)
               </small>
@@ -77,13 +77,13 @@ import { ReviewService, Review } from '../../../../../service/review.service';
             <div class="grid">
               <div class="col-12 md:col-6 field">
                 <label class="block font-bold mb-2">Communication *</label>
-                <p-rating 
+                <p-rating
                   formControlName="communication_rating"
-                  [cancel]="false"
+
                   [stars]="5">
                 </p-rating>
-                <small 
-                  class="p-error" 
+                <small
+                  class="p-error"
                   *ngIf="reviewForm.get('communication_rating')?.invalid && reviewForm.get('communication_rating')?.touched">
                   Communication rating is required
                 </small>
@@ -91,13 +91,13 @@ import { ReviewService, Review } from '../../../../../service/review.service';
 
               <div class="col-12 md:col-6 field">
                 <label class="block font-bold mb-2">Quality *</label>
-                <p-rating 
+                <p-rating
                   formControlName="quality_rating"
-                  [cancel]="false"
+
                   [stars]="5">
                 </p-rating>
-                <small 
-                  class="p-error" 
+                <small
+                  class="p-error"
                   *ngIf="reviewForm.get('quality_rating')?.invalid && reviewForm.get('quality_rating')?.touched">
                   Quality rating is required
                 </small>
@@ -105,13 +105,13 @@ import { ReviewService, Review } from '../../../../../service/review.service';
 
               <div class="col-12 md:col-6 field">
                 <label class="block font-bold mb-2">Timeliness *</label>
-                <p-rating 
+                <p-rating
                   formControlName="timeliness_rating"
-                  [cancel]="false"
+
                   [stars]="5">
                 </p-rating>
-                <small 
-                  class="p-error" 
+                <small
+                  class="p-error"
                   *ngIf="reviewForm.get('timeliness_rating')?.invalid && reviewForm.get('timeliness_rating')?.touched">
                   Timeliness rating is required
                 </small>
@@ -119,13 +119,13 @@ import { ReviewService, Review } from '../../../../../service/review.service';
 
               <div class="col-12 md:col-6 field">
                 <label class="block font-bold mb-2">Professionalism *</label>
-                <p-rating 
+                <p-rating
                   formControlName="professionalism_rating"
-                  [cancel]="false"
+
                   [stars]="5">
                 </p-rating>
-                <small 
-                  class="p-error" 
+                <small
+                  class="p-error"
                   *ngIf="reviewForm.get('professionalism_rating')?.invalid && reviewForm.get('professionalism_rating')?.touched">
                   Professionalism rating is required
                 </small>
@@ -145,9 +145,9 @@ import { ReviewService, Review } from '../../../../../service/review.service';
             </div>
 
             <!-- Submit Button -->
-            <button 
-              pButton 
-              type="submit" 
+            <button
+              pButton
+              type="submit"
               label="Submit Review"
               [loading]="loading"
               [disabled]="reviewForm.invalid || loading">
@@ -269,4 +269,4 @@ export class ReviewFormComponent implements OnInit {
       });
     }
   }
-} 
+}

@@ -1,23 +1,21 @@
-import {CanActivateFn, Router} from '@angular/router';
-import {inject} from '@angular/core';
-import {TokenService} from '../utils/token.service';
+import { CanActivateFn, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { TokenService } from '../utils/token.service';
+import { RouteConst } from '../const/api-const';
 
 export const loginGuard: CanActivateFn = (route, state) => {
+  const tokenService = inject(TokenService);
+  const router = inject(Router);
 
-  const token= inject(TokenService)
-  const router= inject(Router)
-  const currentUser = token.getCurrentUser();
-  const tokens = token.getToken();
-  console.log('yo')
-  if(!tokens){
-    return true
-  }
-  if(currentUser.type =='caller'){
-    router.navigateByUrl('/dashboard');
-  }else{
-    router.navigate(['dashboard']);
-    // this.router.navigateByUrl('/leads/student-list');
-  }
-  return true;
+  const currentUser = tokenService.getCurrentUser();
+  const accessToken = localStorage.getItem('access');
 
+  // If user is not authenticated, allow access to login page
+  if (!currentUser || !accessToken) {
+    return true;
+  }
+
+  // If user is already authenticated, redirect to dashboard
+  router.navigateByUrl(RouteConst.DASHBOARD);
+  return false;
 };

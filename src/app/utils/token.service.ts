@@ -71,4 +71,27 @@ export class TokenService {
   getToken(): any {
     return this.getLocal(ApiConst.tokenKey);
   }
+
+  /**
+   * Get the current user's role
+   */
+  getUserRole(): string {
+    const user = this.getCurrentUser();
+    return user?.type || '';
+  }
+
+  /**
+   * Get the current user's ID
+   */
+  getUserId(): number {
+    const user = this.getCurrentUser();
+    return user?.id || null;
+  }
+
+  /**
+   * Check if user is logged in
+   */
+  isLoggedIn(): boolean {
+    return !!this.getToken();
+  }
 }

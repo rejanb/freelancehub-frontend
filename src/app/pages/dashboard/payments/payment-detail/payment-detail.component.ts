@@ -30,16 +30,16 @@ import { Payment } from '../../../../model/models';
           <p class="text-500 mt-2 mb-0">Transaction #{{ payment.id }}</p>
         </div>
         <div class="flex gap-2">
-          <button 
-            pButton 
-            icon="pi pi-arrow-left" 
+          <button
+            pButton
+            icon="pi pi-arrow-left"
             label="Back"
             class="p-button-text"
             routerLink="/dashboard/payments">
           </button>
-          <button 
-            pButton 
-            icon="pi pi-download" 
+          <button
+            pButton
+            icon="pi pi-download"
             label="Download Receipt"
             (click)="downloadReceipt()">
           </button>
@@ -59,7 +59,7 @@ import { Payment } from '../../../../model/models';
 
                 <div class="mb-3">
                   <label class="block font-bold mb-2">Status</label>
-                  <p-tag 
+                  <p-tag
                     [value]="payment.status"
                     [severity]="getStatusSeverity(payment.status)">
                   </p-tag>
@@ -110,12 +110,12 @@ import { Payment } from '../../../../model/models';
             <div class="mb-4" *ngIf="payment.contract">
               <h3>Contract Details</h3>
               <div class="flex align-items-center gap-2">
-                <a 
+                <a
                   [routerLink]="['/dashboard/contracts', payment.contract.id]"
                   class="text-primary hover:underline">
                   {{ payment.contract.proposal?.job?.title }}
                 </a>
-                <p-tag 
+                <p-tag
                   [value]="payment.contract.status"
                   [severity]="getContractStatusSeverity(payment.contract.status)">
                 </p-tag>
@@ -128,7 +128,7 @@ import { Payment } from '../../../../model/models';
               <p>{{ payment.milestone.description }}</p>
               <div class="flex align-items-center gap-3 mt-3">
                 <span>Amount: {{ payment.milestone.amount | currency }}</span>
-                <p-tag 
+                <p-tag
                   [value]="payment.milestone.status"
                   [severity]="getMilestoneStatusSeverity(payment.milestone.status)">
                 </p-tag>
@@ -158,7 +158,9 @@ import { Payment } from '../../../../model/models';
   `
 })
 export class PaymentDetailComponent implements OnInit {
-  payment: Payment | null = null;
+  payment: any | null = null;
+  // payment: Payment | null = null;
+
   loading = false;
 
   constructor(
@@ -215,7 +217,7 @@ export class PaymentDetailComponent implements OnInit {
     });
   }
 
-  getStatusSeverity(status: string): string {
+  getStatusSeverity(status: string): any {
     switch (status) {
       case 'completed':
         return 'success';
@@ -228,7 +230,7 @@ export class PaymentDetailComponent implements OnInit {
     }
   }
 
-  getContractStatusSeverity(status: string): string {
+  getContractStatusSeverity(status: string): any {
     switch (status) {
       case 'active':
         return 'success';
@@ -241,7 +243,7 @@ export class PaymentDetailComponent implements OnInit {
     }
   }
 
-  getMilestoneStatusSeverity(status: string): string {
+  getMilestoneStatusSeverity(status: string): any {
     switch (status) {
       case 'completed':
         return 'success';
@@ -255,4 +257,4 @@ export class PaymentDetailComponent implements OnInit {
         return 'info';
     }
   }
-} 
+}

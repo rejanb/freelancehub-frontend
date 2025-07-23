@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {
   AbstractControl,
-  FormArray,
-  FormBuilder, FormControl,
+  FormBuilder,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
@@ -46,40 +45,20 @@ export class RegisterComponent {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
       password_confirm: ['', [Validators.required]],
-      user_type: ['', [Validators.required]],
-      bio: ['', [Validators.required, Validators.maxLength(500)]],
-      skills: this.fb.array([])
-    }, { validators: this.passwordMatchValidator }); // ✅ Apply form-level validator
+      user_type: ['', [Validators.required]]
+    }, { validators: this.passwordMatchValidator });
   }
 
 
   passwordMatchValidator: ValidatorFn = (control: AbstractControl) => {
-    const group = control as FormGroup; // Cast AbstractControl to FormGroup
+    const group = control as FormGroup;
     const password = group.get('password')?.value;
     const confirm = group.get('password_confirm')?.value;
     return password === confirm ? null : { mismatch: true };
   };
 
-  // Getter for FormArray
-  get skills(): FormArray {
-    return this.registerForm.get('skills') as FormArray;
-  }
-
-  addSkill(skill: string) {
-    if (skill) {
-      this.skills.push(this.fb.control(skill, Validators.required));
-    }
-  }
-
-  removeSkill(index: number) {
-    this.skills.removeAt(index);
-  }
-
-  get skillControls(): FormControl[] {
-    return this.skills.controls as FormControl[];
-  }
-
   onSubmit() {
+    this.authService.logout();
     if (this.registerForm.valid) {
       this.authService.register(this.registerForm.value).subscribe(
         (response) => {

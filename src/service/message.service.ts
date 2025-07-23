@@ -1,30 +1,47 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { ApiConst } from '../app/const/api-const';
 import { ApiResponse } from '../app/model/models';
 
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+}
+
 export interface Message {
   id: number;
-  sender: number;
-  receiver: number;
+  sender: User;
   content: string;
-  attachment?: string;
-  attachment_type?: string;
-  attachment_name?: string;
+  attachment?: {
+    name: string;
+    size: number;
+    type: string;
+    url: string;
+  };
+  message_type: 'text' | 'image' | 'file';
   is_read: boolean;
+  read_by: number[];
   created_at: string;
   updated_at: string;
+  chat_room: number;
 }
 
 export interface ChatRoom {
   id: number;
-  participants: number[];
+  name?: string;
+  participants: User[];
+  is_group: boolean;
   last_message?: Message;
   unread_count: number;
   created_at: string;
   updated_at: string;
+  related_job?: number;
+  related_contract?: number;
 }
 
 export interface MessageFilters {
@@ -36,77 +53,213 @@ export interface MessageFilters {
   page_size?: number;
 }
 
+export interface TypingIndicator {
+  user_id: number;
+  username: string;
+  is_typing: boolean;
+}
+
+export interface WebSocketMessage {
+  type: 'chat_message' | 'typing_indicator' | 'user_joined' | 'user_left';
+  message?: Message;
+  user_id?: number;
+  username?: string;
+  is_typing?: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class MessageService {
-  private baseUrl = `${ApiConst.API_URL}messages/`;
-  private wsUrl = ApiConst.WS_URL;
+  private chatRoomsUrl = `${ApiConst.API_URL}chats/api/chatrooms/`;
+  private messagesUrl = `${ApiConst.API_URL}chats/api/messages/`;
+  private wsUrl = 'ws://localhost:8000/ws/chat/';
+  
   private socket$?: WebSocketSubject<any>;
   private messagesSubject = new BehaviorSubject<Message[]>([]);
+  private chatRoomsSubject = new BehaviorSubject<ChatRoom[]>([]);
   private unreadCountSubject = new BehaviorSubject<number>(0);
-
+  private typingSubject = new Subject<TypingIndicator>();
+  private onlineUsersSubject = new BehaviorSubject<number[]>([]);
+  
   messages$ = this.messagesSubject.asObservable();
+  chatRooms$ = this.chatRoomsSubject.asObservable();
   unreadCount$ = this.unreadCountSubject.asObservable();
+  typing$ = this.typingSubject.asObservable();
+  onlineUsers$ = this.onlineUsersSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  private currentChatRoomId?: number;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+
+  constructor(private http: HttpClient) {
+    this.loadUnreadCount();
+  }
 
   /**
    * Connect to WebSocket for real-time messaging
    */
-  connectWebSocket(userId: number, token: string) {
-    if (!this.socket$ || this.socket$.closed) {
-      this.socket$ = webSocket({
-        url: `${this.wsUrl}chat/?token=${token}&user_id=${userId}`,
-        deserializer: msg => JSON.parse(msg.data),
-        serializer: msg => JSON.stringify(msg)
-      });
+  connectToRoom(chatRoomId: number, token?: string): void {
+    this.currentChatRoomId = chatRoomId;
+    this.disconnectWebSocket();
 
-      this.socket$.subscribe({
-        next: (message) => {
-          if (message.type === 'message') {
-            const messages = this.messagesSubject.value;
-            messages.push(message.data);
-            this.messagesSubject.next(messages);
-            
-            if (!message.data.is_read) {
-              this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
-            }
-          }
-        },
-        error: (error) => {
-          console.error('WebSocket error:', error);
-          // Attempt to reconnect after 5 seconds
-          setTimeout(() => this.connectWebSocket(userId, token), 5000);
+    const wsUrl = `${this.wsUrl}${chatRoomId}/`;
+    
+    this.socket$ = webSocket({
+      url: wsUrl,
+      openObserver: {
+        next: () => {
+          console.log('Connected to chat room', chatRoomId);
+          this.reconnectAttempts = 0;
         }
-      });
+      },
+      closeObserver: {
+        next: () => {
+          console.log('Disconnected from chat room', chatRoomId);
+          this.handleReconnection();
+        }
+      }
+    });
+
+    this.socket$.subscribe({
+      next: (wsMessage: WebSocketMessage) => {
+        this.handleWebSocketMessage(wsMessage);
+      },
+      error: (error) => {
+        console.error('WebSocket error:', error);
+        this.handleReconnection();
+      }
+    });
+  }
+
+  /**
+   * Handle incoming WebSocket messages
+   */
+  private handleWebSocketMessage(wsMessage: WebSocketMessage): void {
+    switch (wsMessage.type) {
+      case 'chat_message':
+        if (wsMessage.message) {
+          this.addNewMessage(wsMessage.message);
+        }
+        break;
+      
+      case 'typing_indicator':
+        if (wsMessage.user_id && wsMessage.username !== undefined && wsMessage.is_typing !== undefined) {
+          this.typingSubject.next({
+            user_id: wsMessage.user_id,
+            username: wsMessage.username,
+            is_typing: wsMessage.is_typing
+          });
+        }
+        break;
+      
+      case 'user_joined':
+        if (wsMessage.user_id) {
+          const onlineUsers = this.onlineUsersSubject.value;
+          if (!onlineUsers.includes(wsMessage.user_id)) {
+            this.onlineUsersSubject.next([...onlineUsers, wsMessage.user_id]);
+          }
+        }
+        break;
+      
+      case 'user_left':
+        if (wsMessage.user_id) {
+          const onlineUsers = this.onlineUsersSubject.value;
+          this.onlineUsersSubject.next(onlineUsers.filter(id => id !== wsMessage.user_id));
+        }
+        break;
     }
+  }
+
+  /**
+   * Handle WebSocket reconnection
+   */
+  private handleReconnection(): void {
+    if (this.reconnectAttempts < this.maxReconnectAttempts && this.currentChatRoomId) {
+      this.reconnectAttempts++;
+      const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+      
+      setTimeout(() => {
+        console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+        this.connectToRoom(this.currentChatRoomId!);
+      }, delay);
+    }
+  }
+
+  /**
+   * Add new message to the current messages list
+   */
+  private addNewMessage(message: Message): void {
+    const currentMessages = this.messagesSubject.value;
+    
+    // Check if message already exists (prevent duplicates)
+    if (!currentMessages.find(m => m.id === message.id)) {
+      this.messagesSubject.next([...currentMessages, message]);
+      
+      // Update unread count if it's not from current user
+      if (!message.read_by.includes(this.getCurrentUserId())) {
+        this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
+      }
+      
+      // Update chat rooms list
+      this.updateChatRoomLastMessage(message);
+    }
+  }
+
+  /**
+   * Update chat room with new last message
+   */
+  private updateChatRoomLastMessage(message: Message): void {
+    const chatRooms = this.chatRoomsSubject.value;
+    const updatedRooms = chatRooms.map(room => {
+      if (room.id === message.chat_room) {
+        return {
+          ...room,
+          last_message: message,
+          updated_at: message.created_at
+        };
+      }
+      return room;
+    });
+    this.chatRoomsSubject.next(updatedRooms);
   }
 
   /**
    * Disconnect WebSocket
    */
-  disconnectWebSocket() {
-    if (this.socket$) {
+  disconnectWebSocket(): void {
+    if (this.socket$ && !this.socket$.closed) {
       this.socket$.complete();
     }
   }
 
   /**
-   * Send message through WebSocket
+   * Send message through WebSocket and API
    */
   sendMessage(chatRoomId: number, content: string, attachment?: File): Observable<Message> {
     if (attachment) {
       const formData = new FormData();
-      formData.append('chat_room', chatRoomId.toString());
+      formData.append('chat_room_id', chatRoomId.toString());
       formData.append('content', content);
       formData.append('attachment', attachment);
 
-      return this.http.post<Message>(`${this.baseUrl}send/`, formData);
+      return this.http.post<Message>(`${this.messagesUrl}send/`, formData);
     } else {
-      return this.http.post<Message>(`${this.baseUrl}send/`, {
-        chat_room: chatRoomId,
+      return this.http.post<Message>(`${this.messagesUrl}send/`, {
+        chat_room_id: chatRoomId,
         content
+      });
+    }
+  }
+
+  /**
+   * Send typing indicator
+   */
+  sendTypingIndicator(isTyping: boolean): void {
+    if (this.socket$ && !this.socket$.closed) {
+      this.socket$.next({
+        type: 'typing',
+        is_typing: isTyping
       });
     }
   }
@@ -114,63 +267,77 @@ export class MessageService {
   /**
    * Get chat rooms for current user
    */
-  getChatRooms(): Observable<ApiResponse<ChatRoom>> {
-    return this.http.get<ApiResponse<ChatRoom>>(`${this.baseUrl}rooms/`);
+  getChatRooms(): Observable<ChatRoom[]> {
+    return this.http.get<ChatRoom[]>(this.chatRoomsUrl);
   }
 
   /**
    * Get or create chat room with user
    */
-  getChatRoomWithUser(userId: number): Observable<ChatRoom> {
-    return this.http.post<ChatRoom>(`${this.baseUrl}rooms/`, {
-      participant_id: userId
+  getOrCreateChatRoomWithUser(userId: number): Observable<ChatRoom> {
+    return this.http.post<ChatRoom>(`${this.chatRoomsUrl}get_or_create_with_user/`, {
+      user_id: userId
     });
   }
 
   /**
    * Get messages for a chat room
    */
-  getMessages(filters: MessageFilters): Observable<ApiResponse<Message>> {
-    let params = new HttpParams();
-    
-    if (filters) {
-      Object.keys(filters).forEach(key => {
-        const value = filters[key as keyof MessageFilters];
-        if (value !== undefined && value !== null) {
-          params = params.set(key, value.toString());
-        }
-      });
-    }
+  getRoomMessages(chatRoomId: number, page: number = 1): Observable<ApiResponse<Message>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('page_size', '50');
 
-    return this.http.get<ApiResponse<Message>>(`${this.baseUrl}`, { params });
+    return this.http.get<ApiResponse<Message>>(`${this.chatRoomsUrl}${chatRoomId}/messages/`, { params });
   }
 
   /**
-   * Mark messages as read
+   * Mark chat room as read
    */
-  markAsRead(chatRoomId: number): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}rooms/${chatRoomId}/read/`, {});
+  markRoomAsRead(chatRoomId: number): Observable<void> {
+    return this.http.post<void>(`${this.chatRoomsUrl}${chatRoomId}/mark_as_read/`, {});
+  }
+
+  /**
+   * Mark specific message as read
+   */
+  markMessageAsRead(messageId: number): Observable<void> {
+    return this.http.post<void>(`${this.messagesUrl}${messageId}/mark_read/`, {});
   }
 
   /**
    * Delete message
    */
   deleteMessage(messageId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}${messageId}/`);
+    return this.http.delete<void>(`${this.messagesUrl}${messageId}/`);
   }
 
   /**
    * Get unread message count
    */
   getUnreadCount(): Observable<{ count: number }> {
-    return this.http.get<{ count: number }>(`${this.baseUrl}unread/`);
+    return this.http.get<{ count: number }>(`${this.messagesUrl}unread_count/`);
+  }
+
+  /**
+   * Load unread count and update subject
+   */
+  loadUnreadCount(): void {
+    this.getUnreadCount().subscribe({
+      next: (response) => {
+        this.unreadCountSubject.next(response.count);
+      },
+      error: (error) => {
+        console.error('Error loading unread count:', error);
+      }
+    });
   }
 
   /**
    * Download message attachment
    */
   downloadAttachment(messageId: number): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}${messageId}/attachment/`, {
+    return this.http.get(`${this.messagesUrl}${messageId}/download/`, {
       responseType: 'blob'
     });
   }
@@ -179,8 +346,37 @@ export class MessageService {
    * Search messages
    */
   searchMessages(query: string): Observable<ApiResponse<Message>> {
-    return this.http.get<ApiResponse<Message>>(`${this.baseUrl}search/`, {
-      params: { q: query }
-    });
+    const params = new HttpParams().set('q', query);
+    return this.http.get<ApiResponse<Message>>(`${this.messagesUrl}search/`, { params });
   }
-} 
+
+  /**
+   * Update messages list
+   */
+  setMessages(messages: Message[]): void {
+    this.messagesSubject.next(messages);
+  }
+
+  /**
+   * Update chat rooms list
+   */
+  setChatRooms(chatRooms: ChatRoom[]): void {
+    this.chatRoomsSubject.next(chatRooms);
+  }
+
+  /**
+   * Get current user ID (you'll need to implement this based on your auth service)
+   */
+  private getCurrentUserId(): number {
+    // This should be implemented based on your authentication service
+    // For now, returning 0 as placeholder
+    return 0;
+  }
+
+  /**
+   * Clean up on service destruction
+   */
+  ngOnDestroy(): void {
+    this.disconnectWebSocket();
+  }
+}

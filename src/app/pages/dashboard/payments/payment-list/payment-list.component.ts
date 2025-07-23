@@ -67,9 +67,9 @@ interface PaymentListFilters {
           </div>
 
           <div *ngIf="!isClient" class="mt-4">
-            <button 
-              pButton 
-              label="Withdraw Funds" 
+            <button
+              pButton
+              label="Withdraw Funds"
               icon="pi pi-money-bill"
               routerLink="withdraw"
               [disabled]="!stats?.available_balance">
@@ -80,9 +80,9 @@ interface PaymentListFilters {
         <!-- Monthly Chart -->
         <p-card class="mt-4">
           <h3>Monthly {{ isClient ? 'Spending' : 'Earnings' }}</h3>
-          <p-chart 
-            type="bar" 
-            [data]="chartData" 
+          <p-chart
+            type="bar"
+            [data]="chartData"
             [options]="chartOptions">
           </p-chart>
         </p-card>
@@ -162,17 +162,17 @@ interface PaymentListFilters {
 
         <!-- Payments Table -->
         <p-card class="mt-4">
-          <p-table 
-            [value]="payments" 
+          <p-table
+            [value]="payments"
             [loading]="loading"
-            [paginator]="true" 
+            [paginator]="true"
             [rows]="10"
             [showCurrentPageReport]="true"
             [totalRecords]="totalRecords"
             [rowsPerPageOptions]="[10, 25, 50]"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} payments"
             (onPage)="onPageChange($event)">
-            
+
             <ng-template pTemplate="header">
               <tr>
                 <th>ID</th>
@@ -187,7 +187,7 @@ interface PaymentListFilters {
             <ng-template pTemplate="body" let-payment>
               <tr>
                 <td>
-                  <a 
+                  <a
                     [routerLink]="['/dashboard/payments', payment.id]"
                     class="text-primary hover:underline">
                     #{{ payment.id }}
@@ -198,7 +198,7 @@ interface PaymentListFilters {
                 </td>
                 <td>{{ payment.amount | currency }}</td>
                 <td>
-                  <p-tag 
+                  <p-tag
                     [value]="payment.status"
                     [severity]="getStatusSeverity(payment.status)">
                   </p-tag>
@@ -206,16 +206,16 @@ interface PaymentListFilters {
                 <td>{{ payment.created_at | date:'medium' }}</td>
                 <td>
                   <div class="flex gap-2">
-                    <button 
-                      pButton 
-                      icon="pi pi-eye" 
+                    <button
+                      pButton
+                      icon="pi pi-eye"
                       class="p-button-rounded p-button-text"
                       [routerLink]="['/dashboard/payments', payment.id]"
                       pTooltip="View Details">
                     </button>
-                    <button 
-                      pButton 
-                      icon="pi pi-download" 
+                    <button
+                      pButton
+                      icon="pi pi-download"
                       class="p-button-rounded p-button-text"
                       (click)="downloadReceipt(payment)"
                       pTooltip="Download Receipt">
@@ -252,8 +252,9 @@ interface PaymentListFilters {
   `]
 })
 export class PaymentListComponent implements OnInit {
-  payments: Payment[] = [];
+  // payments: Payment[] = [];
   loading = false;
+  payments: any[] = [];
   totalRecords = 0;
   isClient = false;
   stats: PaymentStats | null = null;
@@ -326,14 +327,14 @@ export class PaymentListComponent implements OnInit {
   ngOnInit() {
     const currentUser = this.tokenService.getCurrentUser();
     this.isClient = currentUser?.type === RoleConst.CLIENT;
-    
+
     this.loadPayments();
     this.loadStats();
   }
 
   loadPayments() {
     this.loading = true;
-    
+
     const filters: PaymentFilters = {
       type: this.filters.type || undefined,
       status: this.filters.status || undefined,
@@ -410,7 +411,7 @@ export class PaymentListComponent implements OnInit {
     this.loadPayments();
   }
 
-  getStatusSeverity(status: string): string {
+  getStatusSeverity(status: string): any {
     switch (status) {
       case 'completed':
         return 'success';
@@ -438,4 +439,4 @@ export class PaymentListComponent implements OnInit {
       }
     });
   }
-} 
+}

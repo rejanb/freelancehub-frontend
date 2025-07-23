@@ -32,9 +32,9 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
           <ng-template pTemplate="header">
             <div class="flex justify-content-between align-items-center p-3">
               <h3 class="m-0">Payment Methods</h3>
-              <button 
-                pButton 
-                icon="pi pi-plus" 
+              <button
+                pButton
+                icon="pi pi-plus"
                 label="Add Payment Method"
                 class="p-button-secondary"
                 (click)="showAddPaymentDialog()">
@@ -51,20 +51,20 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
                   <span>{{ getPaymentLabel(settings.default_payment_method) }}</span>
                 </div>
               </div>
-              <button 
-                pButton 
-                icon="pi pi-pencil" 
+              <button
+                pButton
+                icon="pi pi-pencil"
                 class="p-button-text"
                 (click)="showEditPaymentDialog()">
               </button>
             </div>
           </div>
 
-          <div *ngIf="!settings?.default_payment_method" class="text-center p-4">
+          <div *ngIf="settings?.default_payment_method" class="text-center p-4">
             <i class="pi pi-credit-card text-4xl text-500 mb-3"></i>
             <div class="text-500">No payment methods added</div>
-            <button 
-              pButton 
+            <button
+              pButton
               label="Add Payment Method"
               class="p-button-text mt-3"
               (click)="showAddPaymentDialog()">
@@ -134,9 +134,9 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
           <ng-template pTemplate="header">
             <div class="flex justify-content-between align-items-center p-3">
               <h3 class="m-0">Tax Information</h3>
-              <button 
-                pButton 
-                icon="pi pi-pencil" 
+              <button
+                pButton
+                icon="pi pi-pencil"
                 label="Edit"
                 class="p-button-secondary"
                 (click)="showTaxInfoDialog()">
@@ -176,8 +176,8 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
           <div *ngIf="!settings?.tax_information" class="text-center p-4">
             <i class="pi pi-file text-4xl text-500 mb-3"></i>
             <div class="text-500">No tax information added</div>
-            <button 
-              pButton 
+            <button
+              pButton
               label="Add Tax Information"
               class="p-button-text mt-3"
               (click)="showTaxInfoDialog()">
@@ -189,8 +189,8 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
       <!-- Save Button -->
       <div class="col-12">
         <div class="flex justify-content-end">
-          <button 
-            pButton 
+          <button
+            pButton
             label="Save Changes"
             [loading]="saving"
             [disabled]="autoRechargeForm.invalid || saving"
@@ -201,8 +201,8 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
     </div>
 
     <!-- Add/Edit Payment Method Dialog -->
-    <p-dialog 
-      [(visible)]="showPaymentDialog" 
+    <p-dialog
+      [(visible)]="showPaymentDialog"
       [modal]="true"
       [draggable]="false"
       [resizable]="false"
@@ -217,8 +217,8 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
     </p-dialog>
 
     <!-- Tax Information Dialog -->
-    <p-dialog 
-      [(visible)]="showTaxDialog" 
+    <p-dialog
+      [(visible)]="showTaxDialog"
       [modal]="true"
       [draggable]="false"
       [resizable]="false"
@@ -226,91 +226,91 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
       <form [formGroup]="taxForm" class="p-fluid">
         <div class="field">
           <label for="tax_id_type" class="font-bold">Tax ID Type *</label>
-          <input 
-            id="tax_id_type" 
-            type="text" 
-            pInputText 
+          <input
+            id="tax_id_type"
+            type="text"
+            pInputText
             formControlName="tax_id_type"
             placeholder="e.g., EIN, SSN, VAT">
         </div>
 
         <div class="field">
           <label for="tax_id" class="font-bold">Tax ID *</label>
-          <input 
-            id="tax_id" 
-            type="text" 
-            pInputText 
+          <input
+            id="tax_id"
+            type="text"
+            pInputText
             formControlName="tax_id">
         </div>
 
         <div class="field">
           <label for="name" class="font-bold">Name *</label>
-          <input 
-            id="name" 
-            type="text" 
-            pInputText 
+          <input
+            id="name"
+            type="text"
+            pInputText
             formControlName="name">
         </div>
 
         <div formGroupName="address">
           <div class="field">
             <label for="street" class="font-bold">Street Address *</label>
-            <input 
-              id="street" 
-              type="text" 
-              pInputText 
+            <input
+              id="street"
+              type="text"
+              pInputText
               formControlName="street">
           </div>
 
           <div class="field">
             <label for="city" class="font-bold">City *</label>
-            <input 
-              id="city" 
-              type="text" 
-              pInputText 
+            <input
+              id="city"
+              type="text"
+              pInputText
               formControlName="city">
           </div>
 
           <div class="field">
             <label for="state" class="font-bold">State/Province *</label>
-            <input 
-              id="state" 
-              type="text" 
-              pInputText 
+            <input
+              id="state"
+              type="text"
+              pInputText
               formControlName="state">
           </div>
 
           <div class="field">
             <label for="postal_code" class="font-bold">Postal Code *</label>
-            <input 
-              id="postal_code" 
-              type="text" 
-              pInputText 
+            <input
+              id="postal_code"
+              type="text"
+              pInputText
               formControlName="postal_code">
           </div>
 
           <div class="field">
             <label for="country" class="font-bold">Country *</label>
-            <input 
-              id="country" 
-              type="text" 
-              pInputText 
+            <input
+              id="country"
+              type="text"
+              pInputText
               formControlName="country">
           </div>
         </div>
       </form>
 
       <ng-template pTemplate="footer">
-        <button 
-          pButton 
-          type="button" 
+        <button
+          pButton
+          type="button"
           label="Cancel"
           class="p-button-text"
           (click)="showTaxDialog = false">
         </button>
-        <button 
-          pButton 
-          type="button" 
+        <button
+          pButton
+          type="button"
           label="Save"
           [loading]="savingTax"
           [disabled]="taxForm.invalid || savingTax"
@@ -321,7 +321,7 @@ import { SettingsService, BillingSettings } from '../../../../../service/setting
   `
 })
 export class BillingSettingsComponent implements OnInit {
-  settings?: BillingSettings;
+  settings!: BillingSettings;
   autoRechargeForm!: FormGroup;
   paymentForm!: FormGroup;
   taxForm!: FormGroup;
@@ -353,7 +353,7 @@ export class BillingSettingsComponent implements OnInit {
     this.autoRechargeForm.get('auto_recharge')?.valueChanges.subscribe(enabled => {
       const threshold = this.autoRechargeForm.get('recharge_threshold');
       const amount = this.autoRechargeForm.get('recharge_amount');
-      
+
       if (enabled) {
         threshold?.enable();
         amount?.enable();
@@ -512,4 +512,4 @@ export class BillingSettingsComponent implements OnInit {
         return 'Unknown Payment Method';
     }
   }
-} 
+}

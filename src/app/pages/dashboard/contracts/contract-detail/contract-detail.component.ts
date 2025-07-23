@@ -13,6 +13,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ContractService } from '../../../../../service/contract.service';
+import { ChatInitiationService } from '../../../../../service/chat-initiation.service';
 import { TokenService } from '../../../../utils/token.service';
 import { Contract } from '../../../../model/models';
 import { RoleConst } from '../../../../const/api-const';
@@ -48,30 +49,37 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
           </p>
         </div>
         <div class="flex gap-2">
-          <p-tag 
+          <p-tag
             [value]="contract.status"
             [severity]="getStatusSeverity(contract.status)">
           </p-tag>
-          <button 
+          <button
+            pButton
+            icon="pi pi-comments"
+            [label]="'Chat with ' + (isClient ? 'Freelancer' : 'Client')"
+            class="p-button-info"
+            (click)="chatWithContractParty()">
+          </button>
+          <button
             *ngIf="contract.status === 'active'"
-            pButton 
-            icon="pi pi-check" 
+            pButton
+            icon="pi pi-check"
             label="Complete Contract"
             class="p-button-success"
             (click)="confirmComplete()">
           </button>
-          <button 
+          <button
             *ngIf="contract.status === 'active'"
-            pButton 
-            icon="pi pi-times" 
+            pButton
+            icon="pi pi-times"
             label="Cancel Contract"
             class="p-button-danger"
             (click)="showCancelDialog()">
           </button>
-          <button 
+          <button
             *ngIf="contract.status === 'active'"
-            pButton 
-            icon="pi pi-calendar" 
+            pButton
+            icon="pi pi-calendar"
             label="Extend Deadline"
             class="p-button-secondary"
             (click)="showExtendDialog()">
@@ -115,9 +123,9 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
           <p-card class="mt-4">
             <div class="flex justify-content-between align-items-center">
               <h3 class="m-0">Documents</h3>
-              <button 
-                pButton 
-                icon="pi pi-upload" 
+              <button
+                pButton
+                icon="pi pi-upload"
                 label="Upload Document"
                 class="p-button-secondary"
                 (click)="showUploadDialog()">
@@ -134,8 +142,8 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
                   <span class="block">{{ doc.name }}</span>
                   <small class="text-500">{{ doc.uploaded_at | date:'medium' }}</small>
                 </div>
-                <a 
-                  [href]="doc.url" 
+                <a
+                  [href]="doc.url"
                   target="_blank"
                   class="p-button p-button-text">
                   <i class="pi pi-download"></i>
@@ -177,16 +185,16 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
           <!-- Actions -->
           <p-card class="mt-4">
             <div class="flex flex-column gap-2">
-              <button 
-                pButton 
-                icon="pi pi-list" 
+              <button
+                pButton
+                icon="pi pi-list"
                 label="View Milestones"
                 class="p-button-secondary"
                 [routerLink]="['/dashboard/contracts', contract.id, 'milestones']">
               </button>
-              <button 
-                pButton 
-                icon="pi pi-dollar" 
+              <button
+                pButton
+                icon="pi pi-dollar"
                 label="View Payments"
                 class="p-button-secondary"
                 [routerLink]="['/dashboard/payments']"
@@ -198,22 +206,22 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
       </div>
 
       <!-- Cancel Contract Dialog -->
-      <p-dialog 
-        [(visible)]="showCancelContractDialog" 
+      <p-dialog
+        [(visible)]="showCancelContractDialog"
         [header]="'Cancel Contract'"
         [modal]="true"
         [style]="{width: '450px'}"
         [draggable]="false"
         [resizable]="false">
-        
+
         <form [formGroup]="cancelForm" class="p-fluid">
           <div class="field">
             <label for="reason">Cancellation Reason</label>
-            <textarea 
-              id="reason" 
-              pInputTextarea 
+            <textarea
+              id="reason"
+              pInputTextarea
               formControlName="reason"
-              [rows]="3" 
+              [rows]="3"
               [autoResize]="true"
               placeholder="Please explain why you want to cancel this contract...">
             </textarea>
@@ -221,16 +229,16 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
         </form>
 
         <ng-template pTemplate="footer">
-          <button 
-            pButton 
-            type="button" 
-            label="Close" 
+          <button
+            pButton
+            type="button"
+            label="Close"
             class="p-button-text"
             (click)="showCancelContractDialog = false">
           </button>
-          <button 
-            pButton 
-            type="button" 
+          <button
+            pButton
+            type="button"
             label="Cancel Contract"
             class="p-button-danger"
             [loading]="loading"
@@ -240,26 +248,26 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
       </p-dialog>
 
       <!-- Extend Deadline Dialog -->
-      <p-dialog 
-        [(visible)]="showExtendContractDialog" 
+      <p-dialog
+        [(visible)]="showExtendContractDialog"
         [header]="'Extend Contract Deadline'"
         [modal]="true"
         [style]="{width: '450px'}"
         [draggable]="false"
         [resizable]="false">
-        
+
         <form [formGroup]="extendForm" class="p-fluid">
           <div class="field">
             <label for="end_date">New End Date</label>
-            <p-calendar 
-              id="end_date" 
+            <p-calendar
+              id="end_date"
               formControlName="end_date"
               [showTime]="true"
               [minDate]="minEndDate"
               [class.ng-invalid]="extendForm.get('end_date')?.invalid && extendForm.get('end_date')?.touched">
             </p-calendar>
-            <small 
-              class="p-error" 
+            <small
+              class="p-error"
               *ngIf="extendForm.get('end_date')?.invalid && extendForm.get('end_date')?.touched">
               End date is required and must be in the future
             </small>
@@ -267,16 +275,16 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
         </form>
 
         <ng-template pTemplate="footer">
-          <button 
-            pButton 
-            type="button" 
-            label="Close" 
+          <button
+            pButton
+            type="button"
+            label="Close"
             class="p-button-text"
             (click)="showExtendContractDialog = false">
           </button>
-          <button 
-            pButton 
-            type="button" 
+          <button
+            pButton
+            type="button"
             label="Extend Contract"
             [loading]="loading"
             [disabled]="extendForm.invalid || loading"
@@ -286,14 +294,14 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
       </p-dialog>
 
       <!-- Upload Document Dialog -->
-      <p-dialog 
-        [(visible)]="showUploadDocumentDialog" 
+      <p-dialog
+        [(visible)]="showUploadDocumentDialog"
         [header]="'Upload Document'"
         [modal]="true"
         [style]="{width: '450px'}"
         [draggable]="false"
         [resizable]="false">
-        
+
         <p-fileUpload
           mode="basic"
           chooseLabel="Choose File"
@@ -306,10 +314,10 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
         <small class="text-500">Max file size: 5MB. Allowed types: Images, PDF</small>
 
         <ng-template pTemplate="footer">
-          <button 
-            pButton 
-            type="button" 
-            label="Close" 
+          <button
+            pButton
+            type="button"
+            label="Close"
             class="p-button-text"
             (click)="showUploadDocumentDialog = false">
           </button>
@@ -317,8 +325,8 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
       </p-dialog>
 
       <!-- Confirmation Dialog -->
-      <p-confirmDialog 
-        header="Complete Contract" 
+      <p-confirmDialog
+        header="Complete Contract"
         icon="pi pi-exclamation-triangle"
         acceptButtonStyleClass="p-button-success"
         rejectButtonStyleClass="p-button-text">
@@ -334,7 +342,8 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
   `]
 })
 export class ContractDetailComponent implements OnInit {
-  contract: Contract | null = null;
+  // contract: Contract | null = null;
+  contract: any | null = null;
   loading = false;
   isClient = false;
   documents: any[] = [];
@@ -351,6 +360,7 @@ export class ContractDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private contractService: ContractService,
+    private chatInitiationService: ChatInitiationService,
     private tokenService: TokenService,
     private fb: FormBuilder,
     private confirmationService: ConfirmationService,
@@ -407,6 +417,35 @@ export class ContractDetailComponent implements OnInit {
         console.error('Error loading documents:', error);
       }
     });
+  }
+
+  chatWithContractParty() {
+    if (!this.contract) return;
+
+    const otherParty = this.isClient ? this.contract.freelancer : this.contract.client;
+    if (otherParty) {
+      this.chatInitiationService.chatWithContractParty(
+        this.contract.id,
+        otherParty.id,
+        otherParty.username || `${otherParty.first_name} ${otherParty.last_name}`.trim()
+      ).subscribe({
+        next: (result) => {
+          this.messageService.add({
+            severity: result.success ? 'success' : 'warn',
+            summary: result.success ? 'Chat Started' : 'Cannot Start Chat',
+            detail: result.message
+          });
+        },
+        error: (error) => {
+          console.error('Error initiating chat:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to start chat'
+          });
+        }
+      });
+    }
   }
 
   confirmComplete() {
@@ -548,7 +587,7 @@ export class ContractDetailComponent implements OnInit {
     });
   }
 
-  getStatusSeverity(status: string): string {
+  getStatusSeverity(status: string): any {
     switch (status) {
       case 'active':
         return 'success';
@@ -571,4 +610,8 @@ export class ContractDetailComponent implements OnInit {
       return date > now ? null : { pastDate: true };
     };
   }
-} 
+
+  showUploadDialog() {
+
+  }
+}

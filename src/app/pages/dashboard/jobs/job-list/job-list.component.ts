@@ -47,11 +47,11 @@ interface JobListFilters {
     <div class="card">
       <div class="flex justify-content-between align-items-center mb-4">
         <h2>Jobs</h2>
-        <button 
+        <button
           *ngIf="isClient"
-          pButton 
-          label="Post New Job" 
-          icon="pi pi-plus" 
+          pButton
+          label="Post New Job"
+          icon="pi pi-plus"
           routerLink="create"
           class="p-button-success">
         </button>
@@ -62,16 +62,16 @@ interface JobListFilters {
         <div class="col-12 md:col-3">
           <span class="p-input-icon-left w-full">
             <i class="pi pi-search"></i>
-            <input 
-              type="text" 
-              pInputText 
-              [(ngModel)]="filters.search" 
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="filters.search"
               (input)="onSearch()"
               placeholder="Search jobs..."
               class="w-full">
           </span>
         </div>
-        
+
         <div class="col-12 md:col-3">
           <p-dropdown
             [options]="statusOptions"
@@ -117,7 +117,7 @@ interface JobListFilters {
         [rowsPerPageOptions]="[10, 25, 50]"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} jobs"
         (onPage)="onPageChange($event)">
-        
+
         <ng-template pTemplate="header">
           <tr>
             <th>Title</th>
@@ -139,15 +139,15 @@ interface JobListFilters {
             <td>{{ job.budget | currency }}</td>
             <td>{{ job.deadline | date }}</td>
             <td>
-              <p-tag 
+              <p-tag
                 [value]="job.is_open ? 'Open' : 'Closed'"
                 [severity]="job.is_open ? 'success' : 'danger'">
               </p-tag>
             </td>
             <td>
-              <a 
+              <a
                 *ngIf="isClient"
-                [routerLink]="[job.id, 'proposals']" 
+                [routerLink]="[job.id, 'proposals']"
                 class="text-primary hover:underline">
                 View Proposals
               </a>
@@ -155,34 +155,34 @@ interface JobListFilters {
             </td>
             <td>
               <div class="flex gap-2">
-                <button 
+                <button
                   *ngIf="isClient && job.is_open"
-                  pButton 
-                  icon="pi pi-pencil" 
+                  pButton
+                  icon="pi pi-pencil"
                   class="p-button-rounded p-button-text"
                   [routerLink]="['edit', job.id]"
                   pTooltip="Edit Job">
                 </button>
-                <button 
+                <button
                   *ngIf="isClient && job.is_open"
-                  pButton 
-                  icon="pi pi-times" 
+                  pButton
+                  icon="pi pi-times"
                   class="p-button-rounded p-button-text p-button-danger"
                   (click)="confirmClose(job)"
                   pTooltip="Close Job">
                 </button>
-                <button 
+                <button
                   *ngIf="isClient && !job.is_open"
-                  pButton 
-                  icon="pi pi-refresh" 
+                  pButton
+                  icon="pi pi-refresh"
                   class="p-button-rounded p-button-text p-button-success"
                   (click)="reopenJob(job)"
                   pTooltip="Reopen Job">
                 </button>
-                <button 
+                <button
                   *ngIf="!isClient && job.is_open"
-                  pButton 
-                  icon="pi pi-send" 
+                  pButton
+                  icon="pi pi-send"
                   class="p-button-rounded p-button-text p-button-success"
                   [routerLink]="[job.id]"
                   pTooltip="Submit Proposal">
@@ -202,8 +202,8 @@ interface JobListFilters {
       </p-table>
 
       <!-- Confirmation Dialog -->
-      <p-confirmDialog 
-        header="Close Job" 
+      <p-confirmDialog
+        header="Close Job"
         icon="pi pi-exclamation-triangle"
         acceptButtonStyleClass="p-button-danger"
         rejectButtonStyleClass="p-button-text">
@@ -259,20 +259,27 @@ export class JobListComponent implements OnInit {
 
   ngOnInit() {
     const currentUser = this.tokenService.getCurrentUser();
-    this.isClient = currentUser?.type === RoleConst.CLIENT;
+    this.isClient = currentUser?.user_type === 'client';
     this.loadJobs();
   }
 
   loadJobs() {
     this.loading = true;
-    
-    const filters: JobFilters = {
+
+    const filters: any = {
       search: this.filters.search,
-      is_open: this.filters.status,
       page: this.filters.page,
-      page_size: this.filters.pageSize,
-      ordering: this.filters.sort
+      pageSize: this.filters.pageSize
     };
+
+    if (this.filters.sort) {
+      filters.ordering = this.filters.sort;
+    }
+
+    // Add status filter based on backend API
+    if (this.filters.status !== null) {
+      filters.status = this.filters.status ? 'open' : 'completed';
+    }
 
     if (this.filters.dateRange && this.filters.dateRange.length === 2) {
       const [start, end] = this.filters.dateRange;
@@ -280,10 +287,24 @@ export class JobListComponent implements OnInit {
       if (end) filters.created_before = end.toISOString();
     }
 
-    this.jobService.getJobs(filters).subscribe({
+    // Use role-based endpoint
+    const currentUser = this.tokenService.getCurrentUser();
+    let jobRequest;
+
+    if (currentUser?.user_type === 'client') {
+      jobRequest = this.jobService.getMyJobs();
+    } else if (currentUser?.user_type === 'freelancer') {
+      jobRequest = this.jobService.getAvailableJobs();
+    } else if (currentUser?.user_type === 'admin') {
+      jobRequest = this.jobService.getJobs(filters);
+    } else {
+      jobRequest = this.jobService.getJobs(filters);
+    }
+
+    jobRequest.subscribe({
       next: (response) => {
-        this.jobs = response.results;
-        this.totalRecords = response.count;
+        this.jobs = Array.isArray(response) ? response : response.results;
+        this.totalRecords = response.count || this.jobs.length;
         this.loading = false;
       },
       error: (error) => {
@@ -372,4 +393,4 @@ export class JobListComponent implements OnInit {
   }
 
   private searchTimeout: any;
-} 
+}

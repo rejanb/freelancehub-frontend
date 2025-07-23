@@ -41,9 +41,9 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
             For: {{ job.title }}
           </p>
         </div>
-        <button 
-          pButton 
-          icon="pi pi-arrow-left" 
+        <button
+          pButton
+          icon="pi pi-arrow-left"
           label="Back to Job"
           class="p-button-text"
           [routerLink]="['/dashboard/jobs', jobId]">
@@ -51,17 +51,17 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
       </div>
 
       <!-- Proposals Table -->
-      <p-table 
-        [value]="proposals" 
+      <p-table
+        [value]="proposals"
         [loading]="loading"
-        [paginator]="true" 
+        [paginator]="true"
         [rows]="10"
         [showCurrentPageReport]="true"
         [totalRecords]="totalRecords"
         [rowsPerPageOptions]="[10, 25, 50]"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} proposals"
         (onPage)="onPageChange($event)">
-        
+
         <ng-template pTemplate="header">
           <tr>
             <th>Freelancer</th>
@@ -76,10 +76,10 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
           <tr>
             <td>
               <div class="flex align-items-center gap-2">
-                <p-avatar 
-                  [image]="proposal.freelancer?.profile_picture" 
+                <p-avatar
+                  [image]="proposal.freelancer?.profile_picture"
                   shape="circle"
-                  size="small">
+                  size="normal">
                 </p-avatar>
                 <span>{{ proposal.freelancer?.username }}</span>
               </div>
@@ -87,24 +87,24 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
             <td>{{ proposal.bid_amount | currency }}</td>
             <td>{{ proposal.created_at | date }}</td>
             <td>
-              <p-tag 
+              <p-tag
                 [value]="proposal.is_accepted ? 'Accepted' : 'Pending'"
                 [severity]="proposal.is_accepted ? 'success' : 'info'">
               </p-tag>
             </td>
             <td>
               <div class="flex gap-2">
-                <button 
-                  pButton 
-                  icon="pi pi-eye" 
+                <button
+                  pButton
+                  icon="pi pi-eye"
                   class="p-button-rounded p-button-text"
                   (click)="viewProposal(proposal)"
                   pTooltip="View Details">
                 </button>
-                <button 
+                <button
                   *ngIf="!proposal.is_accepted && job?.is_open"
-                  pButton 
-                  icon="pi pi-check" 
+                  pButton
+                  icon="pi pi-check"
                   class="p-button-rounded p-button-text p-button-success"
                   (click)="confirmAccept(proposal)"
                   pTooltip="Accept Proposal">
@@ -124,27 +124,27 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
       </p-table>
 
       <!-- View Proposal Dialog -->
-      <p-dialog 
-        [(visible)]="showDialog" 
+      <p-dialog
+        [(visible)]="showDialog"
         [header]="'Proposal Details'"
         [modal]="true"
         [style]="{width: '50vw'}"
         [draggable]="false"
         [resizable]="false">
-        
+
         <div *ngIf="selectedProposal" class="proposal-details">
           <!-- Freelancer Info -->
           <div class="mb-4">
             <h3>Freelancer</h3>
             <div class="flex align-items-center gap-3">
-              <p-avatar 
-                [image]="selectedProposal.freelancer?.profile_picture" 
+              <p-avatar
+                [image]="selectedProposal.freelancer?.profile_picture"
                 shape="circle"
                 size="large">
               </p-avatar>
               <div>
                 <h4 class="m-0">{{ selectedProposal.freelancer?.username }}</h4>
-                <p class="text-500 m-0">Member since {{ selectedProposal.freelancer?.created_at | date:'mediumDate' }}</p>
+                <p class="text-500 m-0" *ngIf="selectedProposal.freelancer">Member since {{ selectedProposal.freelancer.created_at | date:'mediumDate' }}</p>
               </div>
             </div>
           </div>
@@ -171,33 +171,33 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
           </div>
 
           <!-- Attachments -->
-          <div *ngIf="selectedProposal.attachments?.length">
-            <h3>Attachments</h3>
-            <div class="flex flex-wrap gap-2">
-              <a 
-                *ngFor="let attachment of selectedProposal.attachments" 
-                [href]="attachment"
-                target="_blank"
-                class="p-button p-button-text">
-                <i class="pi pi-download"></i>
-                {{ getFileName(attachment) }}
-              </a>
-            </div>
-          </div>
+<!--          <div *ngIf="selectedProposal.attachments?.length">-->
+<!--            <h3>Attachments</h3>-->
+<!--            <div class="flex flex-wrap gap-2">-->
+<!--              <a-->
+<!--                *ngFor="let attachment of selectedProposal.attachments"-->
+<!--                [href]="attachment"-->
+<!--                target="_blank"-->
+<!--                class="p-button p-button-text">-->
+<!--                <i class="pi pi-download"></i>-->
+<!--                {{ getFileName(attachment) }}-->
+<!--              </a>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
 
         <ng-template pTemplate="footer">
-          <button 
-            pButton 
-            type="button" 
-            label="Close" 
+          <button
+            pButton
+            type="button"
+            label="Close"
             class="p-button-text"
             (click)="showDialog = false">
           </button>
-          <button 
+          <button
             *ngIf="selectedProposal && !selectedProposal.is_accepted && job?.is_open"
-            pButton 
-            type="button" 
+            pButton
+            type="button"
             label="Accept Proposal"
             class="p-button-success"
             [loading]="loading"
@@ -207,8 +207,8 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
       </p-dialog>
 
       <!-- Confirmation Dialog -->
-      <p-confirmDialog 
-        header="Accept Proposal" 
+      <p-confirmDialog
+        header="Accept Proposal"
         icon="pi pi-exclamation-triangle"
         acceptButtonStyleClass="p-button-success"
         rejectButtonStyleClass="p-button-text">
@@ -366,4 +366,4 @@ export class JobProposalsComponent implements OnInit {
   getFileName(path: string): string {
     return path.split('/').pop() || path;
   }
-} 
+}

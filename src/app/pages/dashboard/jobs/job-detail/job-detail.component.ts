@@ -14,6 +14,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { JobService } from '../../../../../service/job.service';
 import { ProposalService } from '../../../../../service/proposal.service';
+import { ChatInitiationService } from '../../../../../service/chat-initiation.service';
 import { TokenService } from '../../../../utils/token.service';
 import { Job } from '../../../../model/models';
 import { RoleConst } from '../../../../const/api-const';
@@ -47,21 +48,29 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
           <p class="text-500 mt-2 mb-0">Posted by {{ job.client?.username || 'Unknown' }}</p>
         </div>
         <div class="flex gap-2">
-          <p-tag 
+          <p-tag
             [value]="job.is_open ? 'Open' : 'Closed'"
             [severity]="job.is_open ? 'success' : 'danger'">
           </p-tag>
-          <button 
+          <button
             *ngIf="!isClient && job.is_open"
-            pButton 
-            label="Submit Proposal" 
+            pButton
+            label="Submit Proposal"
             icon="pi pi-send"
             (click)="showProposalDialog()">
           </button>
-          <button 
+          <button
+            *ngIf="!isClient && hasApplied && job.client"
+            pButton
+            label="Contact Client"
+            icon="pi pi-comments"
+            class="p-button-secondary"
+            (click)="contactClient()">
+          </button>
+          <button
             *ngIf="isClient && job.is_open"
-            pButton 
-            icon="pi pi-pencil" 
+            pButton
+            icon="pi pi-pencil"
             label="Edit"
             class="p-button-secondary"
             [routerLink]="['/dashboard/jobs/edit', job.id]">
@@ -79,27 +88,27 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
           </div>
 
           <!-- Skills Required -->
-          <div class="mb-4">
-            <h3>Required Skills</h3>
-            <div class="flex flex-wrap gap-2">
-              <p-chip *ngFor="let skill of job.skills_required" [label]="skill"></p-chip>
-            </div>
-          </div>
+<!--          <div class="mb-4">-->
+<!--            <h3>Required Skills</h3>-->
+<!--            <div class="flex flex-wrap gap-2">-->
+<!--              <p-chip *ngFor="let skill of job.skills_required" [label]="skill"></p-chip>-->
+<!--            </div>-->
+<!--          </div>-->
 
           <!-- Attachments -->
-          <div class="mb-4" *ngIf="job.attachments">
-            <h3>Attachments</h3>
-            <div class="flex flex-wrap gap-2">
-              <a 
-                *ngFor="let attachment of job.attachments" 
-                [href]="attachment"
-                target="_blank"
-                class="p-button p-button-text">
-                <i class="pi pi-download"></i>
-                {{ getFileName(attachment) }}
-              </a>
-            </div>
-          </div>
+<!--          <div class="mb-4" *ngIf="job.attachments">-->
+<!--            <h3>Attachments</h3>-->
+<!--            <div class="flex flex-wrap gap-2">-->
+<!--              <a-->
+<!--                *ngFor="let attachment of job.attachments"-->
+<!--                [href]="attachment"-->
+<!--                target="_blank"-->
+<!--                class="p-button p-button-text">-->
+<!--                <i class="pi pi-download"></i>-->
+<!--                {{ getFileName(attachment) }}-->
+<!--              </a>-->
+<!--            </div>-->
+<!--          </div>-->
         </div>
 
         <div class="col-12 md:col-4">
@@ -117,7 +126,7 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
 
             <div class="mb-3">
               <label class="block font-bold mb-2">Location</label>
-              <span>{{ job.location || 'Not specified' }}</span>
+<!--              <span>{{ job.location || 'Not specified' }}</span>-->
             </div>
 
             <div class="mb-3">
@@ -127,10 +136,10 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
 
             <div *ngIf="isClient">
               <label class="block font-bold mb-2">Proposals</label>
-              <a 
+              <a
                 [routerLink]="['/dashboard/jobs', job.id, 'proposals']"
                 class="text-primary hover:underline">
-                View {{ job.proposal_count || 0 }} proposals
+<!--                View {{ job.proposal_count || 0 }} proposals-->
               </a>
             </div>
           </p-card>
@@ -138,27 +147,27 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
       </div>
 
       <!-- Submit Proposal Dialog -->
-      <p-dialog 
-        [(visible)]="showDialog" 
+      <p-dialog
+        [(visible)]="showDialog"
         [header]="'Submit Proposal for ' + job.title"
         [modal]="true"
         [style]="{width: '50vw'}"
         [draggable]="false"
         [resizable]="false">
-        
+
         <form [formGroup]="proposalForm" (ngSubmit)="submitProposal()" class="p-fluid">
           <div class="field">
             <label for="bid_amount">Bid Amount</label>
-            <p-inputNumber 
-              id="bid_amount" 
+            <p-inputNumber
+              id="bid_amount"
               formControlName="bid_amount"
               [min]="0"
-              [mode]="'currency'" 
+              [mode]="'currency'"
               [currency]="'USD'"
               [class.ng-invalid]="proposalForm.get('bid_amount')?.invalid && proposalForm.get('bid_amount')?.touched">
             </p-inputNumber>
-            <small 
-              class="p-error" 
+            <small
+              class="p-error"
               *ngIf="proposalForm.get('bid_amount')?.invalid && proposalForm.get('bid_amount')?.touched">
               Bid amount is required and must be greater than 0
             </small>
@@ -166,17 +175,17 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
 
           <div class="field">
             <label for="cover_letter">Cover Letter</label>
-            <textarea 
-              id="cover_letter" 
-              pInputTextarea 
+            <textarea
+              id="cover_letter"
+              pInputTextarea
               formControlName="cover_letter"
-              [rows]="5" 
+              [rows]="5"
               [autoResize]="true"
               placeholder="Explain why you're the best fit for this job..."
               [class.ng-invalid]="proposalForm.get('cover_letter')?.invalid && proposalForm.get('cover_letter')?.touched">
             </textarea>
-            <small 
-              class="p-error" 
+            <small
+              class="p-error"
               *ngIf="proposalForm.get('cover_letter')?.invalid && proposalForm.get('cover_letter')?.touched">
               Cover letter is required (minimum 100 characters)
             </small>
@@ -197,16 +206,16 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
         </form>
 
         <ng-template pTemplate="footer">
-          <button 
-            pButton 
-            type="button" 
-            label="Cancel" 
+          <button
+            pButton
+            type="button"
+            label="Cancel"
             class="p-button-text"
             (click)="showDialog = false">
           </button>
-          <button 
-            pButton 
-            type="button" 
+          <button
+            pButton
+            type="button"
             label="Submit Proposal"
             [loading]="loading"
             [disabled]="proposalForm.invalid || loading"
@@ -230,6 +239,7 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
 export class JobDetailComponent implements OnInit {
   job: Job | null = null;
   isClient = false;
+  hasApplied = false;
   showDialog = false;
   loading = false;
   proposalForm!: FormGroup;
@@ -240,6 +250,7 @@ export class JobDetailComponent implements OnInit {
     private router: Router,
     private jobService: JobService,
     private proposalService: ProposalService,
+    private chatInitiationService: ChatInitiationService,
     private tokenService: TokenService,
     private fb: FormBuilder,
     private messageService: MessageService
@@ -271,6 +282,9 @@ export class JobDetailComponent implements OnInit {
     this.jobService.getJob(jobId).subscribe({
       next: (job) => {
         this.job = job;
+        if (!this.isClient) {
+          this.checkIfApplied();
+        }
       },
       error: (error) => {
         console.error('Error loading job:', error);
@@ -282,6 +296,47 @@ export class JobDetailComponent implements OnInit {
         this.router.navigate(['/dashboard/jobs']);
       }
     });
+  }
+
+  checkIfApplied() {
+    if (this.job) {
+      // Check if current user has applied to this job
+      this.proposalService.getMyProposals().subscribe({
+        next: (response) => {
+          const proposals = response.results || [];
+          this.hasApplied = proposals.some((proposal: any) => proposal.job === this.job!.id);
+        },
+        error: (error) => {
+          console.error('Error checking proposals:', error);
+        }
+      });
+    }
+  }
+
+  contactClient() {
+    if (this.job?.client) {
+      this.chatInitiationService.chatWithJobPoster(
+        this.job.id,
+        this.job.client.id,
+        this.job.client.username
+      ).subscribe({
+        next: (result) => {
+          this.messageService.add({
+            severity: result.success ? 'success' : 'warn',
+            summary: result.success ? 'Chat Started' : 'Cannot Start Chat',
+            detail: result.message
+          });
+        },
+        error: (error) => {
+          console.error('Error initiating chat:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to start chat'
+          });
+        }
+      });
+    }
   }
 
   showProposalDialog() {
@@ -348,4 +403,4 @@ export class JobDetailComponent implements OnInit {
   getFileName(path: string): string {
     return path.split('/').pop() || path;
   }
-} 
+}

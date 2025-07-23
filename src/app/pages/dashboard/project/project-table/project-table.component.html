@@ -53,12 +53,20 @@
               <th>Freelancer</th>
               <th>Completed </th>
               <th>Featured</th>
-              <th  class="stickh" >Actions</th>
+              <th>Chat</th>
+              <th class="stickh">Actions</th>
             </tr>
     </ng-template>
     <ng-template pTemplate="body" let-project>
             <tr>
-              <td>{{ project.title }}</td>
+              <td>
+                <a 
+                  class="text-primary cursor-pointer hover:text-primary-600 font-medium"
+                  (click)="onViewProject(project)"
+                  title="View Project Details">
+                  {{ project.title }}
+                </a>
+              </td>
               <td>{{ project.budget }}</td>
               <td>{{ project.deadline | date:'short' }}</td>
               <td>{{ project.client?.username || project.client }}</td>
@@ -76,18 +84,50 @@
               <td>{{ project.selected_freelancer?.username || project.selected_freelancer || '-' }}</td>
               <td>{{ project.completed_at ? (project.completed_at | date:'short') : '-' }}</td>
               <td>{{ project.is_featured ? 'Yes' : 'No' }}</td>
-              <td   class="stick">
-                <div class="flex">
-                  <button pButton type="button" icon="pi pi-pencil" (click)="onUpdate(project)" class="p-button-sm p-button-text"></button>
-                  <button pButton type="button" icon="pi pi-trash" (click)="delete($event, project)" class="p-button-sm p-button-danger p-button-text"></button>
+              <td>
+                <!-- Chat with Client (for freelancers) -->
+                <button 
+                  *ngIf="canChatWithClient(project)"
+                  pButton 
+                  type="button" 
+                  icon="pi pi-comments" 
+                  (click)="chatWithClient(project)"
+                  class="p-button-sm p-button-outlined p-button-success"
+                  title="Chat with Client"
+                  label="Client">
+                </button>
+                
+                <!-- Chat with Freelancer (for clients) -->
+                <button 
+                  *ngIf="canChatWithFreelancer(project)"
+                  pButton 
+                  type="button" 
+                  icon="pi pi-comments" 
+                  (click)="chatWithFreelancer(project)"
+                  class="p-button-sm p-button-outlined p-button-info"
+                  title="Chat with Freelancer"
+                  label="Freelancer">
+                </button>
+                
+                <!-- No chat available -->
+                <span 
+                  *ngIf="!canChatWithClient(project) && !canChatWithFreelancer(project)"
+                  class="text-500 text-sm">
+                  No active chat
+                </span>
+              </td>
+              <td class="stick">
+                <div class="flex gap-1">
+                  <button pButton type="button" icon="pi pi-eye" (click)="onViewProject(project)" class="p-button-sm p-button-outlined p-button-info" title="View Details"></button>
+                  <button pButton type="button" icon="pi pi-pencil" (click)="onEditProject(project)" class="p-button-sm p-button-outlined" title="Edit Project"></button>
+                  <button pButton type="button" icon="pi pi-trash" (click)="delete($event, project)" class="p-button-sm p-button-danger p-button-outlined" title="Delete Project"></button>
                 </div>
-
               </td>
             </tr>
     </ng-template>
     <ng-template pTemplate="empty">
       <tr>
-        <td colspan="18" class="text-center">No data found</td>
+        <td colspan="19" class="text-center">No data found</td>
       </tr>
     </ng-template>
 <!--    <ng-template pTemplate="footer"> In total there are {{ products ? products.length : 0 }} products. </ng-template>-->

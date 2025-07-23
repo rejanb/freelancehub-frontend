@@ -62,7 +62,7 @@ export interface NotificationSettings {
 }
 
 export interface BillingSettings {
-  default_payment_method?: {
+  default_payment_method: {
     id: string;
     type: 'card' | 'bank_account' | 'paypal';
     last4: string;
@@ -73,7 +73,7 @@ export interface BillingSettings {
   auto_recharge: boolean;
   recharge_threshold?: number;
   recharge_amount?: number;
-  tax_information?: {
+  tax_information : {
     tax_id_type: string;
     tax_id: string;
     name: string;
@@ -274,4 +274,4 @@ export class SettingsService {
   cancelAccountDeletion(): Observable<{ success: boolean }> {
     return this.http.post<{ success: boolean }>(`${this.baseUrl}account/delete/cancel/`, {});
   }
-} 
+}

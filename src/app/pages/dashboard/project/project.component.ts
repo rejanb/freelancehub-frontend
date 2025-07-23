@@ -10,6 +10,8 @@ import {ButtonModule} from 'primeng/button';
 import {PasswordModule} from 'primeng/password';
 import {FormComponent} from './form/form.component';
 import { ProjectTableComponent } from './project-table/project-table.component';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-project',
@@ -18,6 +20,7 @@ import { ProjectTableComponent } from './project-table/project-table.component';
     FormsModule,
     ReactiveFormsModule,
     ProjectTableComponent,
+    ToastModule,
     // PrimeNG Modules
     InputTextModule,
     TextareaModule,
@@ -29,6 +32,7 @@ import { ProjectTableComponent } from './project-table/project-table.component';
     PasswordModule,
     FormComponent,
   ],
+  providers: [MessageService],
   templateUrl: './project.component.html',
   styleUrl: './project.component.scss'
 })

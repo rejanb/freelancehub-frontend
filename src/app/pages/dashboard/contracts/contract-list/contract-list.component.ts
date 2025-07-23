@@ -48,10 +48,10 @@ interface ContractListFilters {
         <div class="flex gap-2">
           <span class="p-input-icon-left">
             <i class="pi pi-search"></i>
-            <input 
-              type="text" 
-              pInputText 
-              [(ngModel)]="filters.search" 
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="filters.search"
               (input)="onSearch()"
               placeholder="Search contracts...">
           </span>
@@ -95,17 +95,17 @@ interface ContractListFilters {
       </div>
 
       <!-- Contracts Table -->
-      <p-table 
-        [value]="contracts" 
+      <p-table
+        [value]="contracts"
         [loading]="loading"
-        [paginator]="true" 
+        [paginator]="true"
         [rows]="10"
         [showCurrentPageReport]="true"
         [totalRecords]="totalRecords"
         [rowsPerPageOptions]="[10, 25, 50]"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} contracts"
         (onPage)="onPageChange($event)">
-        
+
         <ng-template pTemplate="header">
           <tr>
             <th>Contract ID</th>
@@ -121,7 +121,7 @@ interface ContractListFilters {
         <ng-template pTemplate="body" let-contract>
           <tr>
             <td>
-              <a 
+              <a
                 [routerLink]="['/dashboard/contracts', contract.id]"
                 class="text-primary hover:underline">
                 #{{ contract.id }}
@@ -134,23 +134,23 @@ interface ContractListFilters {
             <td>{{ contract.total_payment | currency }}</td>
             <td>{{ contract.start_date | date }}</td>
             <td>
-              <p-tag 
+              <p-tag
                 [value]="contract.status"
                 [severity]="getStatusSeverity(contract.status)">
               </p-tag>
             </td>
             <td>
               <div class="flex gap-2">
-                <button 
-                  pButton 
-                  icon="pi pi-eye" 
+                <button
+                  pButton
+                  icon="pi pi-eye"
                   class="p-button-rounded p-button-text"
                   [routerLink]="['/dashboard/contracts', contract.id]"
                   pTooltip="View Details">
                 </button>
-                <button 
-                  pButton 
-                  icon="pi pi-list" 
+                <button
+                  pButton
+                  icon="pi pi-list"
                   class="p-button-rounded p-button-text"
                   [routerLink]="['/dashboard/contracts', contract.id, 'milestones']"
                   pTooltip="View Milestones">
@@ -223,7 +223,7 @@ export class ContractListComponent implements OnInit {
 
   loadContracts(page = 1) {
     this.loading = true;
-    
+
     const filters: ContractFilters = {
       page: this.filters.page,
       page_size: this.filters.pageSize,
@@ -281,7 +281,7 @@ export class ContractListComponent implements OnInit {
     this.loadContracts();
   }
 
-  getStatusSeverity(status: string): string {
+  getStatusSeverity(status: string): any {
     switch (status) {
       case 'active':
         return 'success';
@@ -295,4 +295,4 @@ export class ContractListComponent implements OnInit {
   }
 
   private searchTimeout: any;
-} 
+}

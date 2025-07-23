@@ -267,8 +267,9 @@ interface ErrorResponse {
   `]
 })
 export class MilestoneListComponent implements OnInit {
-  contract: Contract | null = null;
+  // contract: Contract | null = null;
   milestones: Milestone[] = [];
+  contract: any | null = null;
   loading = false;
   isClient = false;
   showDialog = false;
@@ -528,7 +529,7 @@ export class MilestoneListComponent implements OnInit {
     }
   }
 
-  getStatusSeverity(status: string): string {
+  getStatusSeverity(status: string): any {
     switch (status) {
       case 'pending':
         return 'warning';

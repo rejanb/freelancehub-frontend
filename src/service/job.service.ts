@@ -83,7 +83,21 @@ export class JobService {
    * Get jobs posted by current user (client)
    */
   getMyJobs(): Observable<ApiResponse<Job>> {
-    return this.http.get<ApiResponse<Job>>(`${this.baseUrl}my-jobs/`);
+    return this.http.get<ApiResponse<Job>>(`${this.baseUrl}my_jobs/`);
+  }
+
+  /**
+   * Get available jobs for freelancers (jobs they haven't applied to)
+   */
+  getAvailableJobs(): Observable<ApiResponse<Job>> {
+    return this.http.get<ApiResponse<Job>>(`${this.baseUrl}available_jobs/`);
+  }
+
+  /**
+   * Get admin overview with statistics
+   */
+  getAdminOverview(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}admin_overview/`);
   }
 
   /**

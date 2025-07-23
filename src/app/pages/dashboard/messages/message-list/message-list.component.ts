@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -8,10 +8,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
 import { SkeletonModule } from 'primeng/skeleton';
-import { MessageService } from 'primeng/api';
-import { MessageService as ChatService, ChatRoom } from '../../../../../service/message.service';
+import { MessageService as PrimeMessageService } from 'primeng/api';
+import { MessageService as ChatService, ChatRoom, User } from '../../../../../service/message.service';
 import { TokenService } from '../../../../utils/token.service';
-import { ApiResponse } from '../../../../model/models';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -28,22 +27,32 @@ import { Subscription } from 'rxjs';
     BadgeModule,
     SkeletonModule
   ],
-  providers: [MessageService],
+  providers: [PrimeMessageService],
   template: `
     <div class="grid">
       <div class="col-12">
         <p-card>
           <div class="flex justify-content-between align-items-center mb-4">
             <h2 class="m-0">Messages</h2>
-            <span class="p-input-icon-left">
-              <i class="pi pi-search"></i>
-              <input 
-                type="text" 
-                pInputText 
-                [(ngModel)]="searchQuery"
-                (input)="onSearch($event)"
-                placeholder="Search messages...">
-            </span>
+            <div class="flex gap-2 align-items-center">
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-refresh" 
+                (click)="debugChatRooms()"
+                class="p-button-outlined p-button-sm"
+                title="Debug chat rooms">
+              </button>
+              <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input
+                  type="text"
+                  pInputText
+                  [(ngModel)]="searchQuery"
+                  (input)="onSearch($event)"
+                  placeholder="Search messages...">
+              </span>
+            </div>
           </div>
 
           <!-- Loading State -->
@@ -57,17 +66,26 @@ import { Subscription } from 'rxjs';
             </div>
           </div>
 
+          <!-- Debug Info -->
+          <div *ngIf="!loading" class="mb-3 p-2 surface-100 border-round">
+            <small class="text-500">
+              Chat rooms loaded: {{ chatRooms?.length || 0 }} | 
+              Array initialized: {{ chatRooms ? 'Yes' : 'No' }} |
+              Search query: "{{ searchQuery }}"
+            </small>
+          </div>
+
           <!-- Chat Rooms -->
-          <div *ngIf="!loading" class="flex flex-column">
-            <div 
-              *ngFor="let room of chatRooms"
+          <div *ngIf="!loading && chatRooms && chatRooms.length > 0" class="flex flex-column">
+            <div
+              *ngFor="let room of chatRooms; trackBy: trackByRoomId"
               class="flex align-items-center p-3 cursor-pointer hover:surface-100 border-bottom-1 surface-border"
               [routerLink]="['/dashboard/messages', room.id]">
-              
+
               <!-- Avatar -->
-              <p-avatar 
+              <p-avatar
                 [label]="getParticipantInitials(room)"
-                shape="circle" 
+                shape="circle"
                 size="large"
                 [style]="{ 'background-color': getAvatarColor(room) }"
                 class="mr-3">
@@ -79,26 +97,35 @@ import { Subscription } from 'rxjs';
                   <span class="font-bold">{{ getParticipantName(room) }}</span>
                   <small class="text-500">{{ room.last_message?.created_at | date:'shortTime' }}</small>
                 </div>
-                
+
                 <div class="flex justify-content-between align-items-center mt-2">
                   <span class="text-500 text-overflow-ellipsis" style="max-width: 80%">
-                    {{ room.last_message?.content || 'No messages yet' }}
+                    <span *ngIf="room.last_message?.attachment && !room.last_message?.content">
+                      <i class="pi pi-paperclip mr-1"></i>
+                      {{ room.last_message?.attachment?.name }}
+                    </span>
+                    <span *ngIf="room.last_message?.content">
+                      {{ room.last_message?.content }}
+                    </span>
+                    <span *ngIf="!room.last_message">
+                      No messages yet
+                    </span>
                   </span>
-                  <p-badge 
-                    *ngIf="room.unread_count > 0" 
+                  <p-badge
+                    *ngIf="room.unread_count > 0"
                     [value]="room.unread_count.toString()"
                     severity="danger">
                   </p-badge>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Empty State -->
-            <div *ngIf="chatRooms.length === 0" class="text-center p-5">
-              <i class="pi pi-comments text-6xl text-500 mb-3"></i>
-              <h3>No Messages Yet</h3>
-              <p class="text-500">Start a conversation from a user's profile or job proposal.</p>
-            </div>
+          <!-- Empty State -->
+          <div *ngIf="!loading && (!chatRooms || chatRooms.length === 0)" class="text-center p-5">
+            <i class="pi pi-comments text-6xl text-500 mb-3"></i>
+            <h3>No Messages Yet</h3>
+            <p class="text-500">Start a conversation from a user's profile or job proposal.</p>
           </div>
         </p-card>
       </div>
@@ -120,26 +147,32 @@ import { Subscription } from 'rxjs';
   `]
 })
 export class MessageListComponent implements OnInit, OnDestroy {
-  chatRooms: ChatRoom[] = [];
+  chatRooms: ChatRoom[] = []; // Initialize as empty array
   loading = false;
   searchQuery = '';
   searchTimeout?: any;
   currentUserId?: number;
-  unreadSubscription?: Subscription;
+
+  private unreadSubscription?: Subscription;
+  private chatRoomsSubscription?: Subscription;
 
   constructor(
     private chatService: ChatService,
     private tokenService: TokenService,
-    private messageService: MessageService
-  ) {}
+    private messageService: PrimeMessageService,
+    private cdr: ChangeDetectorRef // Add ChangeDetectorRef for manual change detection
+  ) {
+    // Initialize empty array to prevent undefined issues
+    this.chatRooms = [];
+  }
 
   ngOnInit() {
     const currentUser = this.tokenService.getCurrentUser();
     this.currentUserId = currentUser?.id;
 
     this.loadChatRooms();
-    this.setupWebSocket();
     this.subscribeToUnreadCount();
+    this.subscribeToChatRooms();
   }
 
   ngOnDestroy() {
@@ -149,41 +182,51 @@ export class MessageListComponent implements OnInit, OnDestroy {
     if (this.unreadSubscription) {
       this.unreadSubscription.unsubscribe();
     }
-    this.chatService.disconnectWebSocket();
+    if (this.chatRoomsSubscription) {
+      this.chatRoomsSubscription.unsubscribe();
+    }
   }
 
-  setupWebSocket() {
-    const currentUser = this.tokenService.getCurrentUser();
-    const token = this.tokenService.getToken();
-    
-    if (currentUser?.id && token) {
-      this.chatService.connectWebSocket(currentUser.id, token);
-    }
+  subscribeToChatRooms() {
+    this.chatRoomsSubscription = this.chatService.chatRooms$.subscribe(rooms => {
+      console.log('Chat rooms updated:', rooms); // Debug log
+      this.chatRooms = Array.isArray(rooms) ? rooms : [];
+      this.cdr.detectChanges(); // Force change detection
+    });
   }
 
   subscribeToUnreadCount() {
     this.unreadSubscription = this.chatService.unreadCount$.subscribe(count => {
       if (count > 0) {
-        this.loadChatRooms();
+        this.chatService.loadUnreadCount();
       }
     });
   }
 
   loadChatRooms() {
+    console.log('Loading chat rooms...'); // Debug log
     this.loading = true;
+    this.chatRooms = []; // Reset to empty array
+    this.cdr.detectChanges(); // Update UI immediately
+
     this.chatService.getChatRooms().subscribe({
-      next: (response: ApiResponse<ChatRoom>) => {
-        this.chatRooms = response.results;
+      next: (chatRooms: ChatRoom[]) => {
+        console.log('Chat rooms loaded:', chatRooms); // Debug log
+        this.chatRooms = Array.isArray(chatRooms) ? chatRooms : [];
+        this.chatService.setChatRooms(chatRooms);
         this.loading = false;
+        this.cdr.detectChanges(); // Force change detection
       },
       error: (error) => {
         console.error('Error loading chat rooms:', error);
+        this.chatRooms = []; // Ensure it's still an array on error
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Failed to load messages'
         });
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -197,20 +240,35 @@ export class MessageListComponent implements OnInit, OnDestroy {
       if (this.searchQuery.trim()) {
         this.loading = true;
         this.chatService.searchMessages(this.searchQuery).subscribe({
-          next: (response: ApiResponse<any>) => {
+          next: (response: any) => {
             // Group messages by chat room
             const roomMap = new Map<number, ChatRoom>();
-            response.results.forEach(message => {
-              if (message.chat_room && !roomMap.has(message.chat_room.id)) {
-                roomMap.set(message.chat_room.id, message.chat_room);
-              }
-            });
+            if (response.results) {
+              response.results.forEach((message: any) => {
+                if (message.chat_room && !roomMap.has(message.chat_room)) {
+                  // We need to construct the room data from the message
+                  const room: ChatRoom = {
+                    id: message.chat_room,
+                    participants: [message.sender],
+                    is_group: false,
+                    last_message: message,
+                    unread_count: 0,
+                    created_at: message.created_at,
+                    updated_at: message.updated_at
+                  };
+                  roomMap.set(message.chat_room, room);
+                }
+              });
+            }
             this.chatRooms = Array.from(roomMap.values());
             this.loading = false;
+            this.cdr.detectChanges(); // Force change detection after search
           },
           error: (error) => {
             console.error('Error searching messages:', error);
+            this.chatRooms = []; // Reset on error
             this.loading = false;
+            this.cdr.detectChanges();
           }
         });
       } else {
@@ -220,8 +278,13 @@ export class MessageListComponent implements OnInit, OnDestroy {
   }
 
   getParticipantName(room: ChatRoom): string {
-    const participant = room.participants.find(p => p !== this.currentUserId);
-    return participant ? `User ${participant}` : 'Unknown User';
+    const participant = room.participants.find(p => p.id !== this.currentUserId);
+    if (participant) {
+      return participant.first_name && participant.last_name
+        ? `${participant.first_name} ${participant.last_name}`
+        : participant.username;
+    }
+    return 'Unknown User';
   }
 
   getParticipantInitials(room: ChatRoom): string {
@@ -238,7 +301,22 @@ export class MessageListComponent implements OnInit, OnDestroy {
       '#2196F3', '#4CAF50', '#FF9800', '#E91E63',
       '#9C27B0', '#00BCD4', '#FFEB3B', '#795548'
     ];
-    const participant = room.participants.find(p => p !== this.currentUserId);
-    return colors[participant ? participant % colors.length : 0];
+    const participant = room.participants.find(p => p.id !== this.currentUserId);
+    return colors[participant ? participant.id % colors.length : 0];
   }
-} 
+
+  // TrackBy function for better performance
+  trackByRoomId(index: number, room: ChatRoom): number {
+    return room.id;
+  }
+
+  // Debug method to check array state
+  debugChatRooms() {
+    console.log('Current chat rooms state:', {
+      array: this.chatRooms,
+      length: this.chatRooms?.length,
+      isArray: Array.isArray(this.chatRooms),
+      loading: this.loading
+    });
+  }
+}

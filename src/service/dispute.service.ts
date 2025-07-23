@@ -9,7 +9,7 @@ export interface Dispute {
   contract: number;
   initiator: number;
   respondent: number;
-  type: 'payment' | 'quality' | 'communication' | 'scope' | 'deadline' | 'other';
+  type:  'payment' | 'quality' | 'communication' | 'scope' | 'deadline' | 'other';
   status: 'open' | 'in_mediation' | 'resolved' | 'closed';
   title: string;
   description: string;
@@ -94,7 +94,7 @@ export class DisputeService {
    */
   getDisputes(filters?: DisputeFilters): Observable<ApiResponse<Dispute>> {
     let params = new HttpParams();
-    
+
     if (filters) {
       Object.keys(filters).forEach(key => {
         const value = filters[key as keyof DisputeFilters];
@@ -119,7 +119,7 @@ export class DisputeService {
    */
   createDispute(disputeData: Partial<Dispute>): Observable<Dispute> {
     const formData = new FormData();
-    
+
     Object.keys(disputeData).forEach(key => {
       const value = disputeData[key as keyof Dispute];
       if (value !== undefined && value !== null) {
@@ -158,7 +158,7 @@ export class DisputeService {
   sendMessage(disputeId: number, message: string, attachments?: File[]): Observable<DisputeMessage> {
     const formData = new FormData();
     formData.append('message', message);
-    
+
     if (attachments) {
       attachments.forEach(file => {
         formData.append('attachments', file);
@@ -221,7 +221,7 @@ export class DisputeService {
    */
   getDisputeStats(filters?: DisputeFilters): Observable<DisputeStats> {
     let params = new HttpParams();
-    
+
     if (filters) {
       Object.keys(filters).forEach(key => {
         const value = filters[key as keyof DisputeFilters];
@@ -266,5 +266,5 @@ export class DisputeService {
       latest_dispute?: Dispute;
     }>(`${this.baseUrl}contract/${contractId}/`);
   }
-} 
-} 
+
+}

@@ -6,29 +6,54 @@
   <div class="surface-card p-5 shadow-3 border-round w-full sm:w-30rem">
 
     <!-- Title -->
-    <h2 class="text-center mb-3 text-900 font-bold">Login</h2>
-    <!--    <p class="text-center text-600 mb-4">Kindly fill in this form to register.</p>-->
+    <h2 class="text-center mb-3 text-900 font-bold">Login to FreelanceHub</h2>
+    <p class="text-center text-600 mb-4">Welcome back! Please sign in to your account.</p>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="p-message p-message-error mb-3">
+      <span class="p-message-text">{{ errorMessage }}</span>
+    </div>
 
     <!-- Form -->
-    <form  (ngSubmit)="onLogin()" class="p-fluid">
-
-
-
+    <form (ngSubmit)="onLogin()" class="p-fluid">
       <!-- Email -->
       <div class="field mb-3">
         <label for="email" class="block text-900 mb-1">Email</label>
-        <input id="email" pInputText [(ngModel)]="email" name="email" style="width: 100%" />
+        <input
+          id="email"
+          pInputText
+          [(ngModel)]="email"
+          name="email"
+          style="width: 100%"
+          [disabled]="isLoading"
+          placeholder="Enter your email"
+          required />
       </div>
 
-
       <!-- Password -->
-      <div class="field w-full">
+      <div class="field mb-3">
         <label for="password" class="block text-900 mb-1">Password</label>
-        <p-password id="password" [(ngModel)]="password" name="password" [feedback]="false" inputStyleClass="w-full"   toggleMask  />
+        <p-password
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          [feedback]="false"
+          inputStyleClass="w-full"
+          toggleMask
+          [disabled]="isLoading"
+          placeholder="Enter your password"
+          required />
       </div>
 
       <!-- Submit -->
-      <button pButton type="submit" label="Login" class="p-button p-button-primary w-full mt-3"></button>
+      <button
+        pButton
+        type="submit"
+        [label]="isLoading ? 'Signing in...' : 'Sign In'"
+        class="p-button p-button-primary w-full mt-3"
+        [disabled]="isLoading || !email || !password"
+        [loading]="isLoading">
+      </button>
 
       <!-- Login Link -->
       <p class="text-center text-sm mt-4">

@@ -31,11 +31,11 @@ import { SettingsService, NotificationSettings } from '../../../../../service/se
             </div>
           </ng-template>
 
-          <form [formGroup]="notificationForm.get('email_notifications')" class="p-fluid">
+          <form [formGroup]="emailNotificationGroup" class="p-fluid">
             <div class="field" *ngFor="let option of notificationOptions">
               <div class="flex align-items-center justify-content-between">
                 <label [for]="'email_' + option.key" class="font-bold">{{ option.label }}</label>
-                <p-inputSwitch 
+                <p-inputSwitch
                   [id]="'email_' + option.key"
                   [formControlName]="option.key">
                 </p-inputSwitch>
@@ -55,11 +55,11 @@ import { SettingsService, NotificationSettings } from '../../../../../service/se
             </div>
           </ng-template>
 
-          <form [formGroup]="notificationForm.get('push_notifications')" class="p-fluid">
+          <form [formGroup]="pushNotificationGroup" class="p-fluid">
             <div class="field" *ngFor="let option of notificationOptions">
               <div class="flex align-items-center justify-content-between">
                 <label [for]="'push_' + option.key" class="font-bold">{{ option.label }}</label>
-                <p-inputSwitch 
+                <p-inputSwitch
                   [id]="'push_' + option.key"
                   [formControlName]="option.key">
                 </p-inputSwitch>
@@ -99,8 +99,8 @@ import { SettingsService, NotificationSettings } from '../../../../../service/se
       <!-- Save Button -->
       <div class="col-12">
         <div class="flex justify-content-end">
-          <button 
-            pButton 
+          <button
+            pButton
             label="Save Changes"
             [loading]="saving"
             [disabled]="saving"
@@ -183,6 +183,14 @@ export class NotificationSettingsComponent implements OnInit {
     this.loadSettings();
   }
 
+  get emailNotificationGroup(): FormGroup {
+    return this.notificationForm.get('email_notifications') as FormGroup;
+  }
+
+  get pushNotificationGroup(): FormGroup {
+    return this.notificationForm.get('push_notifications') as FormGroup;
+  }
+
   initForm() {
     this.notificationForm = this.fb.group({
       email_notifications: this.fb.group(
@@ -241,4 +249,4 @@ export class NotificationSettingsComponent implements OnInit {
       }
     });
   }
-} 
+}

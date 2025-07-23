@@ -1,4 +1,7 @@
 import { Routes } from '@angular/router';
+import {ReviewDetailComponent} from './review-detail/review-detail.component';
+import {ReviewFormComponent} from './review-form/review-form.component';
+import {ReviewListComponent} from './review-list/review-list.component';
 
 export const reviewsRoutes: Routes = [
   {
@@ -6,16 +9,16 @@ export const reviewsRoutes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./review-list/review-list.component').then(m => m.ReviewListComponent)
+        component: ReviewListComponent
       },
       {
         path: 'create/:contractId',
-        loadComponent: () => import('./review-form/review-form.component').then(m => m.ReviewFormComponent)
+        component: ReviewFormComponent
       },
       {
         path: ':id',
-        loadComponent: () => import('./review-detail/review-detail.component').then(m => m.ReviewDetailComponent)
+        component: ReviewDetailComponent
       }
     ]
   }
-]; 
+];

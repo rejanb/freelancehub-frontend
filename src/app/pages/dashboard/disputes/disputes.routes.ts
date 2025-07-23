@@ -1,4 +1,7 @@
 import { Routes } from '@angular/router';
+import {DisputeDetailComponent} from './dispute-detail/dispute-detail.component';
+import {DisputeFormComponent} from './dispute-form/dispute-form.component';
+import {DisputeListComponent} from './dispute-list/dispute-list.component';
 
 export const disputesRoutes: Routes = [
   {
@@ -6,16 +9,16 @@ export const disputesRoutes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./dispute-list/dispute-list.component').then(m => m.DisputeListComponent)
+        component: DisputeListComponent
       },
       {
         path: 'create/:contractId',
-        loadComponent: () => import('./dispute-form/dispute-form.component').then(m => m.DisputeFormComponent)
+        component: DisputeFormComponent
       },
       {
-        path: ':id',
-        loadComponent: () => import('./dispute-detail/dispute-detail.component').then(m => m.DisputeDetailComponent)
+        path: 'detail:id',
+        component: DisputeDetailComponent
       }
     ]
   }
-]; 
+];

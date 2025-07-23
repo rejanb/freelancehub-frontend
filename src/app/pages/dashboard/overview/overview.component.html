@@ -1,1 +1,310 @@
-<p>overview works!</p>this is yo
+<div class="overview-container">
+  <div class="grid">
+    <div class="col-12">
+      <div class="card">
+        <h1 class="text-3xl font-bold mb-4">
+          Dashboard Overview
+          <span class="text-sm font-normal text-500 ml-2">({{ userType | titlecase }})</span>
+        </h1>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="col-12">
+      <div class="card text-center">
+        <i class="pi pi-spin pi-spinner text-4xl mb-3"></i>
+        <p>Loading dashboard data...</p>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <ng-container *ngIf="userType === 'admin' && !loading && adminStats">
+      <div class="col-12 md:col-3">
+        <div class="card bg-blue-100">
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <div class="text-500 font-medium mb-2">Total Jobs</div>
+              <div class="text-900 font-medium text-xl">{{ adminStats.jobs.total }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-blue-500 text-white border-round"
+                 style="width: 2.5rem; height: 2.5rem">
+              <i class="pi pi-briefcase text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <div class="card bg-green-100">
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <div class="text-500 font-medium mb-2">Total Projects</div>
+              <div class="text-900 font-medium text-xl">{{ adminStats.projects.total }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-green-500 text-white border-round"
+                 style="width: 2.5rem; height: 2.5rem">
+              <i class="pi pi-folder text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <div class="card bg-orange-100">
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <div class="text-500 font-medium mb-2">Open Jobs</div>
+              <div class="text-900 font-medium text-xl">{{ adminStats.jobs.open }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-500 text-white border-round"
+                 style="width: 2.5rem; height: 2.5rem">
+              <i class="pi pi-clock text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <div class="card bg-purple-100">
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <div class="text-500 font-medium mb-2">Open Projects</div>
+              <div class="text-900 font-medium text-xl">{{ adminStats.projects.open }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-purple-500 text-white border-round"
+                 style="width: 2.5rem; height: 2.5rem">
+              <i class="pi pi-calendar text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Charts -->
+      <div class="col-12 md:col-6">
+        <div class="card">
+          <h3>Jobs vs Projects</h3>
+          <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="300px"></p-chart>
+        </div>
+      </div>
+
+      <!-- Recent Jobs -->
+      <div class="col-12 md:col-6">
+        <div class="card">
+          <div class="flex justify-content-between align-items-center mb-3">
+            <h3>Recent Jobs</h3>
+            <button pButton class="p-button-text p-button-sm" routerLink="/dashboard/job/list">View All</button>
+          </div>
+          <div class="timeline" *ngFor="let job of adminStats.jobs.recent?.slice(0, 5)">
+            <div class="timeline-item">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <h5>{{ job.title }}</h5>
+                <p class="text-500 text-sm">{{ job.client.username }} • {{ job.created_at | date:'short' }}</p>
+                <p-tag [severity]="getStatusSeverity(job.status)" [value]="job.status"></p-tag>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projects by Category -->
+      <div class="col-12">
+        <div class="card">
+          <h3>Projects by Category</h3>
+          <div class="grid">
+            <div class="col-12 md:col-2" *ngFor="let category of adminStats.projects.by_category?.slice(0, 6)">
+              <div class="text-center p-3 border-round bg-gray-50">
+                <div class="text-900 font-medium text-lg">{{ category.count }}</div>
+                <div class="text-500 text-sm">{{ category.name }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Client Dashboard -->
+    <ng-container *ngIf="userType === 'client' && !loading && clientStats">
+      <div class="col-12 md:col-6">
+        <div class="card">
+          <h3>My Jobs</h3>
+          <div class="grid">
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-blue-50">
+                <div class="text-900 font-medium text-xl">{{ clientStats.myJobs.total }}</div>
+                <div class="text-500 text-sm">Total Jobs</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-orange-50">
+                <div class="text-900 font-medium text-xl">{{ clientStats.myJobs.open }}</div>
+                <div class="text-500 text-sm">Open</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-yellow-50">
+                <div class="text-900 font-medium text-xl">{{ clientStats.myJobs.in_progress }}</div>
+                <div class="text-500 text-sm">In Progress</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-green-50">
+                <div class="text-900 font-medium text-xl">{{ clientStats.myJobs.completed }}</div>
+                <div class="text-500 text-sm">Completed</div>
+              </div>
+            </div>
+          </div>
+          <button pButton class="w-full mt-3" routerLink="/dashboard/job/list">Manage Jobs</button>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <div class="card">
+          <h3>My Projects</h3>
+          <div class="grid">
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-blue-50">
+                <div class="text-900 font-medium text-xl">{{ clientStats.myProjects.total }}</div>
+                <div class="text-500 text-sm">Total Projects</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-orange-50">
+                <div class="text-900 font-medium text-xl">{{ clientStats.myProjects.open }}</div>
+                <div class="text-500 text-sm">Open</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-yellow-50">
+                <div class="text-900 font-medium text-xl">{{ clientStats.myProjects.in_progress }}</div>
+                <div class="text-500 text-sm">In Progress</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-green-50">
+                <div class="text-900 font-medium text-xl">{{ clientStats.myProjects.completed }}</div>
+                <div class="text-500 text-sm">Completed</div>
+              </div>
+            </div>
+          </div>
+          <button pButton class="w-full mt-3" routerLink="/dashboard/project">Manage Projects</button>
+        </div>
+      </div>
+
+      <!-- Quick Actions for Clients -->
+      <div class="col-12">
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <div class="flex gap-3 flex-wrap">
+            <button pButton label="Post New Job" icon="pi pi-plus" class="p-button-success" routerLink="/dashboard/job/create"></button>
+            <button pButton label="Post New Project" icon="pi pi-plus" class="p-button-info" routerLink="/dashboard/project/add"></button>
+            <button pButton label="View Applications" icon="pi pi-users" class="p-button-secondary" routerLink="/dashboard/job/proposals"></button>
+            <button pButton label="Browse Freelancers" icon="pi pi-search" class="p-button-outlined"></button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Freelancer Dashboard -->
+    <ng-container *ngIf="userType === 'freelancer' && !loading && freelancerStats">
+      <div class="col-12 md:col-4">
+        <div class="card bg-blue-100">
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <div class="text-500 font-medium mb-2">Total Applications</div>
+              <div class="text-900 font-medium text-xl">{{ freelancerStats.applications.jobs + freelancerStats.applications.projects }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-blue-500 text-white border-round"
+                 style="width: 2.5rem; height: 2.5rem">
+              <i class="pi pi-send text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-4">
+        <div class="card bg-green-100">
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <div class="text-500 font-medium mb-2">Active Work</div>
+              <div class="text-900 font-medium text-xl">{{ freelancerStats.activeWork.jobs + freelancerStats.activeWork.projects }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-green-500 text-white border-round"
+                 style="width: 2.5rem; height: 2.5rem">
+              <i class="pi pi-check-circle text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-4">
+        <div class="card bg-orange-100">
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <div class="text-500 font-medium mb-2">Pending</div>
+              <div class="text-900 font-medium text-xl">{{ freelancerStats.applications.pending }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-500 text-white border-round"
+                 style="width: 2.5rem; height: 2.5rem">
+              <i class="pi pi-clock text-xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Application Status Chart -->
+      <div class="col-12 md:col-6">
+        <div class="card">
+          <h3>Application Status</h3>
+          <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="300px"></p-chart>
+        </div>
+      </div>
+
+      <!-- Application Breakdown -->
+      <div class="col-12 md:col-6">
+        <div class="card">
+          <h3>Application Breakdown</h3>
+          <div class="grid">
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-blue-50">
+                <div class="text-900 font-medium text-xl">{{ freelancerStats.applications.jobs }}</div>
+                <div class="text-500 text-sm">Job Applications</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-green-50">
+                <div class="text-900 font-medium text-xl">{{ freelancerStats.applications.projects }}</div>
+                <div class="text-500 text-sm">Project Applications</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-green-50">
+                <div class="text-900 font-medium text-xl">{{ freelancerStats.applications.accepted }}</div>
+                <div class="text-500 text-sm">Accepted</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center p-3 border-round bg-red-50">
+                <div class="text-900 font-medium text-xl">{{ freelancerStats.applications.rejected }}</div>
+                <div class="text-500 text-sm">Rejected</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions for Freelancers -->
+      <div class="col-12">
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <div class="flex gap-3 flex-wrap">
+            <button pButton label="Browse Jobs" icon="pi pi-search" class="p-button-success" routerLink="/dashboard/job/browse"></button>
+            <button pButton label="Browse Projects" icon="pi pi-search" class="p-button-info" routerLink="/dashboard/project/browse"></button>
+            <button pButton label="My Applications" icon="pi pi-list" class="p-button-secondary" routerLink="/dashboard/applications"></button>
+            <button pButton label="Update Profile" icon="pi pi-user" class="p-button-outlined" routerLink="/dashboard/profile"></button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

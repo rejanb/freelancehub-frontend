@@ -1,16 +1,12 @@
 <div class="profile-container">
+  <p-toast></p-toast>
+  
   <p-card header="User Profile" class="w-full">
-    <!-- Success Message -->
-    <p-message *ngIf="successMessage" severity="success" [text]="successMessage" class="mb-3"></p-message>
-    
-    <!-- Error Message -->
-    <p-message *ngIf="errorMessage" severity="error" [text]="errorMessage" class="mb-3"></p-message>
-
     <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="p-fluid">
       <!-- Profile Picture Section -->
       <div class="flex flex-column align-items-center mb-4">
         <p-avatar 
-          [image]="currentUser?.profile_picture || 'https://via.placeholder.com/150'" 
+          [image]="previewUrl || userProfile?.profile_picture || currentUser?.profile_picture || 'https://via.placeholder.com/150'" 
           size="xlarge" 
           shape="circle"
           class="mb-3">
@@ -22,8 +18,23 @@
           accept="image/*"
           maxFileSize="1000000"
           (onSelect)="onFileSelect($event)"
-          class="mb-3">
+          class="mb-2">
         </p-fileUpload>
+        
+        <!-- Remove selected image button -->
+        <button 
+          *ngIf="selectedFile" 
+          pButton 
+          type="button" 
+          label="Remove Selected" 
+          class="p-button-text p-button-sm mb-2"
+          (click)="clearSelectedFile()">
+        </button>
+        
+        <!-- Preview indicator -->
+        <small class="text-500" *ngIf="selectedFile">
+          Selected: {{ selectedFile.name }}
+        </small>
       </div>
 
       <p-divider></p-divider>
@@ -32,25 +43,37 @@
       <div class="grid">
         <div class="col-12 md:col-6">
           <div class="field">
-            <label for="username">Username</label>
+            <label for="username">Username *</label>
             <input 
               id="username" 
               pInputText 
               formControlName="username" 
               [disabled]="isLoading"
               placeholder="Enter your username" />
+            <small class="p-error" *ngIf="profileForm.get('username')?.errors?.['required'] && profileForm.get('username')?.touched">
+              Username is required
+            </small>
+            <small class="p-error" *ngIf="profileForm.get('username')?.errors?.['minlength'] && profileForm.get('username')?.touched">
+              Username must be at least 3 characters
+            </small>
           </div>
         </div>
 
         <div class="col-12 md:col-6">
           <div class="field">
-            <label for="email">Email</label>
+            <label for="email">Email *</label>
             <input 
               id="email" 
               pInputText 
               formControlName="email" 
               [disabled]="isLoading"
               placeholder="Enter your email" />
+            <small class="p-error" *ngIf="profileForm.get('email')?.errors?.['required'] && profileForm.get('email')?.touched">
+              Email is required
+            </small>
+            <small class="p-error" *ngIf="profileForm.get('email')?.errors?.['email'] && profileForm.get('email')?.touched">
+              Invalid email format
+            </small>
           </div>
         </div>
 
@@ -63,25 +86,55 @@
               formControlName="bio" 
               rows="4"
               [disabled]="isLoading"
-              placeholder="Tell us about yourself..."></textarea>
+              placeholder="Tell us about yourself..."
+              maxlength="500"></textarea>
+            <small class="text-500">{{ profileForm.get('bio')?.value?.length || 0 }}/500 characters</small>
           </div>
         </div>
 
+        <!-- Skills Section -->
         <div class="col-12">
           <div class="field">
-            <label for="skills">Skills (comma-separated)</label>
-            <input 
-              id="skills" 
-              pInputText 
-              formControlName="skills" 
-              [disabled]="isLoading"
-              placeholder="e.g., JavaScript, Python, Design, Writing..." />
+            <label class="block text-900 mb-2">Skills</label>
+            
+            <!-- Display existing skills -->
+            <div class="flex flex-wrap gap-2 mb-3" *ngIf="skillControls.length > 0">
+              <p-chip 
+                *ngFor="let skill of skillControls; let i = index" 
+                [label]="skill.value"
+                [removable]="true"
+                (onRemove)="removeSkill(i)"
+                styleClass="p-chip-outlined">
+              </p-chip>
+            </div>
+
+            <!-- Add new skill -->
+            <div class="p-inputgroup">
+              <input 
+                pInputText 
+                [(ngModel)]="newSkill"
+                [ngModelOptions]="{standalone: true}"
+                placeholder="Add a skill..."
+                (keyup.enter)="addSkill()"
+                [disabled]="isLoading" />
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-plus" 
+                (click)="addSkill()"
+                [disabled]="!newSkill.trim() || isLoading">
+              </button>
+            </div>
+            <small class="text-500">Press Enter or click + to add skills</small>
           </div>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="flex gap-2 justify-content-end mt-4">
+        <!-- Debug info -->
+        <small class="text-500">Dialog visible: {{ showChangePasswordDialog }}</small>
+        
         <button 
           pButton 
           type="button" 
@@ -118,4 +171,49 @@
       </button>
     </div>
   </p-card>
+
+  <!-- Change Password Dialog -->
+  <p-dialog
+    header="Change Password"
+    [(visible)]="showChangePasswordDialog"
+    [modal]="true"
+    [style]="{width: '400px'}"
+    [draggable]="false"
+    [resizable]="false">
+    <form [formGroup]="changePasswordForm" (ngSubmit)="submitChangePassword()" class="p-fluid">
+      <div class="field">
+        <label for="current_password">Current Password</label>
+        <input id="current_password" type="password" pInputText formControlName="current_password" required />
+      </div>
+      <div class="field">
+        <label for="new_password">New Password</label>
+        <input id="new_password" type="password" pInputText formControlName="new_password" required minlength="6" />
+      </div>
+      <div class="field">
+        <label for="confirm_password">Confirm New Password</label>
+        <input id="confirm_password" type="password" pInputText formControlName="confirm_password" required />
+      </div>
+      <div class="flex gap-2 justify-content-end mt-3">
+        <button pButton type="button" label="Cancel" class="p-button-text" (click)="showChangePasswordDialog = false"></button>
+        <button pButton type="submit" label="Change Password" [loading]="changingPassword" [disabled]="changePasswordForm.invalid || changingPassword"></button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <!-- Delete Account Confirmation Dialog -->
+  <p-dialog
+    header="Delete Account"
+    [(visible)]="showDeleteConfirmDialog"
+    [modal]="true"
+    [style]="{width: '400px'}"
+    [draggable]="false"
+    [resizable]="false">
+    <div class="p-3">
+      <p class="text-red-500 font-bold mb-3">Are you sure you want to delete your account? This action cannot be undone.</p>
+      <div class="flex gap-2 justify-content-end mt-3">
+        <button pButton type="button" label="Cancel" class="p-button-text" (click)="showDeleteConfirmDialog = false"></button>
+        <button pButton type="button" label="Delete Account" class="p-button-danger" [loading]="deletingAccount" (click)="confirmDeleteAccount()"></button>
+      </div>
+    </div>
+  </p-dialog>
 </div> 

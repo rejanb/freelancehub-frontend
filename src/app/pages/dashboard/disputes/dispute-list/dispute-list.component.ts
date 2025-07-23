@@ -45,9 +45,9 @@ import { RoleConst } from '../../../../const/api-const';
               (onSelect)="onDateSelect()"
               class="w-15rem">
             </p-calendar>
-            <button 
-              pButton 
-              icon="pi pi-plus" 
+            <button
+              pButton
+              icon="pi pi-plus"
               label="Create Dispute"
               routerLink="create">
             </button>
@@ -96,18 +96,18 @@ import { RoleConst } from '../../../../const/api-const';
           <!-- Charts -->
           <div class="mt-4">
             <h4>Disputes by Type</h4>
-            <p-chart 
-              type="pie" 
-              [data]="typeChartData" 
+            <p-chart
+              type="pie"
+              [data]="typeChartData"
               [options]="chartOptions">
             </p-chart>
           </div>
 
           <div class="mt-4">
             <h4>Monthly Disputes</h4>
-            <p-chart 
-              type="bar" 
-              [data]="monthlyChartData" 
+            <p-chart
+              type="bar"
+              [data]="monthlyChartData"
               [options]="chartOptions">
             </p-chart>
           </div>
@@ -139,17 +139,17 @@ import { RoleConst } from '../../../../const/api-const';
           </div>
 
           <!-- Table -->
-          <p-table 
-            [value]="disputes" 
+          <p-table
+            [value]="disputes"
             [loading]="loading"
-            [paginator]="true" 
+            [paginator]="true"
             [rows]="10"
             [showCurrentPageReport]="true"
             [totalRecords]="totalRecords"
             [rowsPerPageOptions]="[10, 25, 50]"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} disputes"
             (onPage)="onPageChange($event)">
-            
+
             <ng-template pTemplate="header">
               <tr>
                 <th>ID</th>
@@ -165,7 +165,7 @@ import { RoleConst } from '../../../../const/api-const';
             <ng-template pTemplate="body" let-dispute>
               <tr>
                 <td>
-                  <a 
+                  <a
                     [routerLink]="['/dashboard/disputes', dispute.id]"
                     class="text-primary hover:underline">
                     #{{ dispute.id }}
@@ -173,19 +173,19 @@ import { RoleConst } from '../../../../const/api-const';
                 </td>
                 <td>{{ dispute.title }}</td>
                 <td>
-                  <p-tag 
+                  <p-tag
                     [value]="dispute.type"
                     [severity]="getTypeSeverity(dispute.type)">
                   </p-tag>
                 </td>
                 <td>
-                  <p-tag 
+                  <p-tag
                     [value]="dispute.status"
                     [severity]="getStatusSeverity(dispute.status)">
                   </p-tag>
                 </td>
                 <td>
-                  <a 
+                  <a
                     [routerLink]="['/dashboard/contracts', dispute.contract]"
                     class="text-primary hover:underline">
                     {{ dispute.contract_title || 'Contract #' + dispute.contract }}
@@ -193,9 +193,9 @@ import { RoleConst } from '../../../../const/api-const';
                 </td>
                 <td>{{ dispute.created_at | date:'medium' }}</td>
                 <td>
-                  <button 
-                    pButton 
-                    icon="pi pi-eye" 
+                  <button
+                    pButton
+                    icon="pi pi-eye"
                     class="p-button-rounded p-button-text"
                     [routerLink]="['/dashboard/disputes', dispute.id]">
                   </button>
@@ -405,7 +405,7 @@ export class DisputeListComponent implements OnInit {
     }
   }
 
-  getTypeSeverity(type: string): string {
+  getTypeSeverity(type: string): any {
     switch (type) {
       case 'payment':
         return 'danger';
@@ -422,7 +422,7 @@ export class DisputeListComponent implements OnInit {
     }
   }
 
-  getStatusSeverity(status: string): string {
+  getStatusSeverity(status: string): any {
     switch (status) {
       case 'open':
         return 'warning';
@@ -436,4 +436,4 @@ export class DisputeListComponent implements OnInit {
         return 'info';
     }
   }
-} 
+}

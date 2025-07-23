@@ -4,14 +4,16 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProjectService } from '../../../../../service/project.service';
-import {FormsModule} from '@angular/forms';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {Router} from '@angular/router';
-import {ApiResponse} from '../../../../model/models';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {Toast} from 'primeng/toast';
-import {ConfirmDialog} from 'primeng/confirmdialog';
+import { ChatInitiationService } from '../../../../../service/chat-initiation.service';
+import { TokenService } from '../../../../utils/token.service';
+import { FormsModule } from '@angular/forms';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { Router } from '@angular/router';
+import { ApiResponse } from '../../../../model/models';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-project-table',
@@ -28,12 +30,19 @@ export class ProjectTableComponent implements OnInit {
   totalRecords = 0;
   rows = 12;
   loading = false;
+  currentUserId?: number;
 
-  constructor(private projectService: ProjectService,
-              private router: Router,
-              private confirmationService: ConfirmationService,
-              private messageService: MessageService
-  ) {}
+  constructor(
+    private projectService: ProjectService,
+    private chatInitiationService: ChatInitiationService,
+    private tokenService: TokenService,
+    private router: Router,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
+  ) {
+    const currentUser = this.tokenService.getCurrentUser();
+    this.currentUserId = currentUser?.id;
+  }
 
   ngOnInit() {
     // Initial load
@@ -75,7 +84,18 @@ export class ProjectTableComponent implements OnInit {
   }
 
   onUpdate(project: any) {
-    // Implement update logic (e.g. open dialog or navigate)
+    // Navigate to project detail view
+    this.router.navigate(['/dashboard/projects', project.id]);
+  }
+
+  onViewProject(project: any) {
+    // Navigate to project detail view
+    this.router.navigate(['/dashboard/projects', project.id]);
+  }
+
+  onEditProject(project: any) {
+    // Navigate to project form for editing
+    this.router.navigate(['/dashboard/projects/form', project.id]);
   }
 
   onDelete(project: any) {
@@ -102,6 +122,99 @@ export class ProjectTableComponent implements OnInit {
 
     onAddProject() {
     this.router.navigate(['/dashboard/project/add'], { state: { header: 'Add' } });
+  }
+
+  /**
+   * Chat with client (for freelancers working on project)
+   */
+  chatWithClient(project: any) {
+    if (!project.client || !project.client.id) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Cannot Start Chat',
+        detail: 'Client information not available'
+      });
+      return;
+    }
+
+    const clientName = project.client.username || project.client.first_name || 'Client';
+    this.chatInitiationService.chatWithProjectParty(
+      project.id,
+      project.client.id,
+      clientName
+    ).subscribe({
+      next: (result) => {
+        this.messageService.add({
+          severity: result.success ? 'success' : 'warn',
+          summary: result.success ? 'Chat Started' : 'Cannot Start Chat',
+          detail: result.message
+        });
+      },
+      error: (error) => {
+        console.error('Error initiating chat:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to start chat'
+        });
+      }
+    });
+  }
+
+  /**
+   * Chat with freelancer (for clients)
+   */
+  chatWithFreelancer(project: any) {
+    if (!project.selected_freelancer || !project.selected_freelancer.id) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Cannot Start Chat',
+        detail: 'No freelancer assigned to this project'
+      });
+      return;
+    }
+
+    const freelancerName = project.selected_freelancer.username || 
+                          project.selected_freelancer.first_name || 'Freelancer';
+    this.chatInitiationService.chatWithProjectParty(
+      project.id,
+      project.selected_freelancer.id,
+      freelancerName
+    ).subscribe({
+      next: (result) => {
+        this.messageService.add({
+          severity: result.success ? 'success' : 'warn',
+          summary: result.success ? 'Chat Started' : 'Cannot Start Chat',
+          detail: result.message
+        });
+      },
+      error: (error) => {
+        console.error('Error initiating chat:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to start chat'
+        });
+      }
+    });
+  }
+
+  /**
+   * Check if current user can chat with project client
+   */
+  canChatWithClient(project: any): boolean {
+    return project.selected_freelancer?.id === this.currentUserId && 
+           project.client?.id && 
+           project.status === 'in_progress';
+  }
+
+  /**
+   * Check if current user can chat with project freelancer
+   */
+  canChatWithFreelancer(project: any): boolean {
+    return project.client?.id === this.currentUserId && 
+           project.selected_freelancer?.id && 
+           project.status === 'in_progress';
   }
 
 

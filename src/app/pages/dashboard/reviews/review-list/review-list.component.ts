@@ -40,10 +40,10 @@ import { RoleConst } from '../../../../const/api-const';
             <div class="text-4xl font-bold text-primary mb-2">
               {{ stats?.average_rating | number:'1.1-1' }}
             </div>
-            <p-rating 
-              [ngModel]="stats?.average_rating" 
-              [readonly]="true" 
-              [cancel]="false">
+            <p-rating
+              [ngModel]="stats?.average_rating"
+              [readonly]="true"
+              >
             </p-rating>
             <div class="text-500 mt-2">
               Based on {{ stats?.total_reviews }} reviews
@@ -56,13 +56,13 @@ import { RoleConst } from '../../../../const/api-const';
             <div *ngFor="let rating of [5,4,3,2,1]" class="flex align-items-center gap-2 mb-2">
               <span class="w-2rem text-right">{{ rating }}</span>
               <div class="flex-1 bg-surface-200" style="height: 8px;">
-                <div 
-                  class="bg-primary h-full" 
+                <div
+                  class="bg-primary h-full"
                   [style.width.%]="getRatingPercentage(rating)">
                 </div>
               </div>
               <span class="w-3rem text-500">
-                {{ stats?.rating_distribution[rating] || 0 }}
+              {{ stats?.rating_distribution?.[rating] || 0 }}
               </span>
             </div>
           </div>
@@ -73,34 +73,34 @@ import { RoleConst } from '../../../../const/api-const';
             <div class="grid">
               <div class="col-6 mb-3">
                 <label class="block font-medium mb-2">Communication</label>
-                <p-rating 
-                  [ngModel]="stats?.average_communication" 
-                  [readonly]="true" 
-                  [cancel]="false">
+                <p-rating
+                  [ngModel]="stats?.average_communication"
+                  [readonly]="true"
+                  >
                 </p-rating>
               </div>
               <div class="col-6 mb-3">
                 <label class="block font-medium mb-2">Quality</label>
-                <p-rating 
-                  [ngModel]="stats?.average_quality" 
-                  [readonly]="true" 
-                  [cancel]="false">
+                <p-rating
+                  [ngModel]="stats?.average_quality"
+                  [readonly]="true"
+                  >
                 </p-rating>
               </div>
               <div class="col-6 mb-3">
                 <label class="block font-medium mb-2">Timeliness</label>
-                <p-rating 
-                  [ngModel]="stats?.average_timeliness" 
-                  [readonly]="true" 
-                  [cancel]="false">
+                <p-rating
+                  [ngModel]="stats?.average_timeliness"
+                  [readonly]="true"
+                  >
                 </p-rating>
               </div>
               <div class="col-6 mb-3">
                 <label class="block font-medium mb-2">Professionalism</label>
-                <p-rating 
-                  [ngModel]="stats?.average_professionalism" 
-                  [readonly]="true" 
-                  [cancel]="false">
+                <p-rating
+                  [ngModel]="stats?.average_professionalism"
+                  [readonly]="true"
+                  >
                 </p-rating>
               </div>
             </div>
@@ -147,17 +147,17 @@ import { RoleConst } from '../../../../const/api-const';
                 <div *ngFor="let review of receivedReviews" class="mb-4 p-4 surface-ground border-round">
                   <div class="flex justify-content-between align-items-start mb-3">
                     <div>
-                      <p-rating 
-                        [ngModel]="review.rating" 
-                        [readonly]="true" 
-                        [cancel]="false">
+                      <p-rating
+                        [ngModel]="review.rating"
+                        [readonly]="true"
+                        >
                       </p-rating>
                       <div class="text-500 mt-2">
                         By {{ review.reviewer_name }} on {{ review.created_at | date }}
                       </div>
                     </div>
-                    <button 
-                      pButton 
+                    <button
+                      pButton
                       icon="pi pi-external-link"
                       class="p-button-text"
                       [routerLink]="['/dashboard/reviews', review.id]">
@@ -169,37 +169,37 @@ import { RoleConst } from '../../../../const/api-const';
                   <div class="grid">
                     <div class="col-6 mb-2">
                       <small class="text-500">Communication:</small>
-                      <p-rating 
-                        [ngModel]="review.communication_rating" 
-                        [readonly]="true" 
-                        [cancel]="false"
+                      <p-rating
+                        [ngModel]="review.communication_rating"
+                        [readonly]="true"
+
                         [stars]="5">
                       </p-rating>
                     </div>
                     <div class="col-6 mb-2">
                       <small class="text-500">Quality:</small>
-                      <p-rating 
-                        [ngModel]="review.quality_rating" 
-                        [readonly]="true" 
-                        [cancel]="false"
+                      <p-rating
+                        [ngModel]="review.quality_rating"
+                        [readonly]="true"
+
                         [stars]="5">
                       </p-rating>
                     </div>
                     <div class="col-6 mb-2">
                       <small class="text-500">Timeliness:</small>
-                      <p-rating 
-                        [ngModel]="review.timeliness_rating" 
-                        [readonly]="true" 
-                        [cancel]="false"
+                      <p-rating
+                        [ngModel]="review.timeliness_rating"
+                        [readonly]="true"
+
                         [stars]="5">
                       </p-rating>
                     </div>
                     <div class="col-6 mb-2">
                       <small class="text-500">Professionalism:</small>
-                      <p-rating 
-                        [ngModel]="review.professionalism_rating" 
-                        [readonly]="true" 
-                        [cancel]="false"
+                      <p-rating
+                        [ngModel]="review.professionalism_rating"
+                        [readonly]="true"
+
                         [stars]="5">
                       </p-rating>
                     </div>
@@ -246,24 +246,24 @@ import { RoleConst } from '../../../../const/api-const';
                 <div *ngFor="let review of givenReviews" class="mb-4 p-4 surface-ground border-round">
                   <div class="flex justify-content-between align-items-start mb-3">
                     <div>
-                      <p-rating 
-                        [ngModel]="review.rating" 
-                        [readonly]="true" 
-                        [cancel]="false">
+                      <p-rating
+                        [ngModel]="review.rating"
+                        [readonly]="true"
+                        >
                       </p-rating>
                       <div class="text-500 mt-2">
                         For {{ review.reviewee_name }} on {{ review.created_at | date }}
                       </div>
                     </div>
                     <div class="flex gap-2">
-                      <button 
-                        pButton 
+                      <button
+                        pButton
                         icon="pi pi-pencil"
                         class="p-button-text"
                         [routerLink]="['/dashboard/reviews', review.id]">
                       </button>
-                      <button 
-                        pButton 
+                      <button
+                        pButton
                         icon="pi pi-trash"
                         class="p-button-text p-button-danger"
                         (click)="deleteReview(review)">
@@ -422,4 +422,4 @@ export class ReviewListComponent implements OnInit {
       }
     });
   }
-} 
+}

@@ -1,4 +1,8 @@
 import { Routes } from '@angular/router';
+import {BillingSettingsComponent} from './billing-settings/billing-settings.component';
+import {NotificationSettingsComponent} from './notification-settings/notification-settings.component';
+import {AccountSettingsComponent} from './account-settings/account-settings.component';
+import {SettingsLayoutComponent} from './settings-layout/settings-layout.component';
 
 export const settingsRoutes: Routes = [
   {
@@ -6,8 +10,7 @@ export const settingsRoutes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./settings-layout/settings-layout.component')
-          .then(m => m.SettingsLayoutComponent),
+        component: SettingsLayoutComponent,
         children: [
           {
             path: '',
@@ -16,31 +19,26 @@ export const settingsRoutes: Routes = [
           },
           {
             path: 'account',
-            loadComponent: () => import('./account-settings/account-settings.component')
-              .then(m => m.AccountSettingsComponent)
+            component: AccountSettingsComponent,
           },
-          {
-            path: 'security',
-            loadComponent: () => import('./security-settings/security-settings.component')
-              .then(m => m.SecuritySettingsComponent)
-          },
+          // {
+          //   path: 'security',
+          //   component: SecuritySettingsComponent
+          // },
           {
             path: 'notifications',
-            loadComponent: () => import('./notification-settings/notification-settings.component')
-              .then(m => m.NotificationSettingsComponent)
+            component: NotificationSettingsComponent,
           },
           {
             path: 'billing',
-            loadComponent: () => import('./billing-settings/billing-settings.component')
-              .then(m => m.BillingSettingsComponent)
+            component: BillingSettingsComponent,
           },
-          {
-            path: 'privacy',
-            loadComponent: () => import('./privacy-settings/privacy-settings.component')
-              .then(m => m.PrivacySettingsComponent)
-          }
+          // {
+          //   path: 'privacy',
+          //   component:PrivacySettingsComponent
+          // }
         ]
       }
     ]
   }
-]; 
+];

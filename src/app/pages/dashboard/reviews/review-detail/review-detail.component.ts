@@ -9,6 +9,7 @@ import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ReviewService, Review } from '../../../../../service/review.service';
 import { TokenService } from '../../../../utils/token.service';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-review-detail',
@@ -20,7 +21,9 @@ import { TokenService } from '../../../../utils/token.service';
     CardModule,
     RatingModule,
     MenuModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [MessageService, ConfirmationService],
   template: `
@@ -36,16 +39,16 @@ import { TokenService } from '../../../../utils/token.service';
               </p>
             </div>
             <div class="flex gap-2">
-              <button 
-                pButton 
-                icon="pi pi-arrow-left" 
+              <button
+                pButton
+                icon="pi pi-arrow-left"
                 label="Back"
                 class="p-button-text"
                 routerLink="/dashboard/reviews">
               </button>
-              <button 
+              <button
                 *ngIf="canManageReview"
-                pButton 
+                pButton
                 icon="pi pi-ellipsis-v"
                 class="p-button-text"
                 (click)="menu.toggle($event)">
@@ -59,7 +62,7 @@ import { TokenService } from '../../../../utils/token.service';
             <div class="flex justify-content-between align-items-center">
               <div>
                 <label class="block font-medium mb-2">Contract</label>
-                <a 
+                <a
                   [routerLink]="['/dashboard/contracts', review.contract]"
                   class="text-primary hover:underline">
                   {{ review.contract_title || 'Contract #' + review.contract }}
@@ -76,10 +79,10 @@ import { TokenService } from '../../../../utils/token.service';
           <div class="mb-4">
             <label class="block font-bold mb-3">Overall Rating</label>
             <div class="flex align-items-center gap-3">
-              <p-rating 
-                [ngModel]="review.rating" 
-                [readonly]="true" 
-                [cancel]="false">
+              <p-rating
+                [ngModel]="review.rating"
+                [readonly]="true"
+                >
               </p-rating>
               <span class="text-xl">{{ review.rating }}/5</span>
             </div>
@@ -96,10 +99,10 @@ import { TokenService } from '../../../../utils/token.service';
             <div class="col-12 md:col-6 mb-3">
               <label class="block font-bold mb-2">Communication</label>
               <div class="flex align-items-center gap-2">
-                <p-rating 
-                  [ngModel]="review.communication_rating" 
-                  [readonly]="true" 
-                  [cancel]="false">
+                <p-rating
+                  [ngModel]="review.communication_rating"
+                  [readonly]="true"
+                  >
                 </p-rating>
                 <span>{{ review.communication_rating }}/5</span>
               </div>
@@ -108,10 +111,10 @@ import { TokenService } from '../../../../utils/token.service';
             <div class="col-12 md:col-6 mb-3">
               <label class="block font-bold mb-2">Quality</label>
               <div class="flex align-items-center gap-2">
-                <p-rating 
-                  [ngModel]="review.quality_rating" 
-                  [readonly]="true" 
-                  [cancel]="false">
+                <p-rating
+                  [ngModel]="review.quality_rating"
+                  [readonly]="true"
+                  >
                 </p-rating>
                 <span>{{ review.quality_rating }}/5</span>
               </div>
@@ -120,10 +123,10 @@ import { TokenService } from '../../../../utils/token.service';
             <div class="col-12 md:col-6 mb-3">
               <label class="block font-bold mb-2">Timeliness</label>
               <div class="flex align-items-center gap-2">
-                <p-rating 
-                  [ngModel]="review.timeliness_rating" 
-                  [readonly]="true" 
-                  [cancel]="false">
+                <p-rating
+                  [ngModel]="review.timeliness_rating"
+                  [readonly]="true"
+                  >
                 </p-rating>
                 <span>{{ review.timeliness_rating }}/5</span>
               </div>
@@ -132,10 +135,10 @@ import { TokenService } from '../../../../utils/token.service';
             <div class="col-12 md:col-6 mb-3">
               <label class="block font-bold mb-2">Professionalism</label>
               <div class="flex align-items-center gap-2">
-                <p-rating 
-                  [ngModel]="review.professionalism_rating" 
-                  [readonly]="true" 
-                  [cancel]="false">
+                <p-rating
+                  [ngModel]="review.professionalism_rating"
+                  [readonly]="true"
+                  >
                 </p-rating>
                 <span>{{ review.professionalism_rating }}/5</span>
               </div>
@@ -161,8 +164,8 @@ import { TokenService } from '../../../../utils/token.service';
     </div>
 
     <!-- Confirmation Dialog -->
-    <p-confirmDialog 
-      header="Confirm Action" 
+    <p-confirmDialog
+      header="Confirm Action"
       icon="pi pi-exclamation-triangle"
       [style]="{ width: '450px' }">
     </p-confirmDialog>
@@ -309,4 +312,4 @@ export class ReviewDetailComponent implements OnInit {
       }
     });
   }
-} 
+}

@@ -49,27 +49,6 @@
         <p-message variant="simple" size="small" severity="error" *ngIf="registerForm.get('user_type')?.errors?.['required'] && registerForm.get('user_type')?.touched" text="User type is required."></p-message>
       </div>
 
-      <!-- Bio -->
-      <div class="field mb-3">
-        <label for="bio" class="block text-900 mb-1">Bio</label>
-        <textarea id="bio" pInputTextarea rows="3" formControlName="bio" class="w-full"></textarea>
-        <p severity="error" variant="simple" size="small" *ngIf="registerForm.get('bio')?.errors?.['required'] && registerForm.get('bio')?.touched" text="Bio is required."></p>
-        <p severity="error" variant="simple" size="small" *ngIf="registerForm.get('bio')?.errors?.['maxlength'] && registerForm.get('bio')?.touched" text="Max 500 characters."></p>
-      </div>
-
-      <!-- Skills -->
-      <div class="field " >
-        <label class="block text-900 mb-1">Skills</label>
-        <div *ngFor="let skill of skillControls; let i = index" class="p-inputgroup mb-2">
-          <input [formControl]="skill" pInputText style="width: 90%" />
-          <button pButton type="button" icon="pi pi-times" class="p-button-danger" (click)="removeSkill(i)"></button>
-        </div>
-        <div class="p-inputgroup">
-          <input #newSkill pInputText placeholder="New Skill"  style="width: 90%"/>
-          <button pButton type="button" icon="pi pi-plus" class="p-button-success" (click)="addSkill(newSkill.value); newSkill.value = ''"></button>
-        </div>
-      </div>
-
       <!-- Submit -->
       <button pButton type="submit" label="Register" [disabled]="registerForm.invalid" class="p-button p-button-primary w-full mt-3"></button>
 

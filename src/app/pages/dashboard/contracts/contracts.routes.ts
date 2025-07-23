@@ -1,4 +1,7 @@
 import { Routes } from '@angular/router';
+import {MilestoneListComponent} from './milestone-list/milestone-list.component';
+import {ContractListComponent} from './contract-list/contract-list.component';
+import {ContractDetailComponent} from './contract-detail/contract-detail.component';
 
 export const contractsRoutes: Routes = [
   {
@@ -6,16 +9,16 @@ export const contractsRoutes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./contract-list/contract-list.component').then(m => m.ContractListComponent)
+       component: ContractListComponent
       },
       {
         path: ':id',
-        loadComponent: () => import('./contract-detail/contract-detail.component').then(m => m.ContractDetailComponent)
+        component: ContractDetailComponent
       },
       {
         path: ':id/milestones',
-        loadComponent: () => import('./milestone-list/milestone-list.component').then(m => m.MilestoneListComponent)
+        component:MilestoneListComponent
       }
     ]
   }
-]; 
+];

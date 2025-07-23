@@ -1,104 +1,225 @@
-<!--<p>home works!</p>-->
-<!--<button (click)="login()">Login</button>-->
-<!--<button (click)="register()">Register</button>-->
-<!-- app.component.html -->
-<!--<div class="home-container">-->
-<!--  <p-panel header="Welcome to CollabWork!">-->
-<!--    <div class="intro-section">-->
-<!--      <h1>Boost Your Freelance Workflow</h1>-->
-<!--      <p>Collaborate, manage, and succeed with our unique workspace canvas for clients and freelancers.</p>-->
-<!--      <div class="cta-buttons">-->
-<!--        <button pButton type="button" label="Sign Up" class="p-button-success"></button>-->
-<!--        <button pButton type="button" label="Log In" class="p-button-secondary"></button>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </p-panel>-->
+<!-- Professional Navigation -->
+<app-public-nav xmlns="http://www.w3.org/1999/html"></app-public-nav>
 
-<!--  <div class="features-section">-->
-<!--    <p-carousel [value]="features" [numVisible]="3" [circular]="true" [autoplayInterval]="4000">-->
-<!--      <ng-template pTemplate="item" let-feature>-->
-<!--        <p-card [header]="feature.title" [subheader]="feature.subtitle">-->
-<!--          <p>{{ feature.description }}</p>-->
-<!--        </p-card>-->
-<!--      </ng-template>-->
-<!--    </p-carousel>-->
-<!--  </div>-->
-
-<!--  <div class="demo-section">-->
-<!--    <p-panel header="Workspace Preview">-->
-<!--      <img src="assets/demo-workspace.png" alt="Workspace Canvas Demo" style="width:100%;max-width:600px;">-->
-<!--    </p-panel>-->
-<!--  </div>-->
-
-<!--  <div class="info-section">-->
-<!--    <p-panel header="Why CollabWork?">-->
-<!--      <ul>-->
-<!--        <li>Visual workspace with draggable project cards</li>-->
-<!--        <li>Real-time collaboration tools</li>-->
-<!--        <li>Personalized insights and quick actions</li>-->
-<!--        <li>Secure, easy onboarding for clients and freelancers</li>-->
-<!--      </ul>-->
-<!--    </p-panel>-->
-<!--  </div>-->
-<!--</div>-->
-<!-- app.component.html -->
-<header class="fh-header">
-  <i class="pi pi-briefcase fh-logo"></i>
-  <span class="fh-title">freelancehub</span>
-  <span class="fh-slogan">Empowering Clients & Freelancers</span>
-</header>
-
+<!-- Hero Section with same structure as projects page -->
 <div class="home-container">
-  <!-- app.component.html -->
-  <p-panel>
-    <ng-template pTemplate="header">
-<!--      <div class="fh-welcome-header">-->
-<!--        <i class="pi pi-star-fill fh-welcome-icon"></i>-->
-<!--        <span class="fh-welcome-title">Welcome to <span class="fh-highlight">freelancehub!</span></span>-->
-<!--      </div>-->
-<!--      <div class="fh-welcome-subtitle">-->
-<!--        Your journey to seamless collaboration starts here.-->
-<!--      </div>-->
-    </ng-template>
-    <div class="intro-section">
-      <h1>Boost Your Freelance Workflow</h1>
-      <p>Collaborate, manage, and succeed with our unique workspace canvas for clients and freelancers.</p>
-      <div class="cta-buttons">
-        <button pButton (click)="register()" type="button" label="Sign Up" class="p-button-success"></button>
-        <button pButton (click)="login()" type="button" label="Log In" class="p-button-secondary"></button>
+  <div class="hero-section bg-primary text-white">
+    <div class="container mx-auto px-4 py-8">
+      <div class="grid align-items-center">
+        <div class="col-12 lg:col-7">
+          <h1 class="text-5xl font-bold mb-4 leading-tight">
+            Connect. Collaborate. <span class="text-yellow-300">Create.</span>
+          </h1>
+          <p class="text-xl mb-6 text-blue-100">
+            The professional platform where top talent meets ambitious projects.
+            Build your success story with freelancehub.
+          </p>
+          <div class="flex gap-3 mb-6">
+            <button pButton
+                    (click)="register()"
+                    label="Start Your Journey"
+                    icon="pi pi-arrow-right"
+                    class="p-button-lg p-button-success">
+            </button>
+          </div>
+
+          <!-- Browse Section -->
+          <div class="mt-6 pt-4 border-top-1 border-blue-400">
+            <p class="text-white mb-3"> <strong> Explore opportunities without signing up </strong></p>
+            <div class="flex gap-2">
+              <button style="background: #f8f9fa" pButton
+                      routerLink="/jobs"
+                      label="Browse Jobs"
+                      icon="pi pi-briefcase"
+                      class="p-button-outlined p-button-sm">
+              </button>
+              <button style="background: #f8f9fa" pButton
+                      routerLink="/projects"
+                      label="Browse Projects"
+                      icon="pi pi-folder"
+                      class="p-button-outlined p-button-sm">
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-12 lg:col-5 text-center">
+          <div class="hero-illustration p-4">
+            <i class="pi pi-users text-8xl text-blue-200 mb-4"></i>
+            <div class="flex justify-content-center gap-2">
+              <div class="bg-white bg-opacity-20 p-3 border-round">
+                <i class="pi pi-chart-line text-2xl"></i>
+              </div>
+              <div class="bg-white bg-opacity-20 p-3 border-round">
+                <i class="pi pi-shield text-2xl"></i>
+              </div>
+              <div class="bg-white bg-opacity-20 p-3 border-round">
+                <i class="pi pi-comments text-2xl"></i>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </p-panel>
-
-
-  <div class="features-section">
-    <p-carousel [value]="features" [numVisible]="3" [circular]="true" [autoplayInterval]="4000">
-      <ng-template pTemplate="item" let-feature>
-        <p-card [header]="feature.title" [subheader]="feature.subtitle">
-          <p>{{ feature.description }}</p>
-        </p-card>
-      </ng-template>
-    </p-carousel>
   </div>
 
-  <div class="demo-section">
-    <p-panel header="Workspace Preview">
-      <img src="assets/demo-workspace.png" alt="Workspace Canvas Demo" style="width:100%;max-width:600px;">
-    </p-panel>
+  <!-- Stats Section -->
+  <div class="stats-section py-6 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="grid text-center">
+        <div class="col-12 lg:col-3" *ngFor="let stat of stats">
+          <div class="p-4">
+            <i [class]="stat.icon + ' text-4xl text-primary mb-3'"></i>
+            <h3 class="text-3xl font-bold text-900 mb-2">{{ stat.value }}</h3>
+            <p class="text-600">{{ stat.label }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="info-section">
-    <p-panel header="Why freelancehub?">
-      <ul>
-        <li>Visual workspace with draggable project cards</li>
-        <li>Real-time collaboration tools</li>
-        <li>Personalized insights and quick actions</li>
-        <li>Secure, easy onboarding for clients and freelancers</li>
-      </ul>
-    </p-panel>
+  <!-- Features Section -->
+  <div class="features-section py-8">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-6">
+        <h2 class="text-4xl font-bold text-900 mb-3">Why Choose FreelanceHub?</h2>
+        <p class="text-xl text-600">Professional tools for professional results</p>
+      </div>
+
+      <div class="grid">
+        <div class="col-12 md:col-6 lg:col-3" *ngFor="let feature of features">
+          <p-card class="h-full feature-card">
+            <ng-template pTemplate="header">
+              <div class="text-center p-4">
+                <i [class]="feature.icon + ' text-5xl text-primary'"></i>
+              </div>
+            </ng-template>
+
+            <div class="text-center">
+              <h4 class="text-xl font-semibold text-900 mb-2">{{ feature.title }}</h4>
+              <p class="text-primary font-medium mb-3">{{ feature.subtitle }}</p>
+              <p class="text-600 line-height-3">{{ feature.description }}</p>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works Section -->
+  <div class="process-section py-8 bg-blue-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-6">
+        <h2 class="text-4xl font-bold text-900 mb-3">How It Works</h2>
+        <p class="text-xl text-600">Simple steps to success</p>
+      </div>
+
+      <div class="grid">
+        <div class="col-12 md:col-4 text-center">
+          <div class="step-card p-4">
+            <div class="step-number bg-primary text-white border-circle w-4rem h-4rem flex align-items-center justify-content-center text-2xl font-bold mx-auto mb-4">1</div>
+            <h4 class="text-xl font-semibold mb-3">Sign Up & Create Profile</h4>
+            <p class="text-600">Join our community and showcase your skills or project needs</p>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-4 text-center">
+          <div class="step-card p-4">
+            <div class="step-number bg-primary text-white border-circle w-4rem h-4rem flex align-items-center justify-content-center text-2xl font-bold mx-auto mb-4">2</div>
+            <h4 class="text-xl font-semibold mb-3">Find Perfect Matches</h4>
+            <p class="text-600">Browse opportunities or receive proposals from qualified professionals</p>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-4 text-center">
+          <div class="step-card p-4">
+            <div class="step-number bg-primary text-white border-circle w-4rem h-4rem flex align-items-center justify-content-center text-2xl font-bold mx-auto mb-4">3</div>
+            <h4 class="text-xl font-semibold mb-3">Collaborate & Succeed</h4>
+            <p class="text-600">Use our tools to manage projects and secure payments</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials Section -->
+  <div class="testimonials-section py-8">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-6">
+        <h2 class="text-4xl font-bold text-900 mb-3">What Our Users Say</h2>
+        <p class="text-xl text-600">Join thousands of satisfied clients and freelancers</p>
+      </div>
+
+      <p-carousel [value]="testimonials"
+                  [numVisible]="1"
+                  [circular]="true"
+                  [autoplayInterval]="5000"
+                  [showNavigators]="true"
+                  [showIndicators]="true">
+        <ng-template pTemplate="item" let-testimonial>
+          <div class="testimonial-card text-center p-6 mx-4">
+            <div class="mb-4">
+              <p-avatar [label]="testimonial.avatar"
+                        size="xlarge"
+                        class="bg-primary text-white">
+              </p-avatar>
+            </div>
+            <blockquote class="text-lg text-600 italic mb-4 line-height-3">
+              "{{ testimonial.content }}"
+            </blockquote>
+            <div class="testimonial-author">
+              <h5 class="text-xl font-semibold text-900 mb-1">{{ testimonial.name }}</h5>
+              <p class="text-primary font-medium">{{ testimonial.role }}</p>
+              <p class="text-600">{{ testimonial.company }}</p>
+            </div>
+          </div>
+        </ng-template>
+      </p-carousel>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="cta-section bg-gradient-to-r from-primary to-blue-800 text-white py-8">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-4xl font-bold mb-4">Ready to Start Your Success Story?</h2>
+      <p class="text-xl mb-6 text-blue-100">Join freelancehub today and transform how you work</p>
+      <div class="flex gap-3 justify-content-center">
+        <button pButton
+                (click)="register()"
+                label="Get Started Free"
+                icon="pi pi-arrow-right"
+                class="p-button-lg p-button-success">
+        </button>
+        <button pButton
+                routerLink="/projects"
+                label="Explore Projects"
+                class="p-button-lg p-button-outlined">
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
-<footer class="fh-footer">
-  &copy; 2024 freelancehub. All rights reserved.
+<!-- Professional Footer -->
+<footer class="bg-gray-900 text-white py-6">
+  <div class="container mx-auto px-4">
+    <div class="grid">
+      <div class="col-12 md:col-6">
+        <div class="flex align-items-center mb-3">
+          <i class="pi pi-briefcase text-primary text-2xl mr-2"></i>
+          <span class="text-2xl font-bold">freelancehub</span>
+        </div>
+        <p class="text-gray-400">Empowering the future of work, one project at a time.</p>
+      </div>
+      <div class="col-12 md:col-6 text-right">
+        <p class="text-gray-400">&copy; 2024 FreelanceHub. All rights reserved.</p>
+        <div class="flex gap-3 justify-content-end mt-2">
+          <a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a>
+          <a href="#" class="text-gray-400 hover:text-white">Terms of Service</a>
+          <a href="#" class="text-gray-400 hover:text-white">Contact</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </footer>

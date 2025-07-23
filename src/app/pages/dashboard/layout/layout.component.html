@@ -2,50 +2,113 @@
 
 
 
-<div class="grid">
+<div class="layout-container">
   <!-- Desktop Sidebar -->
-  <div *ngIf="isSidebarOpen" class="hidden md:block md:col-2">
-    <div class="card h-full">
-      <p-menu [style]="{ height: '100vh' }" [model]="items" class="flex justify-center" styleClass="w-full md:w-60">
-        <ng-template #start>
-          <span class="inline-flex items-center gap-1 px-2 py-2">
-            <span class="text-xl font-semibold">Freelance<span class="text-primary">hub</span></span>
-            <button (click)="toggle()">C</button>
-          </span>
-        </ng-template>
-        <ng-template #submenuheader let-item>
-          <span class="text-primary font-bold">{{ item.label }}</span>
-        </ng-template>
-        <ng-template #item let-item>
-          <a pRipple class="flex items-center p-menu-item-link">
-            <span [class]="item.icon"></span>
-            <span class="ml-2">{{ item.label }}</span>
-            <p-badge *ngIf="item.badge" class="ml-auto" [value]="item.badge" />
-          </a>
-        </ng-template>
-
-
-              <ng-template #end>
-        <button style="border-bottom: azure;" pRipple class="relative overflow-hidden w-full border-0 bg-transparent flex items-start p-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-none cursor-pointer transition-colors duration-200">
-            <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" class="mr-2" shape="circle" />
-            <div class="user" >
-                <span class="font-bold">Amy Elsner</span>
-                <span class="text-sm">Admin</span>
-            </div>
+  <div *ngIf="isSidebarOpen" class="sidebar-container">
+    <div class="sidebar-content">
+      <!-- Fixed Header -->
+      <div class="sidebar-header">
+        <span class="brand-text">
+          Freelance<span class="text-primary">Hub</span>
+        </span>
+        <button 
+          (click)="toggle()" 
+          class="collapse-btn"
+          pTooltip="Collapse sidebar">
+          <i class="pi pi-angle-left"></i>
         </button>
-    </ng-template>
-      </p-menu>
+      </div>
+
+      <!-- Scrollable Menu Area -->
+      <div class="sidebar-menu-container">
+        <p-menu [model]="items" styleClass="sidebar-menu">
+          <ng-template #submenuheader let-item>
+            <span class="submenu-header">
+              {{ item.label }}
+            </span>
+          </ng-template>
+          
+          <ng-template #item let-item>
+            <a 
+              pRipple 
+              class="menu-item-link"
+              [class.active-menu-item]="router.url.includes(item.routerLink)"
+              pTooltip="{{ item.label }}">
+              <span [class]="item.icon" class="menu-icon"></span>
+              <span class="menu-label">{{ item.label }}</span>
+              <p-badge 
+                *ngIf="item.badge" 
+                class="menu-badge" 
+                [value]="item.badge" 
+                severity="danger" />
+            </a>
+          </ng-template>
+        </p-menu>
+      </div>
+
+      <!-- Fixed Footer -->
+      <div class="sidebar-footer">
+        <div class="user-profile-section">
+          <button 
+            pRipple 
+            class="user-profile-btn"
+            [routerLink]="['/dashboard/profile']"
+            pTooltip="View Profile">
+            <p-avatar 
+              [image]="userProfilePicture || 'https://via.placeholder.com/40'" 
+              class="user-avatar" 
+              shape="circle" 
+              size="normal" />
+            <div class="user-info">
+              <span class="user-name">{{ userName | titlecase }}</span>
+              <span 
+                class="user-type"
+                [class.client-type]="isClient"
+                [class.freelancer-type]="isFreelancer">
+                {{ userType | titlecase }}
+              </span>
+            </div>
+            <i class="pi pi-user user-arrow"></i>
+          </button>
+          
+          <button 
+            pRipple 
+            class="logout-btn"
+            (click)="onLogout()"
+            pTooltip="Logout">
+            <i class="pi pi-sign-out"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div *ngIf="isSidebarOpen" class="col-12 md:col-10" style="padding: 30px;">
-    <router-outlet />
+  <!-- Main Content Area -->
+  <div 
+    class="main-content"
+    [class.sidebar-open]="isSidebarOpen"
+    [class.sidebar-closed]="!isSidebarOpen">
+    
+    <!-- Collapsed Sidebar Toggle -->
+    <div *ngIf="!isSidebarOpen" class="collapsed-toggle">
+      <button 
+        (click)="toggle()" 
+        class="expand-btn"
+        pTooltip="Expand sidebar">
+        <i class="pi pi-bars"></i>
+      </button>
+    </div>
+    
+    <!-- Page Content -->
+    <div class="page-content">
+      <router-outlet />
+    </div>
   </div>
-  <div  *ngIf="!isSidebarOpen"  class="col-12 md:col-12" style="padding: 30px;">
-     <button (click)="toggle()">C</button>
-    <router-outlet />
-  </div>
-
-
 </div>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
