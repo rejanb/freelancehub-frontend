@@ -1,9 +1,99 @@
-<div class="home-container">
-  <p class="home-message">Welcome to Freelancehub!</p>
+<div class="p-d-flex p-flex-column" style="min-height: 100vh; background: #fff;">
+  <!-- Navbar -->
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+  
+  <!-- Logo -->
+  <div style="display: flex; align-items: center;">
+    <img src="favicon.ico" alt="FreelanceHub Logo" style="height: 40px; width: 40px;" />
+    <h2 style="margin-left: 0.75rem; font-size: 1.5rem; color: #2d3e50;">FreelanceHub</h2>
+  </div>
 
-  <div class="home-buttons">
-    <button class="btn btn-login" (click)="login()">Login</button>
-    <button class="btn btn-register" (click)="register()">Register</button>
+  <!-- Navigation + Auth Buttons -->
+  <div style="display: flex; align-items: center; gap: 1.5rem;">
+    <a routerLink="/" style="color: #495057; text-decoration: none; font-weight: 500;">Home</a>
+    <a routerLink="/jobs" style="color: #495057; text-decoration: none; font-weight: 500;">Browse Jobs</a>
+    <a routerLink="/freelancers" style="color: #495057; text-decoration: none; font-weight: 500;">Freelancers</a>
+    <a routerLink="/contact" style="color: #495057; text-decoration: none; font-weight: 500;">Contact</a>
+
+    <!-- Auth Buttons -->
+    <button pButton label="Login" class="p-button-sm p-button-rounded p-button-success " (click)="login()"></button>
+    <button pButton label="Register" class="p-button-sm p-button-outlined p-button-success" (click)="register()"></button>
   </div>
 </div>
 
+
+  <!-- Hero -->
+  <div class="p-grid p-justify-between p-px-5 p-pt-6 p-pb-4"
+       style="flex: 1; margin: auto; max-width: 1440px; width: 100%;">
+    
+    <!-- Left Column -->
+    <div class="p-col-12 p-md-6">
+      <h1 class="p-text-5xl p-font-bold p-mb-3" style="color: #043e30;">
+        Hire Experts & Get Your<br />Any Job Done
+      </h1>
+      <p class="p-text-secondary p-mb-4"  style="max-width: 780px; font-size: 1.1rem; color: #6c757d; line-height: 1.8;">
+        Work with talented people at the most affordable price to get the most out of your time and cost.
+      </p>
+<!-- Search Bar -->
+<div style="max-width: 900px; border: 1px solid #043e30; background: #fff; padding: 0.75rem 1.25rem; border-radius: 6px; display: flex; align-items: center; gap: 1rem;">
+  
+  
+  <div style="display: flex; align-items: center; flex: 1;">
+    <i class="pi pi-search" style="font-size: 1.2rem; color: #2d3e50; margin-right: 8px;"></i>
+    <input pInputText 
+           type="text" 
+           placeholder="What are you looking for?" 
+           style="border: none; outline: none; width: 100%; font-size: 1rem;" />
+  </div>
+
+  <!-- Divider -->
+  <div style="width: 1px; height: 32px; background-color: #ccc;"></div>
+
+  <!-- Dropdown -->
+  <div style="min-width: 200px;">
+    <p-dropdown 
+      [options]="locations" 
+      placeholder="City, state, or zip"
+      styleClass="w-full" 
+      appendTo="body"
+      [showClear]="true">
+    </p-dropdown>
+  </div>
+
+  <!-- Button -->
+  <div>
+    <button pButton 
+            type="button" 
+            label="Search" 
+            class="p-button-success" 
+            style="width: 100px; font-weight: 600;">
+    </button>
+  </div>
+</div>
+
+  
+
+      <!-- Trusted Logos -->
+      <div class="">
+        <small class="p-text-muted">Trusted by</small>
+        <div class="p-d-flex p-gap-4 p-mt-2 p-ai-center p-flex-wrap">
+         <img src=" " alt="Brand Image" style="height: 40px;" />
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Image Grid -->
+    <div class="p-col-12 p-md-6">
+      <div class="p-grid p-nogutter p-gap-3">
+        <div class="p-col-6">
+          <img src="" alt="Professional 1" class="p-shadow-3 p-rounded" style="width: 100%;" />
+        </div>
+        <div class="p-col-6 p-d-flex p-flex-column p-gap-3">
+          <img src="" alt="Professional 2" class="p-shadow-3 p-rounded" style="width: 100%;" />
+          <img src="" alt="Professional 3" class="p-shadow-3 p-rounded" style="width: 100%;" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
