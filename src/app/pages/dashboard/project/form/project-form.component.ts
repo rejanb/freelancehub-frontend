@@ -36,15 +36,15 @@ import { InputNumberModule } from 'primeng/inputnumber';
   template: `
     <div class="project-form-container">
       <p-toast></p-toast>
-      
+
       <!-- Header -->
       <div class="flex justify-content-between align-items-center mb-4">
         <h2 class="text-2xl font-semibold m-0">
           {{ isEditMode ? 'Edit Project' : 'Create New Project' }}
         </h2>
-        <button pButton 
-                label="Back to Projects" 
-                icon="pi pi-arrow-left" 
+        <button pButton
+                label="Back to Projects"
+                icon="pi pi-arrow-left"
                 class="p-button-outlined"
                 (click)="goBack()">
         </button>
@@ -57,9 +57,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
             <!-- Title -->
             <div class="col-12">
               <label for="title" class="block text-900 font-medium mb-2">Project Title *</label>
-              <input pInputText 
-                     id="title" 
-                     formControlName="title" 
+              <input pInputText
+                     id="title"
+                     formControlName="title"
                      class="w-full"
                      placeholder="Enter project title"
                      [class.ng-invalid]="projectForm.get('title')?.invalid && projectForm.get('title')?.touched">
@@ -71,10 +71,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
             <!-- Description -->
             <div class="col-12">
               <label for="description" class="block text-900 font-medium mb-2">Description *</label>
-              <textarea pInputTextarea 
-                        id="description" 
-                        formControlName="description" 
-                        rows="6" 
+              <textarea pInputTextarea
+                        id="description"
+                        formControlName="description"
+                        rows="6"
                         class="w-full"
                         placeholder="Provide detailed project description..."
                         [class.ng-invalid]="projectForm.get('description')?.invalid && projectForm.get('description')?.touched">
@@ -87,10 +87,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
             <!-- Budget and Deadline -->
             <div class="col-12 md:col-6">
               <label for="budget" class="block text-900 font-medium mb-2">Budget (\$) *</label>
-              <p-inputNumber id="budget" 
-                             formControlName="budget" 
-                             mode="currency" 
-                             currency="USD" 
+              <p-inputNumber id="budget"
+                             formControlName="budget"
+                             mode="currency"
+                             currency="USD"
                              locale="en-US"
                              class="w-full"
                              [min]="1"
@@ -104,9 +104,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 
             <div class="col-12 md:col-6">
               <label for="deadline" class="block text-900 font-medium mb-2">Deadline *</label>
-              <p-calendar id="deadline" 
-                          formControlName="deadline" 
-                          [showIcon]="true" 
+              <p-calendar id="deadline"
+                          formControlName="deadline"
+                          [showIcon]="true"
                           [minDate]="minDate"
                           dateFormat="mm/dd/yy"
                           class="w-full"
@@ -121,10 +121,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
             <!-- Category and Location -->
             <div class="col-12 md:col-6">
               <label for="category" class="block text-900 font-medium mb-2">Category</label>
-              <p-dropdown id="category" 
-                          formControlName="category" 
-                          [options]="categories" 
-                          optionLabel="name" 
+              <p-dropdown id="category"
+                          formControlName="category"
+                          [options]="categories"
+                          optionLabel="name"
                           optionValue="id"
                           placeholder="Select category"
                           class="w-full"
@@ -134,9 +134,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 
             <div class="col-12 md:col-6">
               <label for="location" class="block text-900 font-medium mb-2">Location</label>
-              <input pInputText 
-                     id="location" 
-                     formControlName="location" 
+              <input pInputText
+                     id="location"
+                     formControlName="location"
                      class="w-full"
                      placeholder="e.g., Remote, New York, London">
             </div>
@@ -144,9 +144,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
             <!-- Skills Required -->
             <div class="col-12">
               <label for="skills" class="block text-900 font-medium mb-2">Skills Required</label>
-              <input pInputText 
-                     id="skills" 
-                     formControlName="skills_required" 
+              <input pInputText
+                     id="skills"
+                     formControlName="skills_required"
                      class="w-full"
                      placeholder="Enter skills separated by commas (e.g., JavaScript, React, Node.js)">
               <small class="text-600">Separate multiple skills with commas</small>
@@ -174,7 +174,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
                   <div *ngIf="selectedFiles.length > 0" class="mt-3">
                     <h6 class="mb-2">Selected Files:</h6>
                     <div class="flex flex-column gap-2">
-                      <div *ngFor="let file of selectedFiles; let i = index" 
+                      <div *ngFor="let file of selectedFiles; let i = index"
                            class="flex align-items-center justify-content-between p-2 border-round surface-border surface-ground">
                         <div class="flex align-items-center gap-2">
                           <i [class]="getFileIcon(file.name)" class="text-xl"></i>
@@ -183,20 +183,20 @@ import { InputNumberModule } from 'primeng/inputnumber';
                             <div class="text-sm text-600">{{ formatFileSize(file.size) }}</div>
                           </div>
                         </div>
-                        <button pButton 
-                                icon="pi pi-times" 
+                        <button pButton
+                                icon="pi pi-times"
                                 class="p-button-rounded p-button-text p-button-sm"
                                 (click)="removeFile(i)">
                         </button>
                       </div>
                     </div>
                   </div>
-                  
+
                   <!-- Existing Attachments (Edit Mode) -->
                   <div *ngIf="isEditMode && existingAttachments.length > 0" class="mt-3">
                     <h6 class="mb-2">Existing Attachments:</h6>
                     <div class="flex flex-column gap-2">
-                      <div *ngFor="let attachment of existingAttachments" 
+                      <div *ngFor="let attachment of existingAttachments"
                            class="flex align-items-center justify-content-between p-2 border-round surface-border surface-ground">
                         <div class="flex align-items-center gap-2">
                           <i [class]="getFileIcon(attachment.file_name)" class="text-xl"></i>
@@ -206,13 +206,13 @@ import { InputNumberModule } from 'primeng/inputnumber';
                           </div>
                         </div>
                         <div class="flex gap-1">
-                          <button pButton 
-                                  icon="pi pi-download" 
+                          <button pButton
+                                  icon="pi pi-download"
                                   class="p-button-rounded p-button-text p-button-sm"
                                   (click)="downloadAttachment(attachment)">
                           </button>
-                          <button pButton 
-                                  icon="pi pi-times" 
+                          <button pButton
+                                  icon="pi pi-times"
                                   class="p-button-rounded p-button-text p-button-sm p-button-danger"
                                   (click)="deleteAttachment(attachment.id)">
                           </button>
@@ -230,10 +230,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
             <!-- Status (for edit mode) -->
             <div class="col-12 md:col-6" *ngIf="isEditMode">
               <label for="status" class="block text-900 font-medium mb-2">Status</label>
-              <p-dropdown id="status" 
-                          formControlName="status" 
-                          [options]="statusOptions" 
-                          optionLabel="label" 
+              <p-dropdown id="status"
+                          formControlName="status"
+                          [options]="statusOptions"
+                          optionLabel="label"
                           optionValue="value"
                           class="w-full">
               </p-dropdown>
@@ -242,8 +242,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
             <!-- Public visibility -->
             <div class="col-12">
               <div class="flex align-items-center">
-                <p-checkbox id="isPublic" 
-                            formControlName="is_public" 
+                <p-checkbox id="isPublic"
+                            formControlName="is_public"
                             [binary]="true">
                 </p-checkbox>
                 <label for="isPublic" class="ml-2">Make this project publicly visible</label>
@@ -254,13 +254,13 @@ import { InputNumberModule } from 'primeng/inputnumber';
 
           <!-- Actions -->
           <div class="flex gap-2 justify-content-end mt-4">
-            <button pButton 
-                    label="Cancel" 
+            <button pButton
+                    label="Cancel"
                     type="button"
-                    class="p-button-outlined" 
+                    class="p-button-outlined"
                     (click)="goBack()">
             </button>
-            <button pButton 
+            <button pButton
                     [label]="isEditMode ? 'Update Project' : 'Create Project'"
                     type="submit"
                     [disabled]="projectForm.invalid || submitting"
@@ -288,7 +288,7 @@ export class FormComponent implements OnInit {
     {label: 'Completed', value: 'completed'},
     {label: 'Cancelled', value: 'cancelled'}
   ];
-  
+
   categories: any[] = [];
 
   constructor(
@@ -302,7 +302,7 @@ export class FormComponent implements OnInit {
   ngOnInit() {
     this.initializeForm();
     this.loadCategories();
-    
+
     // Check if editing existing project
     this.route.params.subscribe(params => {
       if (params['id']) {
@@ -329,8 +329,8 @@ export class FormComponent implements OnInit {
 
   loadCategories() {
     this.projectService.getCategories().subscribe({
-      next: (categories) => {
-        this.categories = categories;
+      next: (categories: any) => {
+        this.categories = categories.results || [];
       },
       error: (error) => {
         console.error('Error loading categories:', error);
@@ -340,14 +340,14 @@ export class FormComponent implements OnInit {
 
   loadProject() {
     if (!this.projectId) return;
-    
+
     this.projectService.getProject(this.projectId).subscribe({
       next: (project) => {
         // Convert skills array to comma-separated string for display
-        const skillsString = Array.isArray(project.skills_required) 
-          ? project.skills_required.join(', ') 
+        const skillsString = Array.isArray(project.skills_required)
+          ? project.skills_required.join(', ')
           : project.skills_required || '';
-          
+
         this.projectForm.patchValue({
           title: project.title,
           description: project.description,
@@ -359,7 +359,7 @@ export class FormComponent implements OnInit {
           status: project.status,
           is_public: project.is_public
         });
-        
+
         // Load existing attachments
         this.existingAttachments = project.attachments || [];
       },
@@ -384,19 +384,19 @@ export class FormComponent implements OnInit {
     this.submitting = true;
     const formData = this.prepareFormData();
 
-    const operation = this.isEditMode 
+    const operation = this.isEditMode
       ? this.projectService.updateProject(this.projectId!, formData)
       : this.projectService.createProject(formData);
 
     operation.subscribe({
       next: async (response) => {
         const projectId = this.isEditMode ? this.projectId! : response.id;
-        
+
         // Upload attachments if any files are selected
         if (this.selectedFiles.length > 0) {
           await this.uploadAttachments(projectId);
         }
-        
+
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -419,9 +419,9 @@ export class FormComponent implements OnInit {
 
   prepareFormData() {
     const formValue = this.projectForm.value;
-    
+
     // Convert skills string to array
-    const skillsArray = formValue.skills_required 
+    const skillsArray = formValue.skills_required
       ? formValue.skills_required.split(',').map((skill: string) => skill.trim()).filter((skill: string) => skill)
       : [];
 
@@ -508,7 +508,7 @@ export class FormComponent implements OnInit {
 
   deleteAttachment(attachmentId: number) {
     if (!this.projectId) return;
-    
+
     this.projectService.deleteAttachment(this.projectId, attachmentId).subscribe({
       next: () => {
         this.existingAttachments = this.existingAttachments.filter(a => a.id !== attachmentId);

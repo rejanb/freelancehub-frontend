@@ -139,7 +139,7 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
               <a
                 [routerLink]="['/dashboard/jobs', job.id, 'proposals']"
                 class="text-primary hover:underline">
-<!--                View {{ job.proposal_count || 0 }} proposals-->
+<!--                View {{ job.proposals_count || 0 }} proposals-->
               </a>
             </div>
           </p-card>

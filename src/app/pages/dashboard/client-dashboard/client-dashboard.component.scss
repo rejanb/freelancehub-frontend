@@ -1,0 +1,129 @@
+.client-dashboard {
+  .card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    padding: 1.5rem;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    // Additional padding for card content
+    .card-content,
+    .p-card-content,
+    .p-card-body {
+      padding: 1rem;
+    }
+
+    // Nested cards should have less padding
+    .card .card {
+      padding: 1rem;
+      
+      .card-content,
+      .p-card-content,
+      .p-card-body {
+        padding: 0.75rem;
+      }
+    }
+  }
+
+  // Quick stats cards with hover effects
+  .cursor-pointer {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  // Chart containers
+  .p-chart {
+    height: 100%;
+  }
+
+  // Recent activities styling
+  .border-bottom-1 {
+    &:last-child {
+      border-bottom: none !important;
+    }
+  }
+
+  // Table styling
+  .p-datatable {
+    .p-datatable-tbody > tr {
+      transition: background-color 0.3s ease;
+      
+      &:hover {
+        background-color: var(--surface-hover) !important;
+      }
+    }
+  }
+
+  // Tag styling
+  .p-tag {
+    font-weight: 500;
+    font-size: 0.8rem;
+  }
+
+  // Button styling
+  .p-button {
+    &.p-button-lg {
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  // Skeleton loading
+  .p-skeleton {
+    border-radius: 8px;
+  }
+
+  // Empty state styling
+  .text-center {
+    .pi {
+      opacity: 0.3;
+    }
+  }
+
+  // Avatar styling
+  .p-avatar {
+    background-color: var(--primary-color);
+    color: white;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .client-dashboard {
+    .grid > div {
+      padding: 0.5rem;
+    }
+    
+    .card {
+      margin-bottom: 1rem;
+    }
+    
+    .flex.justify-content-between {
+      flex-direction: column;
+      gap: 1rem;
+      
+      .flex.gap-2 {
+        align-self: stretch;
+        
+        button {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
+
+// Chart responsive styling
+:host ::ng-deep {
+  .p-chart canvas {
+    max-height: 300px !important;
+  }
+}

@@ -9,9 +9,9 @@ export const notificationsRoutes: Routes = [
         loadComponent: () => import('./notification-list/notification-list.component').then(m => m.NotificationListComponent)
       },
       {
-        path: 'preferences',
-        loadComponent: () => import('./notification-preferences/notification-preferences.component').then(m => m.NotificationPreferencesComponent)
+        path: 'test',
+        loadComponent: () => import('./notification-test/notification-test.component').then(m => m.NotificationTestComponent)
       }
     ]
   }
-]; 
+];

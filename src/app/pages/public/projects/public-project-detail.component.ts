@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
@@ -29,7 +29,7 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
       <!-- Loading -->
       <div *ngIf="loading" class="text-center p-6">
         <p-progressSpinner></p-progressSpinner>
-        <p class="mt-3">Loading project details...</p>
+        <p>class="mt-3">Loading project details...</p>
       </div>
 
       <!-- Project Not Found -->
@@ -61,15 +61,7 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
                 <p-tag [value]="project.status" [severity]="getStatusSeverity(project.status)"></p-tag>
               </div>
             </div>
-            <div class="text-right">
-              <div class="text-2xl font-bold text-green-600 mb-2">\${{ project.budget }}</div>
-              <button
-                pButton
-                label="Submit Proposal"
-                class="p-button-success"
-                [disabled]="project.status !== 'open'">
-              </button>
-            </div>
+
           </div>
         </div>
 
@@ -184,10 +176,6 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
 
               <p-divider></p-divider>
 
-              <div class="text-center">
-                <p class="text-600 mb-3">Want to work with this client?</p>
-                <button pButton label="View Profile" class="p-button-outlined w-full" [disabled]="true"></button>
-              </div>
             </div>
 
             <!-- Freelancer Info (if assigned) -->
@@ -206,15 +194,7 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
               </div>
             </div>
 
-            <!-- Related Projects -->
-            <div class="card">
-              <h3 class="text-lg font-semibold mb-3">Similar Projects</h3>
-              <div class="text-600 text-center py-4">
-                <i class="pi pi-search mb-2 text-2xl"></i>
-                <p>Browse more projects in this category</p>
-                <button pButton label="Browse Projects" routerLink="/projects" class="p-button-outlined"></button>
-              </div>
-            </div>
+
           </div>
         </div>
 
@@ -233,36 +213,42 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
 })
 export class PublicProjectDetailComponent implements OnInit {
   project: PublicProject | null = null;
-  loading = true;
+  loading = false;
 
   constructor(
     private route: ActivatedRoute,
-    private publicService: PublicService
+    private publicService: PublicService,
+     private router: Router
   ) {}
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      const projectId = params['id'];
-      if (projectId) {
-        this.loadProject(projectId);
-      }
-    });
-  }
 
-  loadProject(id: number) {
-    this.loading = true;
-    this.publicService.getPublicProject(id).subscribe({
-      next: (project) => {
-        this.project = project;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading project:', error);
-        this.project = null;
-        this.loading = false;
-      }
-    });
+    this.project =  history.state.project;
+    console.log(this.project)
   }
+  //   this.route.params.subscribe(params => {
+  //     const projectId = params[];
+  //     if (projectId) {
+  //       this.loadProject(projectId);
+  //     }
+  //   });
+  // }
+
+
+  // loadProject(id: number) {
+  //   this.loading = true;
+  //   this.publicService.getPublicProject(id).subscribe({
+  //     next: (project) => {
+  //       this.project = project;
+  //       this.loading = false;
+  //     },
+  //     error: (error) => {
+  //       console.error('Error loading project:', error);
+  //       this.project = null;
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
 
   getStatusSeverity(status: string): "info" | "success" | "warn" | "danger" | "secondary" | "contrast" {
     switch (status) {

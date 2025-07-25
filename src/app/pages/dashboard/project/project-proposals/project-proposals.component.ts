@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProjectService } from '../../../../../service/project.service';
 import { TokenService } from '../../../../../app/utils/token.service';
+import {TooltipModule} from "primeng/tooltip";
 
 @Component({
   selector: 'app-project-proposals',
@@ -23,6 +24,7 @@ import { TokenService } from '../../../../../app/utils/token.service';
     CommonModule,
     RouterModule,
     TableModule,
+    TooltipModule,
     ButtonModule,
     TagModule,
     CardModule,
@@ -32,7 +34,7 @@ import { TokenService } from '../../../../../app/utils/token.service';
     ProgressSpinnerModule,
     InputTextarea,
     InputNumber,
-    FormsModule
+    FormsModule,
   ],
   providers: [ConfirmationService, MessageService],
   template: `
@@ -55,16 +57,16 @@ import { TokenService } from '../../../../../app/utils/token.service';
             <p class="text-600 mt-1" *ngIf="project">{{ project.title }}</p>
           </div>
           <div class="flex gap-2">
-            <button pButton 
+            <button pButton
                     *ngIf="canApplyToProject()"
-                    label="Apply for Project" 
-                    icon="pi pi-send" 
+                    label="Apply for Project"
+                    icon="pi pi-send"
                     class="p-button-success"
                     (click)="showApplyDialog()">
             </button>
-            <button pButton 
-                    label="Back to Projects" 
-                    icon="pi pi-arrow-left" 
+            <button pButton
+                    label="Back to Projects"
+                    icon="pi pi-arrow-left"
                     class="p-button-outlined"
                     routerLink="../">
             </button>
@@ -105,7 +107,7 @@ import { TokenService } from '../../../../../app/utils/token.service';
         <!-- Proposals -->
         <div class="card">
           <h3>Proposals</h3>
-          
+
           <div *ngIf="proposals.length === 0" class="text-center py-6">
             <i class="pi pi-inbox text-4xl text-400 mb-3"></i>
             <p class="text-lg text-600">No proposals yet</p>
@@ -124,7 +126,7 @@ import { TokenService } from '../../../../../app/utils/token.service';
                   <th>Actions</th>
                 </tr>
               </ng-template>
-              
+
               <ng-template pTemplate="body" let-proposal>
                 <tr [ngClass]="{'bg-blue-50': proposal.freelancer?.id === currentUserId}">
                   <td>
@@ -142,46 +144,46 @@ import { TokenService } from '../../../../../app/utils/token.service';
                       </div>
                     </div>
                   </td>
-                  
+
                   <td>
                     <span class="font-bold text-green-600">\${{ proposal.proposed_budget | number:'1.0-0' }}</span>
                   </td>
-                  
+
                   <td>
-                    <span *ngIf="proposal.estimated_timeline">{{ proposal.estimated_timeline }}</span>
-                    <span *ngIf="!proposal.estimated_timeline" class="text-400">Not specified</span>
+                    <span *ngIf="proposal.proposed_timeline">{{ proposal.proposed_timeline }}</span>
+                    <span *ngIf="!proposal.proposed_timeline" class="text-400">Not specified</span>
                   </td>
-                  
+
                   <td>
                     <p-tag [value]="proposal.status" [severity]="getProposalStatusSeverity(proposal.status)"></p-tag>
                   </td>
-                  
+
                   <td>
                     {{ proposal.created_at | date:'mediumDate' }}
                   </td>
-                  
+
                   <td>
                     <div class="flex gap-1">
                       <!-- View Cover Letter -->
-                      <button pButton 
-                              icon="pi pi-eye" 
+                      <button pButton
+                                icon="pi pi-file"
                               class="p-button-rounded p-button-outlined p-button-sm"
                               (click)="viewCoverLetter(proposal)"
-                              pTooltip="View Cover Letter">
+                              pTooltip="View More Information">
                       </button>
-                      
+
                       <!-- Accept Proposal -->
-                      <button pButton 
-                              icon="pi pi-check" 
+                      <button pButton
+                              icon="pi pi-check"
                               class="p-button-rounded p-button-success p-button-sm"
                               *ngIf="proposal.status === 'pending' && canManageProposals()"
                               (click)="acceptProposal(proposal)"
                               pTooltip="Accept Proposal">
                       </button>
-                      
+
                       <!-- Reject Proposal -->
-                      <button pButton 
-                              icon="pi pi-times" 
+                      <button pButton
+                              icon="pi pi-times"
                               class="p-button-rounded p-button-danger p-button-sm"
                               *ngIf="proposal.status === 'pending' && canManageProposals()"
                               (click)="rejectProposal(proposal)"
@@ -197,11 +199,11 @@ import { TokenService } from '../../../../../app/utils/token.service';
       </div>
 
       <!-- Cover Letter Dialog -->
-      <p-dialog header="Cover Letter" 
-                [(visible)]="showCoverLetterDialog" 
-                [modal]="true" 
+      <p-dialog header="Cover Letter"
+                [(visible)]="showCoverLetterDialog"
+                [modal]="true"
                 [style]="{ width: '600px' }"
-                [draggable]="false" 
+                [draggable]="false"
                 [resizable]="false">
         <div *ngIf="selectedProposal">
           <div class="mb-3">
@@ -211,22 +213,22 @@ import { TokenService } from '../../../../../app/utils/token.service';
               <span *ngIf="selectedProposal.estimated_timeline">Timeline: <strong>{{ selectedProposal.estimated_timeline }}</strong></span>
             </div>
           </div>
-          
+
           <div class="mb-3">
             <h5>Cover Letter</h5>
             <div class="bg-gray-50 p-3 border-round">
               <p class="white-space-pre-line m-0">{{ selectedProposal.cover_letter }}</p>
             </div>
           </div>
-          
+
           <div class="flex gap-2 justify-content-end">
-            <button pButton 
-                    label="Close" 
-                    class="p-button-outlined" 
+            <button pButton
+                    label="Close"
+                    class="p-button-outlined"
                     (click)="closeCoverLetterDialog()">
             </button>
-            <button pButton 
-                    label="Accept Proposal" 
+            <button pButton
+                    label="Accept Proposal"
                     *ngIf="selectedProposal.status === 'pending' && canManageProposals()"
                     (click)="acceptProposal(selectedProposal); closeCoverLetterDialog()">
             </button>
@@ -235,57 +237,57 @@ import { TokenService } from '../../../../../app/utils/token.service';
       </p-dialog>
 
       <!-- Apply Dialog -->
-      <p-dialog header="Apply for Project" 
-                [(visible)]="showApplyFormDialog" 
-                [modal]="true" 
+      <p-dialog header="Apply for Project"
+                [(visible)]="showApplyFormDialog"
+                [modal]="true"
                 [style]="{ width: '600px' }"
-                [draggable]="false" 
+                [draggable]="false"
                 [resizable]="false">
         <div class="flex flex-column gap-4">
           <div class="field">
             <label for="proposedBudget" class="block font-medium mb-2">Proposed Budget (\$)</label>
-            <p-inputNumber 
+            <p-inputNumber
               id="proposedBudget"
               [(ngModel)]="proposalForm.proposedBudget"
-              mode="currency" 
-              currency="USD" 
+              mode="currency"
+              currency="USD"
               class="w-full"
               [min]="1"
               placeholder="Enter your proposed budget">
             </p-inputNumber>
           </div>
-          
+
           <div class="field">
-            <label for="timeline" class="block font-medium mb-2">Estimated Timeline</label>
-            <input 
+            <label for="timeline" class="block  mb-2">Estimated Timeline</label>
+            <input
               id="timeline"
-              type="text" 
-              pInputText 
+              type="text"
+              pInputText
               [(ngModel)]="proposalForm.timeline"
               placeholder="e.g., 2 weeks, 1 month"
               class="w-full">
           </div>
-          
+
           <div class="field">
             <label for="coverLetter" class="block font-medium mb-2">Cover Letter</label>
-            <textarea 
+            <textarea
               id="coverLetter"
-              pInputTextarea 
+              pInputTextarea
               [(ngModel)]="proposalForm.coverLetter"
-              rows="6" 
+              rows="6"
               class="w-full"
               placeholder="Explain why you're the best fit for this project...">
             </textarea>
           </div>
-          
+
           <div class="flex gap-2 justify-content-end">
-            <button pButton 
-                    label="Cancel" 
-                    class="p-button-outlined" 
+            <button pButton
+                    label="Cancel"
+                    class="p-button-outlined"
                     (click)="closeApplyDialog()">
             </button>
-            <button pButton 
-                    label="Submit Proposal" 
+            <button pButton
+                    label="Submit Proposal"
                     class="p-button-success"
                     [disabled]="!isProposalFormValid()"
                     (click)="submitProposal()">
@@ -300,7 +302,7 @@ import { TokenService } from '../../../../../app/utils/token.service';
       padding: 1rem 0.75rem;
       vertical-align: top;
     }
-    
+
     .white-space-pre-line {
       white-space: pre-line;
     }
@@ -313,7 +315,7 @@ export class ProjectProposalsComponent implements OnInit {
   loading = true;
   userRole: string = '';
   currentUserId: number | null = null;
-  
+
   showCoverLetterDialog = false;
   selectedProposal: any = null;
 
@@ -335,7 +337,7 @@ export class ProjectProposalsComponent implements OnInit {
   ngOnInit() {
     this.userRole = this.tokenService.getUserRole();
     this.currentUserId = this.tokenService.getUserId();
-    
+
     this.route.params.subscribe(params => {
       this.projectId = params['id'];
       this.loadProjectAndProposals();
@@ -344,32 +346,37 @@ export class ProjectProposalsComponent implements OnInit {
 
   loadProjectAndProposals() {
     this.loading = true;
-    
+
     // Load project details
     this.projectService.getProject(this.projectId).subscribe({
       next: (project) => {
         this.project = project;
-        
+
         // Load proposals - but handle permission error for freelancers
         this.projectService.getProjectProposals(this.projectId).subscribe({
-          next: (proposals) => {
-            this.proposals = proposals;
+          next: (response) => {
+            // Handle paginated response
+            if (response.results) {
+              this.proposals = response.results;
+            } else {
+              this.proposals = response;
+            }
             this.loading = false;
           },
           error: (error) => {
-            console.error('Error loading proposals:', error);
-            
+            // console.error('Error loading proposals:', error);
+
             // If it's a permission error and user is a freelancer, that's expected
             if (error.status === 403 && this.userRole === 'freelancer') {
               console.log('Freelancer cannot view proposals - this is normal');
               this.proposals = []; // Set empty array
               this.loading = false;
             } else {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to load proposals'
-              });
+              // this.messageService.add({
+              //   severity: 'error',
+              //   summary: 'Error',
+              //   detail: 'Failed to load proposals'
+              // });
               this.loading = false;
             }
           }
@@ -389,7 +396,7 @@ export class ProjectProposalsComponent implements OnInit {
 
   canManageProposals(): boolean {
     if (this.userRole === 'admin') return true;
-    if (this.userRole === 'client' && this.project?.client.id === this.tokenService.getUserId()) return true;
+    if (this.userRole === 'client') return true;
     return false;
   }
 
@@ -424,7 +431,7 @@ export class ProjectProposalsComponent implements OnInit {
     if (this.project.status !== 'open') return false;
     if (this.project.client?.id === this.currentUserId) return false;
     if (this.project.selected_freelancer) return false;
-    
+
     return true;
   }
 
@@ -442,8 +449,8 @@ export class ProjectProposalsComponent implements OnInit {
   }
 
   isProposalFormValid(): boolean {
-    return !!(this.proposalForm.proposedBudget && 
-              this.proposalForm.coverLetter && 
+    return !!(this.proposalForm.proposedBudget &&
+              this.proposalForm.coverLetter &&
               this.proposalForm.coverLetter.trim().length > 0);
   }
 

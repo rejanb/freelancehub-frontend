@@ -37,7 +37,7 @@ import { DisputeService } from '../../../../../service/dispute.service';
               icon="pi pi-arrow-left" 
               label="Back"
               class="p-button-text"
-              routerLink="/dashboard/disputes">
+              routerLink="/dashboard/dispute">
             </button>
           </div>
 
@@ -206,7 +206,7 @@ export class DisputeFormComponent implements OnInit {
   ngOnInit() {
     this.contractId = Number(this.route.snapshot.params['contractId']);
     if (!this.contractId) {
-      this.router.navigate(['/dashboard/disputes']);
+      this.router.navigate(['/dashboard/dispute']);
       return;
     }
   }
@@ -246,7 +246,7 @@ export class DisputeFormComponent implements OnInit {
             summary: 'Success',
             detail: 'Dispute created successfully'
           });
-          this.router.navigate(['/dashboard/disputes']);
+          this.router.navigate(['/dashboard/dispute']);
         },
         error: (error) => {
           console.error('Error creating dispute:', error);

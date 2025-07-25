@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { ApiConst } from '../app/const/api-const';
 import { ApiResponse } from '../app/model/models';
@@ -26,6 +27,7 @@ export interface Message {
   message_type: 'text' | 'image' | 'file';
   is_read: boolean;
   read_by: number[];
+  read_by_users?: any;
   created_at: string;
   updated_at: string;
   chat_room: number;
@@ -71,17 +73,17 @@ export interface WebSocketMessage {
   providedIn: 'root'
 })
 export class MessageService {
-  private chatRoomsUrl = `${ApiConst.API_URL}chats/api/chatrooms/`;
-  private messagesUrl = `${ApiConst.API_URL}chats/api/messages/`;
+  private chatRoomsUrl = `${ApiConst.API_URL}chats/chatrooms/`;
+  private messagesUrl = `${ApiConst.API_URL}chats/messages/`;
   private wsUrl = 'ws://localhost:8000/ws/chat/';
-  
+
   private socket$?: WebSocketSubject<any>;
   private messagesSubject = new BehaviorSubject<Message[]>([]);
   private chatRoomsSubject = new BehaviorSubject<ChatRoom[]>([]);
   private unreadCountSubject = new BehaviorSubject<number>(0);
   private typingSubject = new Subject<TypingIndicator>();
   private onlineUsersSubject = new BehaviorSubject<number[]>([]);
-  
+
   messages$ = this.messagesSubject.asObservable();
   chatRooms$ = this.chatRoomsSubject.asObservable();
   unreadCount$ = this.unreadCountSubject.asObservable();
@@ -103,8 +105,19 @@ export class MessageService {
     this.currentChatRoomId = chatRoomId;
     this.disconnectWebSocket();
 
-    const wsUrl = `${this.wsUrl}${chatRoomId}/`;
-    
+    // Get the JWT token for authentication
+    if (!token) {
+      token = localStorage.getItem('access') || undefined;
+    }
+
+    if (!token) {
+      console.error('No JWT token available for WebSocket connection');
+      return;
+    }
+
+    const wsUrl = `${this.wsUrl}${chatRoomId}/?token=${token}`;
+    console.log('Connecting to chat WebSocket:', wsUrl);
+
     this.socket$ = webSocket({
       url: wsUrl,
       openObserver: {
@@ -142,7 +155,7 @@ export class MessageService {
           this.addNewMessage(wsMessage.message);
         }
         break;
-      
+
       case 'typing_indicator':
         if (wsMessage.user_id && wsMessage.username !== undefined && wsMessage.is_typing !== undefined) {
           this.typingSubject.next({
@@ -152,7 +165,7 @@ export class MessageService {
           });
         }
         break;
-      
+
       case 'user_joined':
         if (wsMessage.user_id) {
           const onlineUsers = this.onlineUsersSubject.value;
@@ -161,7 +174,7 @@ export class MessageService {
           }
         }
         break;
-      
+
       case 'user_left':
         if (wsMessage.user_id) {
           const onlineUsers = this.onlineUsersSubject.value;
@@ -178,7 +191,7 @@ export class MessageService {
     if (this.reconnectAttempts < this.maxReconnectAttempts && this.currentChatRoomId) {
       this.reconnectAttempts++;
       const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-      
+
       setTimeout(() => {
         console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
         this.connectToRoom(this.currentChatRoomId!);
@@ -191,16 +204,16 @@ export class MessageService {
    */
   private addNewMessage(message: Message): void {
     const currentMessages = this.messagesSubject.value;
-    
+
     // Check if message already exists (prevent duplicates)
     if (!currentMessages.find(m => m.id === message.id)) {
       this.messagesSubject.next([...currentMessages, message]);
-      
+
       // Update unread count if it's not from current user
       if (!message.read_by.includes(this.getCurrentUserId())) {
         this.unreadCountSubject.next(this.unreadCountSubject.value + 1);
       }
-      
+
       // Update chat rooms list
       this.updateChatRoomLastMessage(message);
     }
@@ -238,6 +251,7 @@ export class MessageService {
    */
   sendMessage(chatRoomId: number, content: string, attachment?: File): Observable<Message> {
     if (attachment) {
+      // For file attachments, still use HTTP API
       const formData = new FormData();
       formData.append('chat_room_id', chatRoomId.toString());
       formData.append('content', content);
@@ -245,11 +259,61 @@ export class MessageService {
 
       return this.http.post<Message>(`${this.messagesUrl}send/`, formData);
     } else {
-      return this.http.post<Message>(`${this.messagesUrl}send/`, {
-        chat_room_id: chatRoomId,
-        content
-      });
+      // For text messages, use WebSocket for real-time delivery
+      return this.sendMessageViaWebSocket(content);
     }
+  }
+
+  /**
+   * Send message via WebSocket for real-time delivery
+   */
+  private sendMessageViaWebSocket(content: string): Observable<Message> {
+    return new Observable(observer => {
+      if (this.socket$ && !this.socket$.closed) {
+        // Send via WebSocket
+        this.socket$.next({
+          type: 'chat_message',
+          message: content
+        });
+
+        // Create a temporary message object for immediate UI feedback
+        const tempMessage: Message = {
+          id: Date.now(), // Temporary ID
+          content,
+          sender: {
+            id: this.getCurrentUserId(),
+            username: 'You',
+            email: ''
+          },
+          message_type: 'text',
+          attachment: undefined,
+          is_read: false,
+          read_by: [],
+          chat_room: this.currentChatRoomId || 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+
+        observer.next(tempMessage);
+        observer.complete();
+      } else {
+        observer.error(new Error('WebSocket not connected'));
+      }
+    });
+  }
+
+  private getCurrentUserId(): number {
+    // Get current user ID from token or storage
+    const token = localStorage.getItem('access');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.user_id;
+      } catch (e) {
+        console.error('Error parsing token:', e);
+      }
+    }
+    return 0;
   }
 
   /**
@@ -267,8 +331,17 @@ export class MessageService {
   /**
    * Get chat rooms for current user
    */
-  getChatRooms(): Observable<ChatRoom[]> {
-    return this.http.get<ChatRoom[]>(this.chatRoomsUrl);
+  getChatRooms(): Observable<any> {
+    const params = new HttpParams().set('all', 'true'); // Get all rooms without pagination
+    return this.http.get<any>(this.chatRoomsUrl, { params }).pipe(
+      map(response => {
+        if (response.results) {
+          return response;
+        }
+        // If it's already an array, wrap it in paginated format
+        return { results: response, count: response.length };
+      })
+    );
   }
 
   /**
@@ -283,12 +356,17 @@ export class MessageService {
   /**
    * Get messages for a chat room
    */
-  getRoomMessages(chatRoomId: number, page: number = 1): Observable<ApiResponse<Message>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('page_size', '50');
-
-    return this.http.get<ApiResponse<Message>>(`${this.chatRoomsUrl}${chatRoomId}/messages/`, { params });
+  getRoomMessages(roomId: number): Observable<any> {
+    const params = new HttpParams().set('all', 'true'); // Get all messages without pagination
+    return this.http.get<any>(`${this.chatRoomsUrl}${roomId}/messages/`, { params }).pipe(
+      map(response => {
+        if (response.results) {
+          return response.results;
+        }
+        // If it's already an array, wrap it in paginated format
+        return { results: response, count: response.length };
+      })
+    );
   }
 
   /**
@@ -362,15 +440,6 @@ export class MessageService {
    */
   setChatRooms(chatRooms: ChatRoom[]): void {
     this.chatRoomsSubject.next(chatRooms);
-  }
-
-  /**
-   * Get current user ID (you'll need to implement this based on your auth service)
-   */
-  private getCurrentUserId(): number {
-    // This should be implemented based on your authentication service
-    // For now, returning 0 as placeholder
-    return 0;
   }
 
   /**

@@ -1,0 +1,189 @@
+.rating-content {
+  padding: 1rem 0;
+}
+
+.rating-section h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-weight: 600;
+}
+
+.rating-description {
+  margin: 0 0 1.5rem 0;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.rating-input {
+  margin-bottom: 1.5rem;
+}
+
+.rating-input label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-field {
+  margin-bottom: 1.5rem;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-field textarea {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-field textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.rating-categories {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.category-rating {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.category-rating:last-child {
+  margin-bottom: 0;
+}
+
+.category-rating label {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+  flex: 1;
+}
+
+.recommendation-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.checkbox-field input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.checkbox-field label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+  cursor: pointer;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+/* PrimeNG Dialog Custom Styles */
+:host ::ng-deep .p-dialog {
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+:host ::ng-deep .p-dialog-header {
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  border-bottom: none;
+}
+
+:host ::ng-deep .p-dialog-content {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+:host ::ng-deep .p-dialog-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Button Styling */
+:host ::ng-deep .p-button {
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+}
+
+:host ::ng-deep .p-button-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+
+:host ::ng-deep .p-button-secondary:hover {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+/* Toast Styling */
+:host ::ng-deep .p-toast {
+  z-index: 10000;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  :host ::ng-deep .p-dialog {
+    width: 95vw !important;
+    margin: 1rem;
+  }
+  
+  .category-rating {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .dialog-footer {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+  
+  :host ::ng-deep .p-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -9,11 +9,18 @@ import { TagModule } from 'primeng/tag';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { Subscription } from 'rxjs';
 import { ContractService, ContractFilters } from '../../../../../service/contract.service';
 import { TokenService } from '../../../../utils/token.service';
 import { RoleConst } from '../../../../const/api-const';
 import { Contract } from '../../../../model/models';
+import {DatePickerModule} from 'primeng/datepicker';
 
 interface ContractListFilters {
   search: string;
@@ -37,24 +44,38 @@ interface ContractListFilters {
     TagModule,
     DropdownModule,
     CalendarModule,
-    InputTextModule
+    InputTextModule,
+    DialogModule,
+    ConfirmDialogModule,
+    TooltipModule,
+    IconField,
+    InputIcon,
+    DatePickerModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   template: `
     <div class="card">
       <!-- Header -->
       <div class="flex justify-content-between align-items-center mb-4">
-        <h2>Contracts</h2>
+        <div>
+          <h2>{{ isClient ? 'My Contracts (Client)' : 'My Contracts (Freelancer)' }}</h2>
+          <p class="text-muted m-0">
+            {{ isClient ? 'Manage contracts with your freelancers' : 'View and manage your work contracts' }}
+          </p>
+        </div>
         <div class="flex gap-2">
-          <span class="p-input-icon-left">
-            <i class="pi pi-search"></i>
+          <p-iconfield styleClass="w-full" iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
             <input
               type="text"
               pInputText
               [(ngModel)]="filters.search"
               (input)="onSearch()"
-              placeholder="Search contracts...">
-          </span>
+              placeholder="Search contracts..."
+              class="w-full">
+          </p-iconfield>
         </div>
       </div>
 
@@ -72,14 +93,8 @@ interface ContractListFilters {
         </div>
 
         <div class="col-12 md:col-3">
-          <p-calendar
-            [(ngModel)]="filters.dateRange"
-            selectionMode="range"
-            [showButtonBar]="true"
-            (onSelect)="onDateSelect()"
-            placeholder="Date range"
-            class="w-full">
-          </p-calendar>
+          <p-datepicker [(ngModel)]="filters.dateRange" placeholder="Normal" showIcon iconDisplay="input" />
+
         </div>
 
         <div class="col-12 md:col-3">
@@ -130,7 +145,7 @@ interface ContractListFilters {
             <td>
               {{ isClient ? contract.freelancer?.username : contract.client?.username }}
             </td>
-            <td>{{ contract.proposal?.job?.title }}</td>
+            <td>{{ contract.proposal?.job?.title || contract.project_proposal?.project?.title || 'N/A' }}</td>
             <td>{{ contract.total_payment | currency }}</td>
             <td>{{ contract.start_date | date }}</td>
             <td>
@@ -141,6 +156,7 @@ interface ContractListFilters {
             </td>
             <td>
               <div class="flex gap-2">
+                <!-- Common actions for both client and freelancer -->
                 <button
                   pButton
                   icon="pi pi-eye"
@@ -154,6 +170,62 @@ interface ContractListFilters {
                   class="p-button-rounded p-button-text"
                   [routerLink]="['/dashboard/contracts', contract.id, 'milestones']"
                   pTooltip="View Milestones">
+                </button>
+                <button
+                  pButton
+                  icon="pi pi-download"
+                  class="p-button-rounded p-button-text p-button-info"
+                  (click)="downloadPDF(contract)"
+                  pTooltip="Download Contract PDF">
+                </button>
+
+                <!-- Client-only actions -->
+                <ng-container *ngIf="isClient">
+                  <!-- Cancel contract (only for active contracts) -->
+                  <button
+                    *ngIf="contract.status === 'active'"
+                    pButton
+                    icon="pi pi-times"
+                    class="p-button-rounded p-button-text p-button-danger"
+                    (click)="cancelContract(contract)"
+                    pTooltip="Cancel Contract (Client Action)"
+                    tooltipPosition="top">
+                  </button>
+
+                  <!-- Extend contract deadline (only for active contracts) -->
+                  <button
+                    *ngIf="contract.status === 'active'"
+                    pButton
+                    icon="pi pi-calendar-plus"
+                    class="p-button-rounded p-button-text p-button-warning"
+                    (click)="extendContract(contract)"
+                    pTooltip="Extend Deadline (Client Action)"
+                    tooltipPosition="top">
+                  </button>
+                </ng-container>
+
+                <!-- Freelancer-only actions -->
+                <ng-container *ngIf="!isClient">
+                  <!-- Mark contract as complete (only for active contracts) -->
+                  <button
+                    *ngIf="contract.status === 'active'"
+                    pButton
+                    icon="pi pi-check"
+                    class="p-button-rounded p-button-text p-button-success"
+                    (click)="completeContract(contract)"
+                    pTooltip="Mark as Complete (Freelancer Action)"
+                    tooltipPosition="top">
+                  </button>
+                </ng-container>
+
+                <!-- Upload documents (for active contracts only) -->
+                <button
+                  *ngIf="contract.status === 'active'"
+                  pButton
+                  icon="pi pi-upload"
+                  class="p-button-rounded p-button-text"
+                  (click)="uploadDocument(contract)"
+                  pTooltip="Upload Document">
                 </button>
               </div>
             </td>
@@ -169,6 +241,52 @@ interface ContractListFilters {
         </ng-template>
       </p-table>
     </div>
+
+    <!-- Confirmation Dialog -->
+    <p-confirmDialog></p-confirmDialog>
+
+    <!-- Extend Contract Dialog -->
+    <p-dialog
+      header="Extend Contract Deadline"
+      [(visible)]="showExtendDialog"
+      [modal]="true"
+      [style]="{width: '400px'}"
+      [closable]="true">
+
+      <div class="mb-3">
+        <p>Current end date: {{ selectedContract?.end_date | date }}</p>
+        <p class="text-muted">Select a new end date for the contract.</p>
+      </div>
+
+      <div class="mb-3">
+        <label for="newEndDate" class="block mb-2">New End Date</label>
+        <p-calendar
+          id="newEndDate"
+          [(ngModel)]="newEndDate"
+          [minDate]="getMinExtendDate()"
+          [showIcon]="true"
+          placeholder="Select new end date"
+          class="w-full">
+        </p-calendar>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          label="Cancel"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="cancelExtendDialog()">
+        </button>
+        <button
+          pButton
+          label="Extend"
+          icon="pi pi-check"
+          [disabled]="!newEndDate"
+          (click)="confirmExtendContract()">
+        </button>
+      </ng-template>
+    </p-dialog>
   `,
   styles: [`
     :host ::ng-deep {
@@ -178,14 +296,41 @@ interface ContractListFilters {
       .p-calendar {
         width: 100%;
       }
+      .p-button-danger {
+        color: #e24c4c;
+      }
+      .p-button-danger:hover {
+        background-color: #e24c4c;
+        color: white;
+      }
+      .p-button-success {
+        color: #22c55e;
+      }
+      .p-button-success:hover {
+        background-color: #22c55e;
+        color: white;
+      }
+      .p-button-warning {
+        color: #f59e0b;
+      }
+      .p-button-warning:hover {
+        background-color: #f59e0b;
+        color: white;
+      }
     }
   `]
 })
-export class ContractListComponent implements OnInit {
+export class ContractListComponent implements OnInit, OnDestroy {
   contracts: Contract[] = [];
   loading = false;
   totalRecords = 0;
   isClient = false;
+  private queryParamsSubscription: Subscription = new Subscription();
+
+  // Dialog states
+  showExtendDialog = false;
+  selectedContract: Contract | null = null;
+  newEndDate: Date | null = null;
 
   filters: ContractListFilters = {
     search: '',
@@ -212,51 +357,76 @@ export class ContractListComponent implements OnInit {
   constructor(
     private contractService: ContractService,
     private tokenService: TokenService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit() {
     const currentUser = this.tokenService.getCurrentUser();
     this.isClient = currentUser?.type === RoleConst.CLIENT;
-    this.loadContracts();
+
+    // Subscribe to query parameter changes
+    this.queryParamsSubscription = this.activatedRoute.queryParams.subscribe(params => {
+      if (params['status']) {
+        this.filters.status = params['status'];
+      } else {
+        this.filters.status = null;
+      }
+      this.loadContracts();
+    });
+  }
+
+  ngOnDestroy() {
+    this.queryParamsSubscription.unsubscribe();
   }
 
   loadContracts(page = 1) {
+    // --- STATIC DATA FOR CONTRACT TABLE DEMO ---
     this.loading = true;
-
-    const filters: ContractFilters = {
-      page: this.filters.page,
-      page_size: this.filters.pageSize,
-      ordering: this.filters.sort || undefined,
-      status: this.filters.status || undefined
-    };
-
-    if (this.filters.search) {
-      filters.search = this.filters.search;
-    }
-
-    if (this.filters.dateRange && this.filters.dateRange.length === 2) {
-      const [start, end] = this.filters.dateRange;
-      if (start) filters.start_date_from = start.toISOString();
-      if (end) filters.start_date_to = end.toISOString();
-    }
-
-    this.contractService.getContracts(filters).subscribe({
-      next: (response) => {
-        this.contracts = response.results;
-        this.totalRecords = response.count;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error loading contracts:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load contracts'
-        });
-        this.loading = false;
-      }
-    });
+    setTimeout(() => {
+      this.contracts = [
+        {
+          id: 101,
+          freelancer: { id: 1, username: 'freelancer1', email: 'freelancer1@example.com', user_type: 'freelancer' },
+          client: { id: 11, username: 'client1', email: 'client1@example.com', user_type: 'client' },
+          proposal: { job: { title: 'Website Redesign' } },
+          project_proposal: null,
+          total_payment: 1200,
+          start_date: '2025-07-01T10:00:00Z',
+          status: 'active',
+          created_at: '2025-07-01T09:00:00Z',
+          updated_at: '2025-07-01T10:00:00Z'
+        },
+        {
+          id: 102,
+          freelancer: { id: 2, username: 'freelancer2', email: 'freelancer2@example.com', user_type: 'freelancer' },
+          client: { id: 12, username: 'client2', email: 'client2@example.com', user_type: 'client' },
+          proposal: null,
+          project_proposal: { project: { title: 'Mobile App Launch' } },
+          total_payment: 3000,
+          start_date: '2025-06-15T09:00:00Z',
+          status: 'completed',
+          created_at: '2025-06-10T09:00:00Z',
+          updated_at: '2025-06-15T09:00:00Z'
+        },
+        {
+          id: 103,
+          freelancer: { id: 3, username: 'freelancer3', email: 'freelancer3@example.com', user_type: 'freelancer' },
+          client: { id: 13, username: 'client3', email: 'client3@example.com', user_type: 'client' },
+          proposal: { job: { title: 'SEO Optimization' } },
+          project_proposal: null,
+          total_payment: 800,
+          start_date: '2025-07-10T12:00:00Z',
+          status: 'cancelled',
+          created_at: '2025-07-05T12:00:00Z',
+          updated_at: '2025-07-10T12:00:00Z'
+        }
+      ];
+      this.totalRecords = this.contracts.length;
+      this.loading = false;
+    }, 500);
+    // --- END STATIC DATA BLOCK ---
   }
 
   onSearch() {
@@ -292,6 +462,158 @@ export class ContractListComponent implements OnInit {
       default:
         return 'warning';
     }
+  }
+
+  /**
+   * Cancel contract (Client only)
+   */
+  cancelContract(contract: Contract) {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to cancel contract #${contract.id}? This action cannot be undone.`,
+      header: 'Cancel Contract',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.contractService.cancelContract(contract.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Contract cancelled successfully'
+            });
+            this.loadContracts();
+          },
+          error: (error) => {
+            console.error('Error cancelling contract:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to cancel contract'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Complete contract (Freelancer only)
+   */
+  completeContract(contract: Contract) {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to mark contract #${contract.id} as completed?`,
+      header: 'Complete Contract',
+      icon: 'pi pi-check-circle',
+      acceptButtonStyleClass: 'p-button-success',
+      accept: () => {
+        this.contractService.completeContract(contract.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Contract marked as completed'
+            });
+            this.loadContracts();
+          },
+          error: (error) => {
+            console.error('Error completing contract:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Failed to complete contract'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Extend contract deadline (Client only)
+   */
+  extendContract(contract: Contract) {
+    this.selectedContract = contract;
+    this.newEndDate = null;
+    this.showExtendDialog = true;
+  }
+
+  /**
+   * Get minimum date for contract extension (current end date + 1 day)
+   */
+  getMinExtendDate(): Date {
+    if (!this.selectedContract?.end_date) {
+      return new Date();
+    }
+    const currentEndDate = new Date(this.selectedContract.end_date);
+    currentEndDate.setDate(currentEndDate.getDate() + 1);
+    return currentEndDate;
+  }
+
+  /**
+   * Cancel extend dialog
+   */
+  cancelExtendDialog() {
+    this.showExtendDialog = false;
+    this.selectedContract = null;
+    this.newEndDate = null;
+  }
+
+  /**
+   * Confirm contract extension
+   */
+  confirmExtendContract() {
+    if (!this.selectedContract || !this.newEndDate) {
+      return;
+    }
+
+    const newEndDateStr = this.newEndDate.toISOString().split('T')[0];
+
+    this.contractService.extendContract(this.selectedContract.id, newEndDateStr).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Contract deadline extended successfully'
+        });
+        this.loadContracts();
+        this.cancelExtendDialog();
+      },
+      error: (error) => {
+        console.error('Error extending contract:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to extend contract deadline'
+        });
+      }
+    });
+  }
+
+  /**
+   * Upload document for contract
+   */
+  uploadDocument(contract: Contract) {
+    // This could open a file upload dialog
+    // For now, we'll just show a placeholder message
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Feature Coming Soon',
+      detail: 'Document upload feature is coming soon'
+    });
+  }
+
+  /**
+   * Download contract PDF
+   */
+  downloadPDF(contract: Contract) {
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Generating PDF',
+      detail: 'Your contract PDF is being generated...'
+    });
+
+    const filename = `contract-${contract.id}-${contract.proposal?.job?.title || 'contract'}.pdf`;
+    this.contractService.downloadPDF(contract.id, filename);
   }
 
   private searchTimeout: any;

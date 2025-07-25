@@ -21,18 +21,7 @@ import { MenuItem } from 'primeng/api';
 
           <!-- Navigation Links -->
           <div class="flex align-items-center gap-4">
-            <a routerLink="/home" 
-               routerLinkActive="text-primary font-semibold"
-               [routerLinkActiveOptions]="{exact: true}"
-               class="text-600 hover:text-primary no-underline transition-colors">
-              Home
-            </a>
-            <a routerLink="/jobs" 
-               routerLinkActive="text-primary font-semibold"
-               class="text-600 hover:text-primary no-underline transition-colors">
-              Browse Jobs
-            </a>
-            <a routerLink="/projects" 
+            <a routerLink="/projects"
                routerLinkActive="text-primary font-semibold"
                class="text-600 hover:text-primary no-underline transition-colors">
               Browse Projects
@@ -41,13 +30,13 @@ import { MenuItem } from 'primeng/api';
 
           <!-- Action Buttons -->
           <div class="flex gap-2">
-            <button pButton 
-                    label="Log In" 
+            <button pButton
+                    label="Log In"
                     routerLink="/login"
                     class="p-button-outlined p-button-sm">
             </button>
-            <button pButton 
-                    label="Sign Up" 
+            <button pButton
+                    label="Sign Up"
                     routerLink="/register"
                     class="p-button-sm">
             </button>
@@ -60,7 +49,7 @@ import { MenuItem } from 'primeng/api';
     .no-underline {
       text-decoration: none;
     }
-    
+
     .transition-colors {
       transition: color 0.2s ease-in-out;
     }

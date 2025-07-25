@@ -18,6 +18,7 @@ import { TokenService } from '../../../../utils/token.service';
 import { Contract } from '../../../../model/models';
 import { RoleConst } from '../../../../const/api-const';
 import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
+import { RatingModalComponent } from '../../../../shared/components/rating-modal/rating-modal.component';
 
 @Component({
   selector: 'app-contract-detail',
@@ -35,7 +36,8 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
     CalendarModule,
     FileUploadModule,
     ConfirmDialogModule,
-    Nl2brPipe
+    Nl2brPipe,
+    RatingModalComponent
   ],
   providers: [ConfirmationService, MessageService],
   template: `
@@ -60,16 +62,26 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
             class="p-button-info"
             (click)="chatWithContractParty()">
           </button>
+          <!-- PDF Download Button -->
           <button
-            *ngIf="contract.status === 'active'"
+            pButton
+            icon="pi pi-download"
+            label="Download PDF"
+            class="p-button-outlined"
+            (click)="downloadPDF()">
+          </button>
+          <!-- Freelancer Actions -->
+          <button
+            *ngIf="contract.status === 'active' && !isClient"
             pButton
             icon="pi pi-check"
             label="Complete Contract"
             class="p-button-success"
             (click)="confirmComplete()">
           </button>
+          <!-- Client Actions -->
           <button
-            *ngIf="contract.status === 'active'"
+            *ngIf="contract.status === 'active' && isClient"
             pButton
             icon="pi pi-times"
             label="Cancel Contract"
@@ -77,12 +89,21 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
             (click)="showCancelDialog()">
           </button>
           <button
-            *ngIf="contract.status === 'active'"
+            *ngIf="contract.status === 'active' && isClient"
             pButton
             icon="pi pi-calendar"
             label="Extend Deadline"
             class="p-button-secondary"
             (click)="showExtendDialog()">
+          </button>
+          <!-- Rating Button for Completed Contracts -->
+          <button
+            *ngIf="contract.status === 'completed'"
+            pButton
+            icon="pi pi-star"
+            label="Rate {{ isClient ? 'Freelancer' : 'Client' }}"
+            class="p-button-warning"
+            (click)="openRatingModal()">
           </button>
         </div>
       </div>
@@ -331,6 +352,17 @@ import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
         acceptButtonStyleClass="p-button-success"
         rejectButtonStyleClass="p-button-text">
       </p-confirmDialog>
+
+      <!-- Rating Modal -->
+      <app-rating-modal
+        [(visible)]="showRatingModal"
+        [projectId]="contract?.proposal?.job?.id || 0"
+        [ratingType]="isClient ? 'freelancer' : 'client'"
+        [freelancerName]="isClient ? (contract?.freelancer?.first_name + ' ' + contract?.freelancer?.last_name) || '' : ''"
+        [clientName]="!isClient ? (contract?.client?.first_name + ' ' + contract?.client?.last_name) || '' : ''"
+        (ratingSubmitted)="onRatingSubmitted()"
+        (cancelled)="onRatingCancelled()">
+      </app-rating-modal>
     </div>
   `,
   styles: [`
@@ -350,6 +382,7 @@ export class ContractDetailComponent implements OnInit {
   showCancelContractDialog = false;
   showExtendContractDialog = false;
   showUploadDocumentDialog = false;
+  showRatingModal = false;
   minEndDate = new Date();
   selectedFile: File | null = null;
 
@@ -587,6 +620,26 @@ export class ContractDetailComponent implements OnInit {
     });
   }
 
+  downloadPDF() {
+    if (!this.contract) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No contract data available'
+      });
+      return;
+    }
+
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Generating PDF',
+      detail: 'Your contract PDF is being generated...'
+    });
+
+    const filename = `contract-${this.contract.id}-${this.contract.proposal?.job?.title || 'contract'}.pdf`;
+    this.contractService.downloadPDF(this.contract.id, filename);
+  }
+
   getStatusSeverity(status: string): any {
     switch (status) {
       case 'active':
@@ -613,5 +666,20 @@ export class ContractDetailComponent implements OnInit {
 
   showUploadDialog() {
 
+  }
+
+  // Rating methods
+  openRatingModal() {
+    this.showRatingModal = true;
+  }
+
+  onRatingSubmitted() {
+    this.showRatingModal = false;
+    // You could show a success message here
+    console.log('Rating submitted successfully');
+  }
+
+  onRatingCancelled() {
+    this.showRatingModal = false;
   }
 }

@@ -11,6 +11,7 @@ import { InputText } from "primeng/inputtext";
 import { Message } from "primeng/message";
 import { Password } from "primeng/password";
 import { AuthResponse, CurrentUser } from '../../../model/models';
+import { NotificationService } from '../../../../service/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -40,7 +41,8 @@ export class LoginComponent {
   constructor(
     private auth: AuthService,
     private tokenService: TokenService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   onLogin() {
@@ -67,7 +69,16 @@ export class LoginComponent {
         this.auth.setAccessToken(response.access);
         this.auth.setRefreshToken(response.refresh);
 
-        this.router.navigate([RouteConst.DASHBOARD]);
+        // Initialize WebSocket connection after successful login
+        console.log('Login successful, initializing WebSocket connection for user:', currentUser.id);
+        this.notificationService.connectWebSocket(currentUser.id, response.access);
+        if (this.tokenService.getCurrentUser().type === "client" ){
+          this.router.navigate(['dashboard/client-dashboard'])
+        }
+        if (this.tokenService.getCurrentUser().type === "freelancer" ){
+          this.router.navigate(['dashboard/freelancer-dashboard'])
+        }
+        // this.router.navigate([RouteConst.DASHBOARD]);
       },
       error: (error) => {
         console.error('Login error:', error);

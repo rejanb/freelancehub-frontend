@@ -1,0 +1,249 @@
+<div class="client-dashboard">
+  <!-- Header -->
+  <div class="grid">
+    <div class="col-12">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <h1 class="text-3xl font-bold mb-2">Client Dashboard</h1>
+            <p class="text-600 m-0">Welcome back, {{ currentUser?.first_name || currentUser?.username }}!</p>
+          </div>
+          <div class="flex gap-2">
+            <button pButton 
+                    label="Create Project" 
+                    icon="pi pi-folder-plus" 
+                    class="p-button-primary"
+                    routerLink="/dashboard/projects/create"></button>
+            <button pButton 
+                    label="Make Payment" 
+                    icon="pi pi-wallet" 
+                    class="p-button-outlined"
+                    routerLink="/dashboard/payments/pay"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="col-12 lg:col-3 md:col-6" *ngFor="let stat of quickStats">
+      <div class="card cursor-pointer transition-all transition-duration-300 hover:shadow-3" 
+           [class]="stat.color"
+           [routerLink]="stat.route">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <div class="text-500 font-medium mb-2">{{ stat.label }}</div>
+            <div class="text-900 font-bold text-2xl">{{ stat.value }}</div>
+          </div>
+          <div class="flex align-items-center justify-content-center text-white border-round"
+               [class]="stat.iconColor"
+               style="width: 3rem; height: 3rem">
+            <i [class]="'pi ' + stat.icon + ' text-xl'"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="col-12 lg:col-8">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Monthly Spending Trends</h3>
+          <button pButton 
+                  label="View Details" 
+                  class="p-button-text p-button-sm"
+                  routerLink="/dashboard/payments/history"></button>
+        </div>
+        <div *ngIf="loading" class="flex justify-content-center py-4">
+          <p-skeleton height="300px" width="100%"></p-skeleton>
+        </div>
+        <div *ngIf="!loading" style="height: 300px;">
+          <p-chart type="line" 
+                   [data]="spendingChartData" 
+                   [options]="chartOptions"
+                   height="300px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-4">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Project Status</h3>
+          <button pButton 
+                  label="Manage" 
+                  class="p-button-text p-button-sm"
+                  routerLink="/dashboard/projects"></button>
+        </div>
+        <div *ngIf="loading" class="flex justify-content-center py-4">
+          <p-skeleton height="250px" width="100%"></p-skeleton>
+        </div>
+        <div *ngIf="!loading" style="height: 250px;">
+          <p-chart type="doughnut" 
+                   [data]="projectStatusChartData" 
+                   [options]="chartOptions"
+                   height="250px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities Section -->
+    <div class="col-12">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Recent Projects</h3>
+          <button pButton 
+                  label="View All" 
+                  class="p-button-text p-button-sm"
+                  routerLink="/dashboard/projects"></button>
+        </div>
+        
+        <div *ngIf="loading">
+          <div *ngFor="let item of [1,2,3]" class="flex align-items-center mb-3">
+            <p-skeleton shape="circle" size="3rem" class="mr-3"></p-skeleton>
+            <div class="flex-1">
+              <p-skeleton width="60%" height="1rem" class="mb-2"></p-skeleton>
+              <p-skeleton width="40%" height="0.8rem"></p-skeleton>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && recentProjects.length === 0" class="text-center py-4">
+          <i class="pi pi-folder text-4xl text-300 mb-3"></i>
+          <p class="text-500">No recent projects found</p>
+          <button pButton 
+                  label="Create Your First Project" 
+                  class="p-button-sm"
+                  routerLink="/dashboard/projects/create"></button>
+        </div>
+
+        <div *ngIf="!loading && recentProjects.length > 0">
+          <div *ngFor="let project of recentProjects" 
+               class="flex align-items-center justify-content-between py-3 border-bottom-1 surface-border">
+            <div class="flex align-items-center">
+              <div class="flex align-items-center justify-content-center bg-green-100 text-green-600 border-round mr-3"
+                   style="width: 2.5rem; height: 2.5rem">
+                <i class="pi pi-folder"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-900 mb-1">{{ project.title }}</div>
+                <div class="text-sm text-600">
+                  {{ formatCurrency(project.budget) }} • {{ formatDate(project.created_at) }}
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <p-tag [value]="project.status" 
+                     [severity]="getStatusSeverity(project.status)"
+                     class="mb-1"></p-tag>
+              <div class="text-sm text-600">
+                <i class="pi pi-clock mr-1"></i>
+                Due {{ formatDate(project.deadline) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Payments -->
+    <div class="col-12">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Recent Payments</h3>
+          <button pButton 
+                  label="View All Payments" 
+                  class="p-button-text p-button-sm"
+                  routerLink="/dashboard/payments/history"></button>
+        </div>
+        
+        <div *ngIf="loading">
+          <p-skeleton width="100%" height="200px"></p-skeleton>
+        </div>
+
+        <div *ngIf="!loading && recentPayments.length === 0" class="text-center py-4">
+          <i class="pi pi-wallet text-4xl text-300 mb-3"></i>
+          <p class="text-500">No recent payments found</p>
+          <button pButton 
+                  label="Make a Payment" 
+                  class="p-button-sm"
+                  routerLink="/dashboard/payments/pay"></button>
+        </div>
+
+        <div *ngIf="!loading && recentPayments.length > 0">
+          <p-table [value]="recentPayments" 
+                   [paginator]="false"
+                   responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Recipient</th>
+                <th>Project</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-payment>
+              <tr>
+                <td>
+                  <div class="flex align-items-center">
+                    <p-avatar label="{{ payment.recipient.charAt(0) }}" 
+                             class="mr-2"
+                             size="normal"></p-avatar>
+                    <span>{{ payment.recipient }}</span>
+                  </div>
+                </td>
+                <td>{{ payment.project }}</td>
+                <td>
+                  <span class="font-semibold">{{ formatCurrency(payment.amount) }}</span>
+                </td>
+                <td>{{ formatDate(payment.date) }}</td>
+                <td>
+                  <p-tag [value]="payment.status" 
+                         [severity]="getStatusSeverity(payment.status)"></p-tag>
+                </td>
+                <td>
+                  <button pButton 
+                          icon="pi pi-eye" 
+                          class="p-button-text p-button-sm"
+                          pTooltip="View Details"
+                          [routerLink]="['/dashboard/payments', payment.id]"></button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-12">
+      <div class="card">
+        <h3 class="mb-4">Quick Actions</h3>
+        <div class="grid">
+          <div class="col-12 md:col-4">
+            <button pButton 
+                    label="Create Project" 
+                    icon="pi pi-folder-plus" 
+                    class="w-full p-button-lg p-button-outlined"
+                    routerLink="/dashboard/projects/create"></button>
+          </div>
+          <div class="col-12 md:col-4">
+            <button pButton 
+                    label="Make Payment" 
+                    icon="pi pi-wallet" 
+                    class="w-full p-button-lg p-button-outlined"
+                    routerLink="/dashboard/payments/pay"></button>
+          </div>
+          <div class="col-12 md:col-4">
+            <button pButton 
+                    label="View Messages" 
+                    icon="pi pi-comments" 
+                    class="w-full p-button-lg p-button-outlined"
+                    routerLink="/dashboard/messages"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

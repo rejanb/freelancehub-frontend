@@ -8,6 +8,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { AvatarModule } from 'primeng/avatar';
 import { BadgeModule } from 'primeng/badge';
 import { SkeletonModule } from 'primeng/skeleton';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { MessageService as PrimeMessageService } from 'primeng/api';
 import { MessageService as ChatService, ChatRoom, User } from '../../../../../service/message.service';
 import { TokenService } from '../../../../utils/token.service';
@@ -25,7 +27,9 @@ import { Subscription } from 'rxjs';
     InputTextModule,
     AvatarModule,
     BadgeModule,
-    SkeletonModule
+    SkeletonModule,
+    IconField,
+    InputIcon
   ],
   providers: [PrimeMessageService],
   template: `
@@ -43,104 +47,176 @@ import { Subscription } from 'rxjs';
                 class="p-button-outlined p-button-sm"
                 title="Debug chat rooms">
               </button>
-              <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
+              <p-iconfield styleClass="w-full" iconPosition="left">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
                 <input
                   type="text"
                   pInputText
                   [(ngModel)]="searchQuery"
                   (input)="onSearch($event)"
-                  placeholder="Search messages...">
-              </span>
+                  placeholder="Search messages..."
+                  class="w-full">
+              </p-iconfield>
             </div>
-          </div>
-
-          <!-- Loading State -->
-          <div *ngIf="loading" class="flex flex-column gap-3">
-            <div *ngFor="let i of [1,2,3,4,5]" class="flex gap-3 p-3">
-              <p-skeleton shape="circle" size="4rem"></p-skeleton>
-              <div class="flex-1">
-                <p-skeleton width="70%" height="1.5rem" styleClass="mb-2"></p-skeleton>
-                <p-skeleton width="40%" height="1rem"></p-skeleton>
-              </div>
-            </div>
-          </div>
-
-          <!-- Debug Info -->
-          <div *ngIf="!loading" class="mb-3 p-2 surface-100 border-round">
-            <small class="text-500">
-              Chat rooms loaded: {{ chatRooms?.length || 0 }} | 
-              Array initialized: {{ chatRooms ? 'Yes' : 'No' }} |
-              Search query: "{{ searchQuery }}"
-            </small>
           </div>
 
           <!-- Chat Rooms -->
-          <div *ngIf="!loading && chatRooms && chatRooms.length > 0" class="flex flex-column">
-            <div
-              *ngFor="let room of chatRooms; trackBy: trackByRoomId"
-              class="flex align-items-center p-3 cursor-pointer hover:surface-100 border-bottom-1 surface-border"
-              [routerLink]="['/dashboard/messages', room.id]">
-
-              <!-- Avatar -->
-              <p-avatar
-                [label]="getParticipantInitials(room)"
-                shape="circle"
-                size="large"
-                [style]="{ 'background-color': getAvatarColor(room) }"
-                class="mr-3">
-              </p-avatar>
-
-              <!-- Message Preview -->
-              <div class="flex-1">
-                <div class="flex justify-content-between align-items-center">
-                  <span class="font-bold">{{ getParticipantName(room) }}</span>
-                  <small class="text-500">{{ room.last_message?.created_at | date:'shortTime' }}</small>
-                </div>
-
-                <div class="flex justify-content-between align-items-center mt-2">
-                  <span class="text-500 text-overflow-ellipsis" style="max-width: 80%">
-                    <span *ngIf="room.last_message?.attachment && !room.last_message?.content">
-                      <i class="pi pi-paperclip mr-1"></i>
-                      {{ room.last_message?.attachment?.name }}
-                    </span>
-                    <span *ngIf="room.last_message?.content">
-                      {{ room.last_message?.content }}
-                    </span>
-                    <span *ngIf="!room.last_message">
-                      No messages yet
-                    </span>
-                  </span>
-                  <p-badge
-                    *ngIf="room.unread_count > 0"
-                    [value]="room.unread_count.toString()"
-                    severity="danger">
-                  </p-badge>
+          <div class="chat-rooms-container">
+            <!-- Loading State -->
+            <div *ngIf="loading" class="flex flex-column gap-3 p-3">
+              <div *ngFor="let i of [1,2,3,4,5]" class="flex gap-3 p-3">
+                <p-skeleton shape="circle" size="4rem"></p-skeleton>
+                <div class="flex-1">
+                  <p-skeleton width="70%" height="1.5rem" styleClass="mb-2"></p-skeleton>
+                  <p-skeleton width="40%" height="1rem"></p-skeleton>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Empty State -->
-          <div *ngIf="!loading && (!chatRooms || chatRooms.length === 0)" class="text-center p-5">
-            <i class="pi pi-comments text-6xl text-500 mb-3"></i>
-            <h3>No Messages Yet</h3>
-            <p class="text-500">Start a conversation from a user's profile or job proposal.</p>
+            <!-- Debug Info -->
+            <div *ngIf="!loading" class="mb-3 p-2 surface-100 border-round">
+              <small class="text-500">
+                Chat rooms loaded: {{ chatRooms?.length || 0 }} | 
+                Array initialized: {{ chatRooms ? 'Yes' : 'No' }} |
+                Search query: "{{ searchQuery }}"
+              </small>
+            </div>
+
+            <!-- Chat Room List -->
+            <div *ngIf="!loading && chatRooms && chatRooms.length > 0" class="flex flex-column">
+              <div
+                *ngFor="let room of chatRooms; trackBy: trackByRoomId"
+                class="chat-room-item flex align-items-center p-3 cursor-pointer border-bottom-1 surface-border"
+                [routerLink]="['/dashboard/messages', room.id]"
+                [queryParams]="{ 
+                  userName: getParticipantName(room),
+                  userInitials: getParticipantInitials(room)
+                }">
+
+                <!-- Avatar -->
+                <p-avatar
+                  [label]="getParticipantInitials(room)"
+                  shape="circle"
+                  size="large"
+                  [style]="{ 'background-color': getAvatarColor(room) }"
+                  class="mr-3">
+                </p-avatar>
+
+                <!-- Message Preview -->
+                <div class="flex-1">
+                  <div class="flex justify-content-between align-items-center">
+                    <span class="font-bold">{{ getParticipantName(room) }}</span>
+                    <small class="text-500" *ngIf="room.last_message?.created_at">
+                      {{ room.last_message?.created_at | date:'shortTime' }}
+                    </small>
+                  </div>
+
+                  <div class="flex justify-content-between align-items-center mt-2">
+                    <span class="text-500 text-overflow-ellipsis" style="max-width: 80%">
+                      <span *ngIf="room.last_message?.attachment && !room.last_message?.content">
+                        <i class="pi pi-paperclip mr-1"></i>
+                        {{ room.last_message?.attachment?.name }}
+                      </span>
+                      <span *ngIf="room.last_message?.content">
+                        {{ room.last_message?.content }}
+                      </span>
+                      <span *ngIf="!room.last_message">
+                        No messages yet
+                      </span>
+                    </span>
+                    <p-badge
+                      *ngIf="room.unread_count > 0"
+                      [value]="room.unread_count.toString()"
+                      severity="danger">
+                    </p-badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loading && (!chatRooms || chatRooms.length === 0)" class="text-center p-5">
+              <i class="pi pi-comments text-6xl text-500 mb-3"></i>
+              <h3>No Messages Yet</h3>
+              <p class="text-500">Start a conversation from a user's profile or job proposal.</p>
+            </div>
           </div>
         </p-card>
       </div>
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      height: 100%;
+    }
+
+    .grid {
+      height: 100vh;
+      margin: 0;
+      padding: 1rem;
+      overflow: hidden;
+      
+      .col-12 {
+        height: 100%;
+        overflow: hidden;
+        padding: 0;
+      }
+    }
+
     :host ::ng-deep {
       .p-card {
-        height: calc(100vh - 8rem);
+        height: 100%;
+        max-height: 100%;
+        margin: 0;
         .p-card-body {
           height: 100%;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
           .p-card-content {
-            height: calc(100% - 4rem);
-            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
           }
+        }
+      }
+
+      .chat-rooms-container {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;
+        max-height: 100%;
+        
+        /* Custom scrollbar styling */
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: var(--surface-100);
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: var(--surface-300);
+          border-radius: 3px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+          background: var(--surface-400);
+        }
+      }
+
+      .chat-room-item {
+        transition: background-color 0.2s;
+        &:hover {
+          background-color: var(--surface-100);
         }
       }
     }
@@ -173,6 +249,9 @@ export class MessageListComponent implements OnInit, OnDestroy {
     this.loadChatRooms();
     this.subscribeToUnreadCount();
     this.subscribeToChatRooms();
+    
+    // Load unread count once on initialization
+    this.chatService.loadUnreadCount();
   }
 
   ngOnDestroy() {
@@ -197,9 +276,10 @@ export class MessageListComponent implements OnInit, OnDestroy {
 
   subscribeToUnreadCount() {
     this.unreadSubscription = this.chatService.unreadCount$.subscribe(count => {
-      if (count > 0) {
-        this.chatService.loadUnreadCount();
-      }
+      // Simply react to unread count changes without triggering more API calls
+      console.log('Unread count updated:', count);
+      // Update UI components that depend on unread count
+      this.cdr.detectChanges();
     });
   }
 
@@ -210,10 +290,11 @@ export class MessageListComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges(); // Update UI immediately
 
     this.chatService.getChatRooms().subscribe({
-      next: (chatRooms: ChatRoom[]) => {
-        console.log('Chat rooms loaded:', chatRooms); // Debug log
+      next: (response: any) => {
+        console.log('Chat rooms response:', response); // Debug log
+        const chatRooms = response.results || response;
         this.chatRooms = Array.isArray(chatRooms) ? chatRooms : [];
-        this.chatService.setChatRooms(chatRooms);
+        this.chatService.setChatRooms(this.chatRooms);
         this.loading = false;
         this.cdr.detectChanges(); // Force change detection
       },
@@ -280,8 +361,9 @@ export class MessageListComponent implements OnInit, OnDestroy {
   getParticipantName(room: ChatRoom): string {
     const participant = room.participants.find(p => p.id !== this.currentUserId);
     if (participant) {
-      return participant.first_name && participant.last_name
-        ? `${participant.first_name} ${participant.last_name}`
+      return participant.first_name && participant.last_name && 
+             participant.first_name.trim() && participant.last_name.trim()
+        ? `${participant.first_name.trim()} ${participant.last_name.trim()}`
         : participant.username;
     }
     return 'Unknown User';

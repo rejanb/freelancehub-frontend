@@ -13,6 +13,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PublicService, PublicJobFilters } from '../../../../service/public.service';
 import { PublicJob, PublicListResponse } from '../../../model/public.models';
 import { PublicNavComponent } from '../../../components/public-nav/public-nav.component';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
 
 @Component({
   selector: 'app-public-jobs',
@@ -29,7 +31,9 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
     TagModule,
     CardModule,
     ProgressSpinnerModule,
-    PublicNavComponent
+    PublicNavComponent,
+    IconField,
+    InputIcon
   ],
   template: `
     <app-public-nav></app-public-nav>
@@ -44,18 +48,21 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
       <div class="container mx-auto px-4">
         <div class="card mb-4">
           <div class="grid">
-            <div class="col-12 md:col-4">
-              <span class="p-input-icon-left w-full">
-                <i class="pi pi-search"></i>
+              <p-iconfield styleClass="w-full" >
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
                 <input
-                  type="text"
                   pInputText
                   [(ngModel)]="filters.search"
+                  type="text"
                   (input)="onSearch()"
-                  placeholder="Search jobs..."
-                  class="w-full">
-              </span>
+                  placeholder="Search"
+                  class="w-full"
+                />
+              </p-iconfield>
             </div>
+        </div>
 
             <div class="col-12 md:col-2">
               <p-dropdown
@@ -145,10 +152,10 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
               <div class="card-content">
                 <div class="flex justify-content-between align-items-start mb-3">
                   <h3 class="text-xl font-bold m-0 text-900">{{ job.title }}</h3>
-                  <p-tag 
-                    *ngIf="job.is_featured" 
-                    value="Featured" 
-                    severity="warn" 
+                  <p-tag
+                    *ngIf="job.is_featured"
+                    value="Featured"
+                    severity="warn"
                     icon="pi pi-star">
                   </p-tag>
                 </div>
@@ -178,7 +185,7 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
                 </div>
 
                 <div class="skills-section mb-3" *ngIf="job.skills_required?.length">
-                  <p-tag 
+                  <p-tag
                     *ngFor="let skill of job.skills_required.slice(0, 3)"
                     [value]="skill"
                     severity="info"
@@ -222,8 +229,7 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
         <div class="text-center mt-4 text-500">
           Showing {{ jobs.length }} of {{ totalRecords }} jobs
         </div>
-      </div>
-    </div>
+
   `,
   styles: [`
     .job-card {

@@ -1,0 +1,297 @@
+<div class="ratings-container">
+  <div class="page-header">
+    <h1>My Ratings</h1>
+    <p>Manage and view your ratings and reviews</p>
+  </div>
+
+  <!-- Rating Summary Card -->
+  <div class="summary-section" *ngIf="ratingSummary && !loading">
+    <p-card>
+      <div class="rating-summary">
+        <div class="summary-item">
+          <div class="summary-value">{{ ratingSummary.average_rating | number:'1.1-1' }}</div>
+          <div class="summary-label">Average Rating</div>
+          <app-star-rating 
+            [value]="ratingSummary.average_rating" 
+            [readonly]="true" 
+            size="small">
+          </app-star-rating>
+        </div>
+        
+        <div class="summary-item">
+          <div class="summary-value">{{ ratingSummary.total_ratings }}</div>
+          <div class="summary-label">Total Ratings</div>
+        </div>
+        
+        <div class="summary-item" *ngIf="ratingSummary.communication_rating">
+          <div class="summary-value">{{ ratingSummary.communication_rating | number:'1.1-1' }}</div>
+          <div class="summary-label">Communication</div>
+        </div>
+        
+        <div class="summary-item" *ngIf="ratingSummary.quality_rating">
+          <div class="summary-value">{{ ratingSummary.quality_rating | number:'1.1-1' }}</div>
+          <div class="summary-label">Quality</div>
+        </div>
+        
+        <div class="summary-item" *ngIf="ratingSummary.timeliness_rating">
+          <div class="summary-value">{{ ratingSummary.timeliness_rating | number:'1.1-1' }}</div>
+          <div class="summary-label">Timeliness</div>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-section">
+    <p-card>
+      <p-skeleton height="200px"></p-skeleton>
+    </p-card>
+  </div>
+
+  <!-- Tabs -->
+  <p-tabView [(activeIndex)]="currentTab" class="ratings-tabs">
+    
+    <!-- Pending Ratings Tab -->
+    <p-tabPanel header="Pending Ratings" *ngIf="pendingRatings.length > 0">
+      <div class="pending-ratings">
+        <div class="section-header">
+          <h3>Ratings to Complete</h3>
+          <p>Please complete these ratings for your completed projects</p>
+        </div>
+        
+        <div class="ratings-grid">
+          <p-card *ngFor="let pending of pendingRatings" class="rating-card pending-card">
+            <div class="pending-rating-content">
+              <div class="project-info">
+                <h4>{{ pending.project_title }}</h4>
+                <p class="project-description">{{ pending.project_description }}</p>
+                <div class="project-meta">
+                  <p-tag 
+                    [value]="pending.project_status"
+                    [severity]="getProjectStatusSeverity(pending.project_status)">
+                  </p-tag>
+                  <span class="completion-date">
+                    Completed: {{ formatDate(pending.completed_date) }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="rating-target">
+                <div class="user-info">
+                  <p-avatar 
+                    [label]="getAvatarLabel(pending.rating_for === 'freelancer' ? pending.freelancer_name : pending.client_name)"
+                    size="large">
+                  </p-avatar>
+                  <div class="user-details">
+                    <strong>{{ pending.rating_for === 'freelancer' ? pending.freelancer_name : pending.client_name }}</strong>
+                    <span class="user-role">{{ pending.rating_for === 'freelancer' ? 'Freelancer' : 'Client' }}</span>
+                  </div>
+                </div>
+                
+                <p-button 
+                  label="Rate Now" 
+                  icon="pi pi-star"
+                  (onClick)="openRatingModal(pending)"
+                  class="rate-button">
+                </p-button>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <!-- Received Ratings Tab -->
+    <p-tabPanel header="Ratings Received">
+      <div class="received-ratings">
+        <div class="section-header">
+          <h3>Ratings I've Received</h3>
+          <p>See what others have said about working with you</p>
+        </div>
+        
+        <div class="ratings-list" *ngIf="receivedRatings.length > 0">
+          <p-card *ngFor="let rating of receivedRatings" class="rating-card">
+            <div class="rating-content">
+              <div class="rating-header">
+                <div class="rater-info">
+                  <p-avatar 
+                    [label]="getAvatarLabel(rating.rated_by_name)"
+                    size="large">
+                  </p-avatar>
+                  <div class="rater-details">
+                    <strong>{{ rating.rated_by_name }}</strong>
+                    <span class="rating-date">{{ formatDate(rating.created_at) }}</span>
+                  </div>
+                </div>
+                
+                <div class="rating-score">
+                  <app-star-rating 
+                    [value]="rating.rating" 
+                    [readonly]="true" 
+                    size="medium">
+                  </app-star-rating>
+                  <span class="rating-number">{{ rating.rating }}/5</span>
+                </div>
+              </div>
+              
+              <div class="project-title">
+                <strong>{{ rating.project_title }}</strong>
+              </div>
+              
+              <div class="rating-review" *ngIf="rating.review">
+                <p>{{ rating.review }}</p>
+              </div>
+              
+              <div class="category-ratings" *ngIf="rating.communication_rating || rating.quality_rating || rating.timeliness_rating">
+                <div class="category-rating" *ngIf="rating.communication_rating">
+                  <span>Communication:</span>
+                  <app-star-rating 
+                    [value]="rating.communication_rating" 
+                    [readonly]="true" 
+                    size="small">
+                  </app-star-rating>
+                </div>
+                <div class="category-rating" *ngIf="rating.quality_rating">
+                  <span>Quality:</span>
+                  <app-star-rating 
+                    [value]="rating.quality_rating" 
+                    [readonly]="true" 
+                    size="small">
+                  </app-star-rating>
+                </div>
+                <div class="category-rating" *ngIf="rating.timeliness_rating">
+                  <span>Timeliness:</span>
+                  <app-star-rating 
+                    [value]="rating.timeliness_rating" 
+                    [readonly]="true" 
+                    size="small">
+                  </app-star-rating>
+                </div>
+              </div>
+              
+              <div class="recommendation" *ngIf="rating.would_recommend">
+                <p-tag value="Recommended" severity="success" icon="pi pi-thumbs-up"></p-tag>
+              </div>
+            </div>
+          </p-card>
+        </div>
+        
+        <div class="empty-state" *ngIf="receivedRatings.length === 0 && !loading">
+          <i class="pi pi-star" style="font-size: 3rem; color: #ccc;"></i>
+          <h3>No Ratings Yet</h3>
+          <p>You haven't received any ratings yet. Complete some projects to start receiving feedback!</p>
+        </div>
+        
+        <p-paginator 
+          *ngIf="totalReceivedRatings > pageSize"
+          [rows]="pageSize"
+          [totalRecords]="totalReceivedRatings"
+          [first]="receivedPage * pageSize"
+          (onPageChange)="onReceivedPageChange($event)">
+        </p-paginator>
+      </div>
+    </p-tabPanel>
+
+    <!-- Given Ratings Tab -->
+    <p-tabPanel header="Ratings Given">
+      <div class="given-ratings">
+        <div class="section-header">
+          <h3>Ratings I've Given</h3>
+          <p>Your feedback about working with others</p>
+        </div>
+        
+        <div class="ratings-list" *ngIf="givenRatings.length > 0">
+          <p-card *ngFor="let rating of givenRatings" class="rating-card">
+            <div class="rating-content">
+              <div class="rating-header">
+                <div class="rated-user-info">
+                  <p-avatar 
+                    [label]="getAvatarLabel(rating.rated_user_name)"
+                    size="large">
+                  </p-avatar>
+                  <div class="user-details">
+                    <strong>{{ rating.rated_user_name }}</strong>
+                    <span class="rating-date">{{ formatDate(rating.created_at) }}</span>
+                  </div>
+                </div>
+                
+                <div class="rating-score">
+                  <app-star-rating 
+                    [value]="rating.rating" 
+                    [readonly]="true" 
+                    size="medium">
+                  </app-star-rating>
+                  <span class="rating-number">{{ rating.rating }}/5</span>
+                </div>
+              </div>
+              
+              <div class="project-title">
+                <strong>{{ rating.project_title }}</strong>
+              </div>
+              
+              <div class="rating-review" *ngIf="rating.review">
+                <p>{{ rating.review }}</p>
+              </div>
+              
+              <div class="category-ratings" *ngIf="rating.communication_rating || rating.quality_rating || rating.timeliness_rating">
+                <div class="category-rating" *ngIf="rating.communication_rating">
+                  <span>Communication:</span>
+                  <app-star-rating 
+                    [value]="rating.communication_rating" 
+                    [readonly]="true" 
+                    size="small">
+                  </app-star-rating>
+                </div>
+                <div class="category-rating" *ngIf="rating.quality_rating">
+                  <span>Quality:</span>
+                  <app-star-rating 
+                    [value]="rating.quality_rating" 
+                    [readonly]="true" 
+                    size="small">
+                  </app-star-rating>
+                </div>
+                <div class="category-rating" *ngIf="rating.timeliness_rating">
+                  <span>Timeliness:</span>
+                  <app-star-rating 
+                    [value]="rating.timeliness_rating" 
+                    [readonly]="true" 
+                    size="small">
+                  </app-star-rating>
+                </div>
+              </div>
+              
+              <div class="recommendation" *ngIf="rating.would_recommend">
+                <p-tag value="Recommended" severity="success" icon="pi pi-thumbs-up"></p-tag>
+              </div>
+            </div>
+          </p-card>
+        </div>
+        
+        <div class="empty-state" *ngIf="givenRatings.length === 0 && !loading">
+          <i class="pi pi-star" style="font-size: 3rem; color: #ccc;"></i>
+          <h3>No Ratings Given</h3>
+          <p>You haven't given any ratings yet. Complete some projects and share your feedback!</p>
+        </div>
+        
+        <p-paginator 
+          *ngIf="totalGivenRatings > pageSize"
+          [rows]="pageSize"
+          [totalRecords]="totalGivenRatings"
+          [first]="givenPage * pageSize"
+          (onPageChange)="onGivenPageChange($event)">
+        </p-paginator>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<!-- Rating Modal -->
+<app-rating-modal
+  [(visible)]="showRatingModal"
+  [projectId]="selectedPendingRating?.project_id || 0"
+  [ratingType]="selectedPendingRating?.rating_for || 'freelancer'"
+  [freelancerName]="selectedPendingRating?.freelancer_name || ''"
+  [clientName]="selectedPendingRating?.client_name || ''"
+  (ratingSubmitted)="onRatingSubmitted()"
+  (cancelled)="onRatingCancelled()">
+</app-rating-modal>

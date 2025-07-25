@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +10,8 @@ import { CalendarModule } from 'primeng/calendar';
 import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { PublicService, PublicProjectFilters } from '../../../../service/public.service';
 import { PublicProject, PublicListResponse } from '../../../model/public.models';
 import { PublicNavComponent } from '../../../components/public-nav/public-nav.component';
@@ -29,7 +31,9 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
     TagModule,
     CardModule,
     ProgressSpinnerModule,
-    PublicNavComponent
+    PublicNavComponent,
+    IconField,
+    InputIcon
   ],
   template: `
     <app-public-nav></app-public-nav>
@@ -46,8 +50,10 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
         <div class="card mb-4">
           <div class="grid">
             <div class="col-12 md:col-4">
-              <span class="p-input-icon-left w-full">
-                <i class="pi pi-search"></i>
+              <p-iconfield styleClass="w-full" iconPosition="left">
+                <p-inputicon>
+                  <i class="pi pi-search"></i>
+                </p-inputicon>
                 <input
                   type="text"
                   pInputText
@@ -55,7 +61,7 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
                   (input)="onSearch()"
                   placeholder="Search projects..."
                   class="w-full">
-              </span>
+              </p-iconfield>
             </div>
 
             <div class="col-12 md:col-2">
@@ -214,7 +220,7 @@ import { PublicNavComponent } from '../../../components/public-nav/public-nav.co
                     label="View Details"
                     icon="pi pi-arrow-right"
                     class="w-full p-button-outlined"
-                    [routerLink]="['/projects', project.id]">
+                    (click)="navigate(project)">
                   </button>
                 </div>
               </div>
@@ -341,7 +347,7 @@ export class PublicProjectsComponent implements OnInit {
 
   private searchTimeout: any;
 
-  constructor(private publicService: PublicService) {}
+  constructor(private publicService: PublicService, private router: Router) {}
 
   ngOnInit() {
     this.loadCategories();
@@ -421,5 +427,10 @@ export class PublicProjectsComponent implements OnInit {
       case 'cancelled': return 'danger';
       default: return 'info';
     }
+  }
+
+  navigate(project: PublicProject) {
+    this.router.navigate(['/projects', project.id], { state: { project } });
+
   }
 }

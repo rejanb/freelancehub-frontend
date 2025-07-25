@@ -16,7 +16,7 @@ export interface ChatContext {
   providedIn: 'root'
 })
 export class ChatInitiationService {
-  private baseUrl = `${ApiConst.API_URL}chats/api/chatrooms/`;
+  private baseUrl = `${ApiConst.API_URL}chats/chatrooms/`;
 
   constructor(
     private http: HttpClient,

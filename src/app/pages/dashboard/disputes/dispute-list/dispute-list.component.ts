@@ -9,7 +9,10 @@ import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { TagModule } from 'primeng/tag';
 import { ChartModule } from 'primeng/chart';
-import { MessageService } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { DisputeService, Dispute, DisputeStats } from '../../../../../service/dispute.service';
 import { TokenService } from '../../../../utils/token.service';
 import { RoleConst } from '../../../../const/api-const';
@@ -27,95 +30,44 @@ import { RoleConst } from '../../../../const/api-const';
     DropdownModule,
     CalendarModule,
     TagModule,
-    ChartModule
+    ChartModule,
+    TooltipModule,
+    ConfirmDialogModule,
+    ToastModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   template: `
     <div class="grid">
       <!-- Header -->
       <div class="col-12">
         <div class="flex justify-content-between align-items-center mb-4">
-          <h2 class="m-0">Disputes</h2>
+          <div>
+            <h2 class="m-0">Disputes</h2>
+            <p class="text-500 mt-1 mb-0" *ngIf="isAdmin">Administrative Dispute Management</p>
+            <p class="text-500 mt-1 mb-0" *ngIf="!isAdmin">My Disputes & Support</p>
+          </div>
           <div class="flex gap-2">
-            <p-calendar
-              [(ngModel)]="dateRange"
-              selectionMode="range"
-              [showButtonBar]="true"
-              placeholder="Date range"
-              (onSelect)="onDateSelect()"
-              class="w-15rem">
-            </p-calendar>
             <button
               pButton
               icon="pi pi-plus"
               label="Create Dispute"
+              class="p-button-primary"
               routerLink="create">
+            </button>
+            <button
+              *ngIf="isAdmin"
+              pButton
+              icon="pi pi-cog"
+              label="Admin Panel"
+              class="p-button-secondary"
+              routerLink="/admin/disputes">
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- Stats -->
-      <div class="col-12 md:col-4">
-        <p-card>
-          <div class="text-center mb-4">
-            <h3>Dispute Statistics</h3>
-            <div class="text-4xl font-bold text-primary mb-2">
-              {{ stats?.total_disputes }}
-            </div>
-            <div class="text-500">Total Disputes</div>
-          </div>
-
-          <div class="grid">
-            <div class="col-4">
-              <div class="text-center">
-                <div class="text-xl font-bold text-success mb-2">
-                  {{ stats?.resolved_disputes }}
-                </div>
-                <div class="text-500">Resolved</div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="text-center">
-                <div class="text-xl font-bold text-warning mb-2">
-                  {{ stats?.open_disputes }}
-                </div>
-                <div class="text-500">Open</div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="text-center">
-                <div class="text-xl font-bold mb-2">
-                  {{ stats?.average_resolution_time | number:'1.0-0' }}d
-                </div>
-                <div class="text-500">Avg. Time</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Charts -->
-          <div class="mt-4">
-            <h4>Disputes by Type</h4>
-            <p-chart
-              type="pie"
-              [data]="typeChartData"
-              [options]="chartOptions">
-            </p-chart>
-          </div>
-
-          <div class="mt-4">
-            <h4>Monthly Disputes</h4>
-            <p-chart
-              type="bar"
-              [data]="monthlyChartData"
-              [options]="chartOptions">
-            </p-chart>
-          </div>
-        </p-card>
-      </div>
 
       <!-- Disputes List -->
-      <div class="col-12 md:col-8">
+      <div class="col-12 md:col-12">
         <p-card>
           <!-- Filters -->
           <div class="flex gap-2 mb-4">
@@ -152,30 +104,30 @@ import { RoleConst } from '../../../../const/api-const';
 
             <ng-template pTemplate="header">
               <tr>
-                <th>ID</th>
+                <th>Date</th>
                 <th>Title</th>
                 <th>Type</th>
+                <th>Priority</th>
                 <th>Status</th>
-                <th>Contract</th>
-                <th>Created</th>
+
                 <th>Actions</th>
               </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-dispute>
               <tr>
-                <td>
-                  <a
-                    [routerLink]="['/dashboard/disputes', dispute.id]"
-                    class="text-primary hover:underline">
-                    #{{ dispute.id }}
-                  </a>
-                </td>
+                <td>{{ dispute.created_at | date:'medium' }}</td>
                 <td>{{ dispute.title }}</td>
                 <td>
                   <p-tag
-                    [value]="dispute.type"
-                    [severity]="getTypeSeverity(dispute.type)">
+                    [value]="dispute.dispute_type"
+                    [severity]="getTypeSeverity(dispute.dispute_type)">
+                  </p-tag>
+                </td>
+                <td>
+                  <p-tag
+                    [value]="dispute.priority"
+                    [severity]="getStatusSeverity(dispute.status)">
                   </p-tag>
                 </td>
                 <td>
@@ -185,20 +137,33 @@ import { RoleConst } from '../../../../const/api-const';
                   </p-tag>
                 </td>
                 <td>
-                  <a
-                    [routerLink]="['/dashboard/contracts', dispute.contract]"
-                    class="text-primary hover:underline">
-                    {{ dispute.contract_title || 'Contract #' + dispute.contract }}
-                  </a>
-                </td>
-                <td>{{ dispute.created_at | date:'medium' }}</td>
-                <td>
-                  <button
-                    pButton
-                    icon="pi pi-eye"
-                    class="p-button-rounded p-button-text"
-                    [routerLink]="['/dashboard/disputes', dispute.id]">
-                  </button>
+                  <div class="flex gap-1">
+                    <button
+                      pButton
+                      icon="pi pi-eye"
+                      class="p-button-rounded p-button-text"
+                      pTooltip="View Details"
+                      [routerLink]="['/dashboard/dispute', dispute.id]">
+                    </button>
+
+                    <!-- Admin Quick Actions -->
+                    <ng-container *ngIf="isAdmin && dispute.status !== 'resolved' && dispute.status !== 'closed'">
+                      <button
+                        pButton
+                        icon="pi pi-check"
+                        class="p-button-rounded p-button-text p-button-success"
+                        pTooltip="Quick Resolve"
+                        (click)="quickResolve(dispute)">
+                      </button>
+                      <button
+                        pButton
+                        icon="pi pi-times"
+                        class="p-button-rounded p-button-text p-button-danger"
+                        pTooltip="Quick Reject"
+                        (click)="quickReject(dispute)">
+                      </button>
+                    </ng-container>
+                  </div>
                 </td>
               </tr>
             </ng-template>
@@ -214,6 +179,9 @@ import { RoleConst } from '../../../../const/api-const';
         </p-card>
       </div>
     </div>
+
+    <p-confirmDialog></p-confirmDialog>
+    <p-toast></p-toast>
   `,
   styles: [`
     :host ::ng-deep {
@@ -232,6 +200,12 @@ export class DisputeListComponent implements OnInit {
   loading = false;
   totalRecords = 0;
   dateRange: Date[] = [];
+
+  // Role-based properties
+  isAdmin = false;
+  isClient = false;
+  isFreelancer = false;
+  currentUser: any;
 
   filters = {
     type: '',
@@ -291,24 +265,24 @@ export class DisputeListComponent implements OnInit {
     ]
   };
 
-  chartOptions = {
-    plugins: {
-      legend: {
-        position: 'bottom'
-      }
-    },
-    responsive: true,
-    maintainAspectRatio: false
-  };
 
   constructor(
     private disputeService: DisputeService,
     private tokenService: TokenService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit() {
+    this.loadUserInfo();
     this.loadData();
+  }
+
+  loadUserInfo() {
+    this.currentUser = this.tokenService.getCurrentUser();
+    this.isAdmin = this.currentUser?.type === 'ADMIN' || this.currentUser?.is_staff;
+    this.isClient = this.currentUser?.type === RoleConst.CLIENT;
+    this.isFreelancer = this.currentUser?.type === RoleConst.FREELANCER;
   }
 
   loadData() {
@@ -345,7 +319,7 @@ export class DisputeListComponent implements OnInit {
     this.disputeService.getDisputeStats(filters).subscribe({
       next: (stats) => {
         this.stats = stats;
-        this.updateCharts(stats);
+        // this.updateCharts(stats);
       },
       error: (error) => {
         console.error('Error loading stats:', error);
@@ -396,14 +370,6 @@ export class DisputeListComponent implements OnInit {
     this.loadDisputes();
   }
 
-  onDateSelect() {
-    if (this.dateRange && this.dateRange.length === 2) {
-      const [start, end] = this.dateRange;
-      this.filters.start_date = start.toISOString();
-      this.filters.end_date = end.toISOString();
-      this.loadData();
-    }
-  }
 
   getTypeSeverity(type: string): any {
     switch (type) {
@@ -435,5 +401,82 @@ export class DisputeListComponent implements OnInit {
       default:
         return 'info';
     }
+  }
+
+  // Admin Quick Actions
+  quickResolve(dispute: Dispute) {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to resolve dispute #${dispute.id}?`,
+      header: 'Confirm Resolution',
+      icon: 'pi pi-check-circle',
+      acceptButtonStyleClass: 'p-button-success',
+      accept: () => {
+        const resolutionDetails = `Dispute #${dispute.id} resolved by administrator.`;
+        this.disputeService.resolveDispute(dispute.id, resolutionDetails).subscribe({
+          next: (resolvedDispute) => {
+            // Update the dispute in the list
+            const index = this.disputes.findIndex(d => d.id === dispute.id);
+            if (index > -1) {
+              this.disputes[index] = resolvedDispute;
+            }
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `Dispute #${dispute.id} resolved successfully`
+            });
+
+            // Reload stats
+            this.loadStats();
+          },
+          error: (error) => {
+            console.error('Error resolving dispute:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error?.error || 'Failed to resolve dispute'
+            });
+          }
+        });
+      }
+    });
+  }
+
+  quickReject(dispute: Dispute) {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to reject dispute #${dispute.id}?`,
+      header: 'Confirm Rejection',
+      icon: 'pi pi-times-circle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        const rejectionReason = `Dispute #${dispute.id} rejected by administrator.`;
+        this.disputeService.rejectDispute(dispute.id, rejectionReason).subscribe({
+          next: (rejectedDispute) => {
+            // Update the dispute in the list
+            const index = this.disputes.findIndex(d => d.id === dispute.id);
+            if (index > -1) {
+              this.disputes[index] = rejectedDispute;
+            }
+
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `Dispute #${dispute.id} rejected successfully`
+            });
+
+            // Reload stats
+            this.loadStats();
+          },
+          error: (error) => {
+            console.error('Error rejecting dispute:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error?.error || 'Failed to reject dispute'
+            });
+          }
+        });
+      }
+    });
   }
 }

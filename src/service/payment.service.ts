@@ -84,10 +84,10 @@ export class PaymentService {
   }
 
   /**
-   * Get payment statistics
+   * Get payment statistics (minimal dev version)
    */
-  getPaymentStats(): Observable<PaymentStats> {
-    return this.http.get<PaymentStats>(`${this.baseUrl}stats/`);
+  getPaymentStats(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}stats/`);
   }
 
   /**
@@ -173,5 +173,16 @@ export class PaymentService {
    */
   getPaymentReceipt(paymentId: number): Observable<{ url: string }> {
     return this.http.get<{ url: string }>(`${this.baseUrl}${paymentId}/receipt/`);
+  }
+
+  /**
+   * Create quick test payment (for dev/testing)
+   */
+  createQuickPayment(data: {
+    amount: number;
+    description: string;
+    contract_id?: number;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}quick-pay/`, data);
   }
 } 

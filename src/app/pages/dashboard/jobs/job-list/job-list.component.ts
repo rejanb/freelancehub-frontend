@@ -10,6 +10,8 @@ import { CalendarModule } from 'primeng/calendar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { JobService, JobFilters } from '../../../../../service/job.service';
 import { TokenService } from '../../../../utils/token.service';
@@ -40,7 +42,9 @@ interface JobListFilters {
     CalendarModule,
     TooltipModule,
     TagModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    IconField,
+    InputIcon
   ],
   providers: [ConfirmationService, MessageService],
   template: `
@@ -60,8 +64,10 @@ interface JobListFilters {
       <!-- Filters -->
       <div class="grid mb-4">
         <div class="col-12 md:col-3">
-          <span class="p-input-icon-left w-full">
-            <i class="pi pi-search"></i>
+          <p-iconfield styleClass="w-full" iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
             <input
               type="text"
               pInputText
@@ -69,7 +75,7 @@ interface JobListFilters {
               (input)="onSearch()"
               placeholder="Search jobs..."
               class="w-full">
-          </span>
+          </p-iconfield>
         </div>
 
         <div class="col-12 md:col-3">
@@ -151,7 +157,7 @@ interface JobListFilters {
                 class="text-primary hover:underline">
                 View Proposals
               </a>
-              <span *ngIf="!isClient">{{ job.proposal_count || 0 }}</span>
+              <span *ngIf="!isClient">{{ job.proposals_count || 0 }}</span>
             </td>
             <td>
               <div class="flex gap-2">

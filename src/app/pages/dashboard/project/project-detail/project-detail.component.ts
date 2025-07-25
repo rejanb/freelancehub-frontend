@@ -108,10 +108,11 @@ import { TokenService } from '../../../../utils/token.service';
                 <button
                   *ngIf="canChatWithClient()"
                   pButton
-                  label="Chat with Client"
+                  label="Contact Client"
                   icon="pi pi-comments"
                   class="p-button-outlined p-button-success p-button-sm"
-                  (click)="chatWithClient()">
+                  (click)="chatWithClient()"
+                  pTooltip="Start a conversation with the project client">
                 </button>
 
                 <button
@@ -303,7 +304,7 @@ import { TokenService } from '../../../../utils/token.service';
             <div class="card" *ngIf="userRole === 'client' || userRole === 'admin'">
               <h3 class="text-lg font-semibold mb-3">Proposals</h3>
               <div class="text-center">
-                <div class="text-2xl font-bold text-blue-600 mb-2">{{ project.proposal_count || 0 }}</div>
+                <div class="text-2xl font-bold text-blue-600 mb-2">{{ project.proposals_count || 0 }}</div>
                 <p class="text-600 mb-3">Proposals received</p>
                 <button
                   pButton
@@ -311,7 +312,7 @@ import { TokenService } from '../../../../utils/token.service';
                   icon="pi pi-users"
                   class="p-button-outlined w-full"
                   [routerLink]="['/dashboard/projects', project.id, 'proposals']"
-                  [disabled]="!project.proposal_count">
+                  [disabled]="!project.proposals_count">
                 </button>
               </div>
             </div>
@@ -488,9 +489,13 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   canChatWithClient(): boolean {
-    return this.project?.selected_freelancer?.id === this.currentUserId &&
+    // Freelancers can chat with client if:
+    // 1. User is not the client (project owner)
+    // 2. Client exists
+    // 3. User is a freelancer or is the selected freelancer
+    return this.userRole === 'freelancer' &&
            this.project?.client?.id &&
-           this.project?.status === 'in_progress';
+           this.project?.client?.id !== this.currentUserId;
   }
 
   canChatWithFreelancer(): boolean {

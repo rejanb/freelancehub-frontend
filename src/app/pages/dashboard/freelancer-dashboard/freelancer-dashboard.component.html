@@ -1,0 +1,397 @@
+<div class="freelancer-dashboard">
+  <!-- Header -->
+  <div class="grid">
+    <div class="col-12">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <h1 class="text-3xl font-bold mb-2"> Dashboard</h1>
+            <p class="text-600 m-0">Welcome Naas     !</p>
+            <div class="flex justify-content-between align-items-start mb-2">
+
+          </div> {{ currentUser?.first_name || currentUser?.username }}
+
+<!--            <div class="flex align-items-center mt-2">-->
+<!--              <div class="flex align-items-center mr-4">-->
+<!--                <i class="pi pi-star-fill text-yellow-500 mr-1"></i>-->
+<!--                <span class="font-semibold">{{ stats.avgRating }}</span>-->
+<!--                <span class="text-500 ml-1">(4.8/5.0)</span>-->
+<!--              </div>-->
+<!--              <div class="flex align-items-center">-->
+<!--                <i class="pi pi-chart-line text-green-500 mr-1"></i>-->
+<!--                <span class="font-semibold text-green-600">{{ stats.successRate }}% Success Rate</span>-->
+<!--              </div>-->
+<!--            </div>-->
+          </div>
+          <div class="flex gap-2">
+            <button pButton
+                    label="Find Projects"
+                    icon="pi pi-folder-open"
+                    class="p-button-primary"
+                    routerLink="/dashboard/projects/browse"></button>
+            <button pButton
+                    label="View Earnings"
+                    icon="pi pi-wallet"
+                    class="p-button-outlined"
+                    routerLink="/dashboard/payments/history"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="col-12 lg:col-3 md:col-6" *ngFor="let stat of quickStats">
+      <div class="card cursor-pointer transition-all transition-duration-300 hover:shadow-3"
+           [class]="stat.color"
+           [routerLink]="stat.route">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <div class="text-500 font-medium mb-2">{{ stat.label }}</div>
+            <div class="text-900 font-bold text-2xl">{{ stat.value }}</div>
+          </div>
+          <div class="flex align-items-center justify-content-center text-white border-round"
+               [class]="stat.iconColor"
+               style="width: 3rem; height: 3rem">
+            <i [class]="'pi ' + stat.icon + ' text-xl'"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="col-12 lg:col-8">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Monthly Earnings Trend</h3>
+          <div class="flex align-items-center gap-3">
+            <div class="earnings-highlight">
+              <span class="text-500">This Month:</span>
+              <span class="font-bold text-green-600 ml-2">{{ formatCurrency(stats.this_month_earnings) }}</span>
+            </div>
+            <button pButton
+                    label="View Details"
+                    class="p-button-text p-button-sm"
+                    routerLink="/dashboard/payments/history"></button>
+          </div>
+        </div>
+        <div *ngIf="loading" class="flex justify-content-center py-4">
+          <p-skeleton height="300px" width="100%"></p-skeleton>
+        </div>
+        <div *ngIf="!loading" style="height: 300px;">
+          <p-chart type="line"
+                   [data]="earningsChartData"
+                   [options]="chartOptions"
+                   height="300px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 lg:col-4">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Application Status</h3>
+          <button pButton
+                  label="View All"
+                  class="p-button-text p-button-sm"
+                  routerLink="/dashboard/applications"></button>
+        </div>
+        <div *ngIf="loading" class="flex justify-content-center py-4">
+          <p-skeleton height="250px" width="100%"></p-skeleton>
+        </div>
+        <div *ngIf="!loading" style="height: 250px;">
+          <p-chart type="doughnut"
+                   [data]="applicationStatusChartData"
+                   [options]="chartOptions"
+                   height="250px"></p-chart>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Work Section -->
+    <div class="col-12 lg:col-6">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Active Work</h3>
+          <button pButton
+                  label="View All"
+                  class="p-button-text p-button-sm"
+                  routerLink="/dashboard/contracts"></button>
+        </div>
+
+        <div *ngIf="loading">
+          <div *ngFor="let item of [1,2,3]" class="flex align-items-center mb-3">
+            <p-skeleton shape="circle" size="3rem" class="mr-3"></p-skeleton>
+            <div class="flex-1">
+              <p-skeleton width="60%" height="1rem" class="mb-2"></p-skeleton>
+              <p-skeleton width="40%" height="0.8rem"></p-skeleton>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && activeWork.length === 0" class="text-center py-4">
+          <i class="pi pi-folder text-4xl text-300 mb-3"></i>
+          <p class="text-500">No active work found</p>
+          <button pButton
+                  label="Browse Projects"
+                  class="p-button-sm"
+                  routerLink="/dashboard/projects/browse"></button>
+        </div>
+
+        <div *ngIf="!loading && activeWork.length > 0">
+          <div *ngFor="let work of activeWork"
+               class="flex align-items-center justify-content-between py-3 border-bottom-1 surface-border">
+            <div class="flex align-items-center">
+              <div class="flex align-items-center justify-content-center border-round mr-3"
+                   [class]="getTypeColor(work.type)"
+                   style="width: 2.5rem; height: 2.5rem">
+                <i [class]="'pi ' + getTypeIcon(work.type)"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-900 mb-1">{{ work.project?.title }}</div>
+                <div class="text-sm text-600">
+                  <span class="mr-2">{{ work.project?.client?.username }}</span>
+                  <span>{{ formatCurrency(work.project?.budget) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <p-tag [value]="work.status"
+                     [severity]="getStatusSeverity(work.status)"
+                     class="mb-1"></p-tag>
+              <div class="text-sm text-600">
+                <i class="pi pi-calendar mr-1"></i>
+                Due {{ formatDate(work.project?.deadline) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Applications -->
+    <div class="col-12 lg:col-6">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Recent Applications</h3>
+          <button pButton
+                  label="View All"
+                  class="p-button-text p-button-sm"
+                  routerLink="/dashboard/applications"></button>
+        </div>
+
+        <div *ngIf="loading">
+          <div *ngFor="let item of [1,2,3]" class="flex align-items-center mb-3">
+            <p-skeleton shape="circle" size="3rem" class="mr-3"></p-skeleton>
+            <div class="flex-1">
+              <p-skeleton width="60%" height="1rem" class="mb-2"></p-skeleton>
+              <p-skeleton width="40%" height="0.8rem"></p-skeleton>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && recentApplications.length === 0" class="text-center py-4">
+          <i class="pi pi-send text-4xl text-300 mb-3"></i>
+          <p class="text-500">No recent applications found</p>
+          <button pButton
+                  label="Start Applying"
+                  class="p-button-sm"
+                  routerLink="/dashboard/projects/browse"></button>
+        </div>
+
+        <div *ngIf="!loading && recentApplications.length > 0">
+          <div *ngFor="let application of recentApplications"
+               class="flex align-items-center justify-content-between py-3 border-bottom-1 surface-border">
+            <div class="flex align-items-center">
+              <div class="flex align-items-center justify-content-center border-round mr-3"
+                   [class]="getTypeColor('project')"
+                   style="width: 2.5rem; height: 2.5rem">
+                <i [class]="'pi ' + getTypeIcon('project')"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-900 mb-1">
+                  {{ application.project?.title }}
+                </div>
+                <div class="text-sm text-600">
+                  Applied {{ formatDate(application.created_at) }}
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <p-tag [value]="application.status"
+                     [severity]="getStatusSeverity(application.status)"
+                     class="mb-1"></p-tag>
+              <div class="text-sm text-600">
+                {{ formatCurrency(application.project?.budget) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Earnings -->
+    <div class="col-12 lg:col-8">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">Recent Earnings</h3>
+          <div class="flex gap-2">
+            <button pButton
+                    label="Withdraw Funds"
+                    icon="pi pi-download"
+                    class="p-button-success p-button-sm"
+                    routerLink="/dashboard/payments/withdraw"></button>
+            <button pButton
+                    label="View All"
+                    class="p-button-text p-button-sm"
+                    routerLink="/dashboard/payments/history"></button>
+          </div>
+        </div>
+
+        <div *ngIf="loading">
+          <p-skeleton width="100%" height="200px"></p-skeleton>
+        </div>
+
+        <div *ngIf="!loading && recentEarnings.length === 0" class="text-center py-4">
+          <i class="pi pi-wallet text-4xl text-300 mb-3"></i>
+          <p class="text-500">No recent earnings found</p>
+          <button pButton
+                  label="Start Working"
+                  class="p-button-sm"
+                  routerLink="/dashboard/projects/browse"></button>
+        </div>
+
+        <div *ngIf="!loading && recentEarnings.length > 0">
+          <p-table [value]="recentEarnings"
+                   [paginator]="false"
+                   responsiveLayout="scroll">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Client</th>
+                <th>Project</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Type</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-earning>
+              <tr>
+                <td>
+                  <div class="flex align-items-center">
+                    <p-avatar [label]="earning.client.charAt(0)"
+                             class="mr-2"
+                             size="normal"></p-avatar>
+                    <span>{{ earning.client }}</span>
+                  </div>
+                </td>
+                <td>{{ earning.project }}</td>
+                <td>
+                  <span class="font-semibold text-green-600">{{ formatCurrency(earning.amount) }}</span>
+                </td>
+                <td>{{ formatDate(earning.date) }}</td>
+                <td>
+                  <p-tag [value]="earning.status"
+                         [severity]="getStatusSeverity(earning.status)"></p-tag>
+                </td>
+                <td>
+                  <p-badge value="project"
+                           severity="success"></p-badge>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Available Opportunities -->
+    <div class="col-12 lg:col-4">
+      <div class="card">
+        <div class="flex justify-content-between align-items-center mb-4">
+          <h3 class="m-0">New Opportunities</h3>
+          <button pButton
+                  label="Browse All"
+                  class="p-button-text p-button-sm"
+                  routerLink="/dashboard/jobs/browse"></button>
+        </div>
+
+        <div *ngIf="loading">
+          <div *ngFor="let item of [1,2,3]" class="mb-3">
+            <p-skeleton width="100%" height="120px"></p-skeleton>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && availableOpportunities.length === 0" class="text-center py-4">
+          <i class="pi pi-search text-4xl text-300 mb-3"></i>
+          <p class="text-500">No new opportunities</p>
+        </div>
+
+        <div *ngIf="!loading && availableOpportunities.length > 0">
+          <div *ngFor="let opportunity of availableOpportunities"
+               class="border-1 surface-border border-round p-3 mb-3 hover:shadow-2 transition-all transition-duration-300">
+            <div class="flex justify-content-between align-items-start mb-2">
+              <h4 class="m-0 text-900 font-semibold">{{ opportunity.title }}</h4>
+              <p-badge [value]="opportunity.type"
+                       [severity]="opportunity.type === 'project' ? 'success' : 'info'"
+                       class="ml-2"></p-badge>
+            </div>
+            <p class="text-600 text-sm mb-3 line-height-3">
+              {{ opportunity.description | slice:0:100 }}{{ opportunity.description?.length > 100 ? '...' : '' }}
+            </p>
+            <div class="flex justify-content-between align-items-center mb-3">
+              <div class="flex align-items-center">
+                <i class="pi pi-wallet mr-2 text-green-500"></i>
+                <span class="font-semibold text-green-600">{{ formatCurrency(opportunity.budget) }}</span>
+              </div>
+              <div class="flex align-items-center text-sm text-600">
+                <i class="pi pi-clock mr-1"></i>
+                <span>{{ formatDate(opportunity.deadline) }}</span>
+              </div>
+            </div>
+            <div class="flex gap-1 mb-3" *ngIf="opportunity.skills_required">
+              <span *ngFor="let skill of getSkillTags(opportunity.skills_required)"
+                    class="text-xs bg-primary-50 text-primary-600 px-2 py-1 border-round">
+                {{ skill }}
+              </span>
+            </div>
+            <button pButton
+                    label="Apply Now"
+                    icon="pi pi-send"
+                    class="p-button-sm w-full"
+                    (click)="applyToOpportunity(opportunity)"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="col-12">
+      <div class="card">
+        <h3 class="mb-4">Quick Actions</h3>
+        <div class="grid">
+          <div class="col-12 md:col-4">
+            <button pButton
+                    label="Find Projects"
+                    icon="pi pi-folder-open"
+                    class="w-full p-button-lg p-button-outlined"
+                    routerLink="/dashboard/projects/browse"></button>
+          </div>
+          <div class="col-12 md:col-4">
+            <button pButton
+                    label="View Messages"
+                    icon="pi pi-comments"
+                    class="w-full p-button-lg p-button-outlined"
+                    routerLink="/dashboard/messages"></button>
+          </div>
+          <div class="col-12 md:col-4">
+            <button pButton
+                    label="Update Profile"
+                    icon="pi pi-user-edit"
+                    class="w-full p-button-lg p-button-outlined"
+                    routerLink="/dashboard/profile"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

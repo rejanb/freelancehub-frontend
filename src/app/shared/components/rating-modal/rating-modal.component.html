@@ -1,0 +1,167 @@
+<p-dialog 
+  [header]="getModalTitle()" 
+  [(visible)]="visible" 
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [style]="{width: '450px'}"
+  (onHide)="onCancel()">
+  
+  <form [formGroup]="ratingForm" (ngSubmit)="onSubmit()">
+    <div class="rating-content">
+      <!-- Rating for Freelancer -->
+      <div *ngIf="ratingType === 'freelancer'" class="rating-section">
+        <h4>Rate {{ freelancerName || 'Freelancer' }}</h4>
+        <p class="rating-description">How would you rate this freelancer's work on your project?</p>
+        
+        <div class="rating-input">
+          <label>Overall Rating *</label>
+          <app-star-rating 
+            formControlName="rating"
+            size="large"
+            [readonly]="false">
+          </app-star-rating>
+          <div *ngIf="ratingForm.get('rating')?.invalid && ratingForm.get('rating')?.touched" 
+               class="error-message">
+            Please provide a rating
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="review">Review</label>
+          <textarea 
+            pInputTextarea
+            id="review"
+            formControlName="review"
+            placeholder="Share your experience working with this freelancer..."
+            rows="4"
+            [autoResize]="true">
+          </textarea>
+        </div>
+
+        <div class="rating-categories">
+          <div class="category-rating">
+            <label>Communication</label>
+            <app-star-rating 
+              formControlName="communicationRating"
+              size="small"
+              [readonly]="false">
+            </app-star-rating>
+          </div>
+
+          <div class="category-rating">
+            <label>Quality of Work</label>
+            <app-star-rating 
+              formControlName="qualityRating"
+              size="small"
+              [readonly]="false">
+            </app-star-rating>
+          </div>
+
+          <div class="category-rating">
+            <label>Timeliness</label>
+            <app-star-rating 
+              formControlName="timelinessRating"
+              size="small"
+              [readonly]="false">
+            </app-star-rating>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rating for Client -->
+      <div *ngIf="ratingType === 'client'" class="rating-section">
+        <h4>Rate {{ clientName || 'Client' }}</h4>
+        <p class="rating-description">How would you rate working with this client?</p>
+        
+        <div class="rating-input">
+          <label>Overall Rating *</label>
+          <app-star-rating 
+            formControlName="rating"
+            size="large"
+            [readonly]="false">
+          </app-star-rating>
+          <div *ngIf="ratingForm.get('rating')?.invalid && ratingForm.get('rating')?.touched" 
+               class="error-message">
+            Please provide a rating
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="review">Review</label>
+          <textarea 
+            pInputTextarea
+            id="review"
+            formControlName="review"
+            placeholder="Share your experience working with this client..."
+            rows="4"
+            [autoResize]="true">
+          </textarea>
+        </div>
+
+        <div class="rating-categories">
+          <div class="category-rating">
+            <label>Communication</label>
+            <app-star-rating 
+              formControlName="communicationRating"
+              size="small"
+              [readonly]="false">
+            </app-star-rating>
+          </div>
+
+          <div class="category-rating">
+            <label>Payment Promptness</label>
+            <app-star-rating 
+              formControlName="paymentRating"
+              size="small"
+              [readonly]="false">
+            </app-star-rating>
+          </div>
+
+          <div class="category-rating">
+            <label>Project Clarity</label>
+            <app-star-rating 
+              formControlName="clarityRating"
+              size="small"
+              [readonly]="false">
+            </app-star-rating>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendation Option -->
+      <div class="recommendation-section" *ngIf="ratingForm.get('rating')?.value >= 4">
+        <div class="form-field checkbox-field">
+          <input 
+            type="checkbox" 
+            id="wouldRecommend" 
+            formControlName="wouldRecommend">
+          <label for="wouldRecommend">
+            I would recommend this {{ ratingType === 'freelancer' ? 'freelancer' : 'client' }} to others
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dialog Footer -->
+    <div class="dialog-footer">
+      <p-button 
+        label="Cancel" 
+        severity="secondary" 
+        [outlined]="true"
+        type="button"
+        (onClick)="onCancel()">
+      </p-button>
+      
+      <p-button 
+        [label]="isSubmitting ? 'Submitting...' : 'Submit Rating'" 
+        type="submit"
+        [disabled]="ratingForm.invalid || isSubmitting"
+        [loading]="isSubmitting">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>
+
+<p-toast></p-toast>

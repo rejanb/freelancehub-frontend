@@ -12,6 +12,7 @@ import {PublicJobsComponent} from './pages/public/jobs/public-jobs.component';
 import {PublicProjectsComponent} from './pages/public/projects/public-projects.component';
 import {PublicJobDetailComponent} from './pages/public/jobs/public-job-detail.component';
 import {PublicProjectDetailComponent} from './pages/public/projects/public-project-detail.component';
+import {RatingsComponent} from './pages/ratings/ratings.component';
 
 
 export const routes: Routes = [
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'home', component: HomeComponent },
   { path: 'job', children: jobsRoutes, canActivate: [authGuard] },
+  { path: 'ratings', component: RatingsComponent, canActivate: [authGuard] },
   // Public routes for browsing
   { path: 'jobs', component: PublicJobsComponent },
   { path: 'jobs/:id', component: PublicJobDetailComponent },

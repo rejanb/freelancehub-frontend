@@ -131,4 +131,34 @@ export class ContractService {
   getContractDocuments(contractId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}${contractId}/documents/`);
   }
+
+  /**
+   * Download contract PDF
+   */
+  downloadContractPDF(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}${id}/download_pdf/`, { 
+      responseType: 'blob' 
+    });
+  }
+
+  /**
+   * Helper method to trigger PDF download in browser
+   */
+  downloadPDF(id: number, filename?: string): void {
+    this.downloadContractPDF(id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename || `contract-${id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Error downloading PDF:', error);
+      }
+    });
+  }
 } 

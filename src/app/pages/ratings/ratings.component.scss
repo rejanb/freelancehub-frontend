@@ -1,0 +1,361 @@
+.ratings-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.page-header p {
+  margin: 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Summary Section */
+.summary-section {
+  margin-bottom: 2rem;
+}
+
+.rating-summary {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+.summary-item {
+  flex: 1;
+}
+
+.summary-value {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #007bff;
+  margin-bottom: 0.25rem;
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+/* Loading Section */
+.loading-section {
+  margin-bottom: 2rem;
+}
+
+/* Tabs */
+.ratings-tabs {
+  margin-top: 2rem;
+}
+
+:host ::ng-deep .p-tabview-nav-link {
+  font-weight: 500;
+}
+
+/* Section Headers */
+.section-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.section-header h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.section-header p {
+  margin: 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Pending Ratings */
+.pending-ratings .ratings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 1.5rem;
+}
+
+.pending-card {
+  border-left: 4px solid #ffc107;
+}
+
+.pending-rating-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.project-info {
+  flex: 1;
+}
+
+.project-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.project-description {
+  margin: 0 0 1rem 0;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.project-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.completion-date {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.rating-target {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-details {
+  text-align: center;
+}
+
+.user-details strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.user-role {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.rate-button {
+  white-space: nowrap;
+}
+
+/* Rating Cards */
+.ratings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.rating-card {
+  padding: 1.5rem;
+}
+
+.rating-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rating-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rater-info,
+.rated-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rater-details,
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.rater-details strong,
+.user-details strong {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.rating-date {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.rating-score {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rating-number {
+  font-weight: 600;
+  color: #666;
+}
+
+.project-title {
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #007bff;
+}
+
+.rating-review {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #28a745;
+}
+
+.rating-review p {
+  margin: 0;
+  color: #555;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.category-ratings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+}
+
+.category-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-rating span {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.recommendation {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+}
+
+.empty-state h3 {
+  margin: 1rem 0 0.5rem 0;
+  color: #333;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Pagination */
+:host ::ng-deep .p-paginator {
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+/* Card Styling */
+:host ::ng-deep .p-card {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  border: none;
+}
+
+:host ::ng-deep .p-card-content {
+  padding: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ratings-container {
+    padding: 1rem;
+  }
+  
+  .rating-summary {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .summary-item {
+    padding: 0.5rem;
+  }
+  
+  .pending-ratings .ratings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .pending-rating-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .rating-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .rating-score {
+    align-self: flex-end;
+  }
+  
+  .category-ratings {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .summary-value {
+    font-size: 1.5rem;
+  }
+  
+  .rater-info,
+  .rated-user-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}

@@ -8,10 +8,13 @@ import { TimelineModule } from 'primeng/timeline';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextarea } from 'primeng/inputtextarea';
 import { FileUploadModule } from 'primeng/fileupload';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { DisputeService, Dispute, DisputeMessage, DisputeResolution } from '../../../../../service/dispute.service';
 import { TokenService } from '../../../../utils/token.service';
 import { Nl2brPipe } from '../../../../pipes/nl2br.pipe';
+import { RoleConst } from '../../../../const/api-const';
 import {FormsModule} from '@angular/forms';
 
 @Component({
@@ -27,10 +30,12 @@ import {FormsModule} from '@angular/forms';
     DialogModule,
     InputTextarea,
     FileUploadModule,
+    ConfirmDialogModule,
+    ToastModule,
     Nl2brPipe,
     FormsModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   template: `
     <div class="card" *ngIf="dispute">
       <!-- Header -->
@@ -38,10 +43,13 @@ import {FormsModule} from '@angular/forms';
         <div>
           <h2 class="m-0">Dispute #{{ dispute.id }}</h2>
           <p class="text-500 mt-2 mb-0">{{ dispute.title }}</p>
+          <div *ngIf="isAdmin" class="mt-2">
+            <p-tag value="Admin View" severity="info" icon="pi pi-shield"></p-tag>
+          </div>
         </div>
         <div class="flex gap-2">
           <p-tag [value]="dispute.status" [severity]="getStatusSeverity(dispute.status)"></p-tag>
-          <button pButton icon="pi pi-arrow-left" label="Back" class="p-button-text" routerLink="/dashboard/disputes"></button>
+          <button pButton icon="pi pi-arrow-left" label="Back" class="p-button-text" routerLink="/dashboard/dispute"></button>
         </div>
       </div>
 
@@ -59,7 +67,7 @@ import {FormsModule} from '@angular/forms';
             </div>
             <div class="mb-3">
               <label class="block font-bold mb-2">Desired Resolution</label>
-              <p [innerHTML]="dispute.desired_resolution | nl2br"></p>
+              <p [innerHTML]="(dispute.desired_resolution || '') | nl2br"></p>
             </div>
             <div class="mb-3" *ngIf="dispute.resolution_amount">
               <label class="block font-bold mb-2">Resolution Amount</label>
@@ -137,6 +145,33 @@ import {FormsModule} from '@angular/forms';
         </div>
 
         <div class="col-12 md:col-4">
+          <!-- Admin Actions -->
+          <p-card *ngIf="isAdmin && dispute.status !== 'resolved' && dispute.status !== 'closed'">
+            <ng-template pTemplate="header">
+              <div class="flex align-items-center">
+                <i class="pi pi-shield text-purple-500 mr-2"></i>
+                <h3 class="m-0">Admin Actions</h3>
+              </div>
+            </ng-template>
+            
+            <div class="flex flex-column gap-2">
+              <button 
+                pButton 
+                label="Resolve Dispute" 
+                icon="pi pi-check"
+                class="p-button-success w-full"
+                (click)="showResolveDialog()">
+              </button>
+              <button 
+                pButton 
+                label="Reject Dispute" 
+                icon="pi pi-times"
+                class="p-button-danger w-full"
+                (click)="showRejectDialog()">
+              </button>
+            </div>
+          </p-card>
+
           <!-- Parties -->
           <p-card>
             <div class="mb-4">
@@ -165,6 +200,89 @@ import {FormsModule} from '@angular/forms';
         </div>
       </div>
     </div>
+
+    <!-- Resolve Dialog -->
+    <p-dialog 
+      [(visible)]="showResolveDialogFlag" 
+      header="Resolve Dispute" 
+      [modal]="true" 
+      [style]="{width: '450px'}"
+      [closable]="true">
+      <div class="p-fluid">
+        <div class="field">
+          <label for="resolutionDetails">Resolution Details *</label>
+          <textarea 
+            id="resolutionDetails"
+            pInputTextarea 
+            [(ngModel)]="resolutionDetails" 
+            rows="4"
+            placeholder="Describe how this dispute was resolved..."
+            [required]="true">
+          </textarea>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cancel" 
+          icon="pi pi-times" 
+          class="p-button-text"
+          (click)="showResolveDialogFlag = false">
+        </button>
+        <button 
+          pButton 
+          label="Resolve" 
+          icon="pi pi-check" 
+          class="p-button-success"
+          [disabled]="!resolutionDetails || resolving"
+          [loading]="resolving"
+          (click)="confirmResolve()">
+        </button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Reject Dialog -->
+    <p-dialog 
+      [(visible)]="showRejectDialogFlag" 
+      header="Reject Dispute" 
+      [modal]="true" 
+      [style]="{width: '450px'}"
+      [closable]="true">
+      <div class="p-fluid">
+        <div class="field">
+          <label for="rejectionReason">Rejection Reason *</label>
+          <textarea 
+            id="rejectionReason"
+            pInputTextarea 
+            [(ngModel)]="rejectionReason" 
+            rows="4"
+            placeholder="Explain why this dispute is being rejected..."
+            [required]="true">
+          </textarea>
+        </div>
+      </div>
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          label="Cancel" 
+          icon="pi pi-times" 
+          class="p-button-text"
+          (click)="showRejectDialogFlag = false">
+        </button>
+        <button 
+          pButton 
+          label="Reject" 
+          icon="pi pi-times" 
+          class="p-button-danger"
+          [disabled]="!rejectionReason || rejecting"
+          [loading]="rejecting"
+          (click)="confirmReject()">
+        </button>
+      </ng-template>
+    </p-dialog>
+
+    <p-confirmDialog></p-confirmDialog>
+    <p-toast></p-toast>
   `,
   styles: [`
     :host ::ng-deep {
@@ -182,29 +300,47 @@ export class DisputeDetailComponent implements OnInit {
   sending = false;
   selectedFiles: File[] = [];
 
+  // Admin properties
+  isAdmin = false;
+  currentUser: any;
+  showResolveDialogFlag = false;
+  showRejectDialogFlag = false;
+  resolutionDetails = '';
+  rejectionReason = '';
+  resolving = false;
+  rejecting = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private disputeService: DisputeService,
     private tokenService: TokenService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit() {
+    this.loadUserInfo();
     const disputeId = this.route.snapshot.params['id'];
     if (!disputeId) {
-      this.router.navigate(['/dashboard/disputes']);
+      this.router.navigate(['/dashboard/dispute']);
       return;
     }
     this.loadDispute(disputeId);
-    this.loadMessages(disputeId);
     this.loadResolutions(disputeId);
+  }
+
+  loadUserInfo() {
+    this.currentUser = this.tokenService.getCurrentUser();
+    this.isAdmin = this.currentUser?.type === 'ADMIN' || this.currentUser?.is_staff;
   }
 
   loadDispute(id: number) {
     this.disputeService.getDispute(id).subscribe({
       next: (dispute) => {
         this.dispute = dispute;
+        // Messages are included in the dispute response
+        this.messages = dispute.messages || [];
       },
       error: (error) => {
         this.messageService.add({
@@ -212,22 +348,7 @@ export class DisputeDetailComponent implements OnInit {
           summary: 'Error',
           detail: 'Failed to load dispute details'
         });
-        this.router.navigate(['/dashboard/disputes']);
-      }
-    });
-  }
-
-  loadMessages(id: number) {
-    this.disputeService.getDisputeMessages(id).subscribe({
-      next: (response) => {
-        this.messages = response.results;
-      },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load messages'
-        });
+        this.router.navigate(['/dashboard/dispute']);
       }
     });
   }
@@ -286,5 +407,84 @@ export class DisputeDetailComponent implements OnInit {
       case 'closed': return 'secondary';
       default: return 'secondary';
     }
+  }
+
+  // Admin Methods
+  showResolveDialog() {
+    this.resolutionDetails = '';
+    this.showResolveDialogFlag = true;
+  }
+
+  showRejectDialog() {
+    this.rejectionReason = '';
+    this.showRejectDialogFlag = true;
+  }
+
+  confirmResolve() {
+    if (!this.dispute || !this.resolutionDetails.trim()) {
+      return;
+    }
+
+    this.resolving = true;
+    this.disputeService.resolveDispute(this.dispute.id, this.resolutionDetails.trim()).subscribe({
+      next: (resolvedDispute) => {
+        this.dispute = resolvedDispute;
+        this.showResolveDialogFlag = false;
+        this.resolutionDetails = '';
+        this.resolving = false;
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Dispute has been resolved successfully'
+        });
+
+        // Reload the entire dispute to get updated status and messages
+        this.loadDispute(this.dispute.id);
+      },
+      error: (error) => {
+        console.error('Error resolving dispute:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.error || 'Failed to resolve dispute'
+        });
+        this.resolving = false;
+      }
+    });
+  }
+
+  confirmReject() {
+    if (!this.dispute || !this.rejectionReason.trim()) {
+      return;
+    }
+
+    this.rejecting = true;
+    this.disputeService.rejectDispute(this.dispute.id, this.rejectionReason.trim()).subscribe({
+      next: (rejectedDispute) => {
+        this.dispute = rejectedDispute;
+        this.showRejectDialogFlag = false;
+        this.rejectionReason = '';
+        this.rejecting = false;
+        
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Dispute has been rejected successfully'
+        });
+
+        // Reload the entire dispute to get updated status and messages
+        this.loadDispute(this.dispute.id);
+      },
+      error: (error) => {
+        console.error('Error rejecting dispute:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.error || 'Failed to reject dispute'
+        });
+        this.rejecting = false;
+      }
+    });
   }
 }

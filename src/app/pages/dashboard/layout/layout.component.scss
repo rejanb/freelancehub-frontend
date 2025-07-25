@@ -292,7 +292,8 @@
       }
     }
 
-    .menu-item-link {
+    .menu-item-link,
+    .command-button {
       display: flex !important;
       align-items: center;
       padding: 0.75rem 1.5rem;
@@ -303,6 +304,11 @@
       margin: 0.125rem 0.75rem;
       border-radius: 0.375rem;
       position: relative;
+      border: none;
+      background: none;
+      width: calc(100% - 1.5rem);
+      text-align: left;
+      cursor: pointer;
 
       &:hover {
         background: var(--surface-100);

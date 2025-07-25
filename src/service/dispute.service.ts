@@ -1,27 +1,39 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { ApiConst } from '../app/const/api-const';
-import { ApiResponse } from '../app/model/models';
 
 export interface Dispute {
   id: number;
-  contract: number;
-  initiator: number;
-  respondent: number;
-  type:  'payment' | 'quality' | 'communication' | 'scope' | 'deadline' | 'other';
-  status: 'open' | 'in_mediation' | 'resolved' | 'closed';
   title: string;
-  description: string;
-  desired_resolution: string;
-  resolution_details?: string;
-  resolution_amount?: number;
-  attachments?: string[];
+  type: 'payment' | 'quality' | 'deadline' | 'scope' | 'other';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  project?: number;
+  contract?: number;
+  created_by: number;
+  assigned_to?: number;
   created_at: string;
   updated_at: string;
-  contract_title?: string;
+  resolution_details?: string;
+  resolved_at?: string;
+  client_name?: string;
+  freelancer_name?: string;
+  project_title?: string;
+  evidence_count?: number;
+  message_count?: number;
+  description: string;
+  messages?: DisputeMessage[];
+  // Additional properties for compatibility
+  desired_resolution?: string;
+  resolution_amount?: number;
+  attachments?: string[];
   initiator_name?: string;
+  initiator?: number;
   respondent_name?: string;
+  respondent?: number;
+  contract_title?: string;
 }
 
 export interface DisputeMessage {
@@ -29,56 +41,61 @@ export interface DisputeMessage {
   dispute: number;
   sender: number;
   message: string;
-  attachments?: string[];
-  is_admin: boolean;
   created_at: string;
   sender_name?: string;
+  is_system?: boolean;
 }
 
-export interface DisputeResolution {
+export interface DisputeEvidence {
   id: number;
   dispute: number;
-  resolution_type: 'refund' | 'partial_payment' | 'full_payment' | 'revision' | 'cancellation' | 'other';
-  amount?: number;
+  title: string;
   description: string;
-  accepted_by_initiator: boolean;
-  accepted_by_respondent: boolean;
+  file?: string;
+  file_url?: string;
+  uploaded_by: number;
   created_at: string;
-  updated_at: string;
 }
 
-export interface DisputeFilters {
-  contract?: number;
-  type?: string;
-  status?: string;
-  initiator?: number;
-  respondent?: number;
-  start_date?: string;
-  end_date?: string;
-  page?: number;
-  page_size?: number;
+export interface DisputeCreate {
+  title: string;
+  description: string;
+  type: 'payment' | 'quality' | 'deadline' | 'scope' | 'other';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  project_id?: number;
+  contract_id?: number;
 }
 
 export interface DisputeStats {
   total_disputes: number;
   open_disputes: number;
   resolved_disputes: number;
+  disputes_by_type: Array<{ type: string; count: number }>;
+  monthly_disputes: Array<{ month: string; opened: number; resolved: number }>;
+  resolution_rate: number;
   average_resolution_time: number;
-  disputes_by_type: {
-    type: string;
-    count: number;
-    percentage: number;
-  }[];
-  disputes_by_status: {
-    status: string;
-    count: number;
-    percentage: number;
-  }[];
-  monthly_disputes: {
-    month: string;
-    opened: number;
-    resolved: number;
-  }[];
+}
+
+export interface DisputeResolution {
+  id: number;
+  dispute: number;
+  resolution_type: 'partial_refund' | 'full_refund' | 'deadline_extension' | 'scope_change' | 'mediation' | 'other';
+  amount?: number;
+  description: string;
+  agreed_by_client: boolean;
+  agreed_by_freelancer: boolean;
+  created_at: string;
+  created_by: number;
+  // Additional properties for compatibility
+  accepted_by_initiator?: boolean;
+  accepted_by_respondent?: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  count: number;
+  next?: string;
+  previous?: string;
+  results: T[];
 }
 
 @Injectable({
@@ -86,185 +103,286 @@ export interface DisputeStats {
 })
 export class DisputeService {
   private baseUrl = `${ApiConst.API_URL}disputes/`;
+  private disputesSubject = new BehaviorSubject<Dispute[]>([]);
+  public disputes$ = this.disputesSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get all disputes with optional filtering
-   */
-  getDisputes(filters?: DisputeFilters): Observable<ApiResponse<Dispute>> {
-    let params = new HttpParams();
+  // Get paginated disputes
+  getDisputes(params?: {
+    page?: number;
+    status?: string;
+    type?: string;
+    priority?: string;
+    search?: string;
+  }): Observable<PaginatedResponse<Dispute>> {
+    let httpParams = new HttpParams();
 
-    if (filters) {
-      Object.keys(filters).forEach(key => {
-        const value = filters[key as keyof DisputeFilters];
+    if (params) {
+      Object.keys(params).forEach(key => {
+        const value = params[key as keyof typeof params];
         if (value !== undefined && value !== null) {
-          params = params.set(key, value.toString());
+          httpParams = httpParams.set(key, value.toString());
         }
       });
     }
 
-    return this.http.get<ApiResponse<Dispute>>(this.baseUrl, { params });
+    return this.http.get<PaginatedResponse<Dispute>>(this.baseUrl, { params: httpParams }).pipe(
+      tap(response => {
+        if (params?.page === 1 || !params?.page) {
+          this.disputesSubject.next(response.results);
+        }
+      }),
+      catchError(this.handleError)
+    );
   }
 
-  /**
-   * Get a specific dispute by ID
-   */
+  // Get dispute by ID
   getDispute(id: number): Observable<Dispute> {
-    return this.http.get<Dispute>(`${this.baseUrl}${id}/`);
+    return this.http.get<Dispute>(`${this.baseUrl}${id}/`).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  /**
-   * Create a new dispute
-   */
-  createDispute(disputeData: Partial<Dispute>): Observable<Dispute> {
-    const formData = new FormData();
+  // Create new dispute
+  createDispute(dispute: DisputeCreate): Observable<Dispute> {
+    return this.http.post<Dispute>(this.baseUrl, dispute).pipe(
+      tap(newDispute => {
+        const currentDisputes = this.disputesSubject.value;
+        this.disputesSubject.next([newDispute, ...currentDisputes]);
+      }),
+      catchError(this.handleError)
+    );
+  }
 
-    Object.keys(disputeData).forEach(key => {
-      const value = disputeData[key as keyof Dispute];
-      if (value !== undefined && value !== null) {
-        if (key === 'attachments' && Array.isArray(value)) {
-          value.forEach((file: File | string) => {
-            if (file instanceof File) {
-              formData.append('attachments', file);
-            }
-          });
-        } else {
-          formData.append(key, value.toString());
+  // Update dispute
+  updateDispute(id: number, updates: Partial<Dispute>): Observable<Dispute> {
+    return this.http.patch<Dispute>(`${this.baseUrl}${id}/`, updates).pipe(
+      tap(updatedDispute => {
+        const currentDisputes = this.disputesSubject.value;
+        const index = currentDisputes.findIndex(d => d.id === id);
+        if (index !== -1) {
+          currentDisputes[index] = updatedDispute;
+          this.disputesSubject.next([...currentDisputes]);
         }
-      }
-    });
-
-    return this.http.post<Dispute>(this.baseUrl, formData);
+      }),
+      catchError(this.handleError)
+    );
   }
 
-  /**
-   * Update dispute details
-   */
-  updateDispute(id: number, disputeData: Partial<Dispute>): Observable<Dispute> {
-    return this.http.patch<Dispute>(`${this.baseUrl}${id}/`, disputeData);
+  // Delete dispute
+  deleteDispute(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}${id}/`).pipe(
+      tap(() => {
+        const currentDisputes = this.disputesSubject.value;
+        this.disputesSubject.next(currentDisputes.filter(d => d.id !== id));
+      }),
+      catchError(this.handleError)
+    );
   }
 
-  /**
-   * Get dispute messages
-   */
-  getDisputeMessages(disputeId: number): Observable<ApiResponse<DisputeMessage>> {
-    return this.http.get<ApiResponse<DisputeMessage>>(`${this.baseUrl}${disputeId}/messages/`);
+  // Resolve dispute
+  resolveDispute(id: number, resolutionDetails: string): Observable<Dispute> {
+    return this.http.post<Dispute>(`${this.baseUrl}${id}/resolve/`, {
+      resolution_details: resolutionDetails
+    }).pipe(
+      tap(resolvedDispute => {
+        const currentDisputes = this.disputesSubject.value;
+        const index = currentDisputes.findIndex(d => d.id === id);
+        if (index !== -1) {
+          currentDisputes[index] = resolvedDispute;
+          this.disputesSubject.next([...currentDisputes]);
+        }
+      }),
+      catchError(this.handleError)
+    );
   }
 
-  /**
-   * Send dispute message
-   */
-  sendMessage(disputeId: number, message: string, attachments?: File[]): Observable<DisputeMessage> {
+  // Reject dispute
+  rejectDispute(id: number, reason: string): Observable<Dispute> {
+    return this.http.post<Dispute>(`${this.baseUrl}${id}/reject/`, { reason }).pipe(
+      tap(rejectedDispute => {
+        const currentDisputes = this.disputesSubject.value;
+        const index = currentDisputes.findIndex(d => d.id === id);
+        if (index !== -1) {
+          currentDisputes[index] = rejectedDispute;
+          this.disputesSubject.next([...currentDisputes]);
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  // Cancel dispute
+  cancelDispute(id: number): Observable<Dispute> {
+    return this.http.post<Dispute>(`${this.baseUrl}${id}/cancel/`, {}).pipe(
+      tap(cancelledDispute => {
+        const currentDisputes = this.disputesSubject.value;
+        const index = currentDisputes.findIndex(d => d.id === id);
+        if (index !== -1) {
+          currentDisputes[index] = cancelledDispute;
+          this.disputesSubject.next([...currentDisputes]);
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  // Get dispute messages - DISABLED: Messages are included in dispute detail response
+  // getDisputeMessages(disputeId: number): Observable<DisputeMessage[]> {
+  //   return this.http.get<DisputeMessage[]>(`${this.baseUrl}${disputeId}/messages/`).pipe(
+  //     catchError(this.handleError)
+  //   );
+  // }
+
+  // Add message to dispute
+  addDisputeMessage(disputeId: number, message: string): Observable<DisputeMessage> {
+    return this.http.post<DisputeMessage>(`${this.baseUrl}${disputeId}/add_message/`, {
+      message
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get dispute evidence
+  getDisputeEvidence(disputeId: number): Observable<DisputeEvidence[]> {
+    return this.http.get<DisputeEvidence[]>(`${this.baseUrl}${disputeId}/evidence/`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Add evidence to dispute
+  addDisputeEvidence(disputeId: number, evidence: {
+    title: string;
+    description: string;
+    file?: File;
+  }): Observable<DisputeEvidence> {
     const formData = new FormData();
-    formData.append('message', message);
-
-    if (attachments) {
-      attachments.forEach(file => {
-        formData.append('attachments', file);
-      });
+    formData.append('title', evidence.title);
+    formData.append('description', evidence.description);
+    if (evidence.file) {
+      formData.append('file', evidence.file);
     }
 
-    return this.http.post<DisputeMessage>(`${this.baseUrl}${disputeId}/messages/`, formData);
-  }
-
-  /**
-   * Propose resolution
-   */
-  proposeResolution(disputeId: number, resolutionData: Partial<DisputeResolution>): Observable<DisputeResolution> {
-    return this.http.post<DisputeResolution>(`${this.baseUrl}${disputeId}/resolutions/`, resolutionData);
-  }
-
-  /**
-   * Accept resolution
-   */
-  acceptResolution(disputeId: number, resolutionId: number): Observable<DisputeResolution> {
-    return this.http.post<DisputeResolution>(
-      `${this.baseUrl}${disputeId}/resolutions/${resolutionId}/accept/`,
-      {}
+    return this.http.post<DisputeEvidence>(`${this.baseUrl}${disputeId}/evidence/`, formData).pipe(
+      catchError(this.handleError)
     );
   }
 
-  /**
-   * Reject resolution
-   */
-  rejectResolution(disputeId: number, resolutionId: number, reason: string): Observable<DisputeResolution> {
-    return this.http.post<DisputeResolution>(
-      `${this.baseUrl}${disputeId}/resolutions/${resolutionId}/reject/`,
-      { reason }
-    );
-  }
+  // Get dispute statistics
+  getDisputeStats(params?: {
+    start_date?: string;
+    end_date?: string;
+  }): Observable<DisputeStats> {
+    let httpParams = new HttpParams();
 
-  /**
-   * Request mediation
-   */
-  requestMediation(disputeId: number): Observable<Dispute> {
-    return this.http.post<Dispute>(`${this.baseUrl}${disputeId}/mediation/`, {});
-  }
-
-  /**
-   * Close dispute
-   */
-  closeDispute(disputeId: number, reason: string): Observable<Dispute> {
-    return this.http.post<Dispute>(`${this.baseUrl}${disputeId}/close/`, { reason });
-  }
-
-  /**
-   * Escalate dispute
-   */
-  escalateDispute(disputeId: number, reason: string): Observable<Dispute> {
-    return this.http.post<Dispute>(`${this.baseUrl}${disputeId}/escalate/`, { reason });
-  }
-
-  /**
-   * Get dispute statistics
-   */
-  getDisputeStats(filters?: DisputeFilters): Observable<DisputeStats> {
-    let params = new HttpParams();
-
-    if (filters) {
-      Object.keys(filters).forEach(key => {
-        const value = filters[key as keyof DisputeFilters];
+    if (params) {
+      Object.keys(params).forEach(key => {
+        const value = params[key as keyof typeof params];
         if (value !== undefined && value !== null) {
-          params = params.set(key, value.toString());
+          httpParams = httpParams.set(key, value.toString());
         }
       });
     }
 
-    return this.http.get<DisputeStats>(`${this.baseUrl}stats/`, { params });
+    return this.http.get<DisputeStats>(`${this.baseUrl}stats/`, { params: httpParams }).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  /**
-   * Download dispute attachments
-   */
-  downloadAttachment(disputeId: number, attachmentId: string): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}${disputeId}/attachments/${attachmentId}/`, {
-      responseType: 'blob'
+  // Get user disputes (for current user)
+  getUserDisputes(params?: {
+    status?: string;
+    type?: string;
+  }): Observable<Dispute[]> {
+    let httpParams = new HttpParams();
+
+    if (params) {
+      Object.keys(params).forEach(key => {
+        const value = params[key as keyof typeof params];
+        if (value !== undefined && value !== null) {
+          httpParams = httpParams.set(key, value.toString());
+        }
+      });
+    }
+
+    return this.http.get<Dispute[]>(`${this.baseUrl}my-disputes/`, { params: httpParams }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get dispute resolutions (alias for getDisputeResolutions)
+  getResolutionHistory(disputeId: number): Observable<DisputeResolution[]> {
+    return this.getDisputeResolutions(disputeId);
+  }
+
+  // Send message (alias for addDisputeMessage)
+  sendMessage(disputeId: number, message: string, files?: File[]): Observable<DisputeMessage> {
+    // For now, we'll just send the message. File attachments can be added separately
+    return this.addDisputeMessage(disputeId, message);
+  }
+
+  // Get dispute resolutions
+  getDisputeResolutions(disputeId: number): Observable<DisputeResolution[]> {
+    return this.http.get<DisputeResolution[]>(`${this.baseUrl}${disputeId}/resolutions/`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Helper methods
+  getDisputeStatusColor(status: string): string {
+    const statusColors: { [key: string]: string } = {
+      'open': 'danger',
+      'in_progress': 'warning',
+      'resolved': 'success',
+      'closed': 'secondary'
+    };
+    return statusColors[status] || 'secondary';
+  }
+
+  getDisputePriorityColor(priority: string): string {
+    const priorityColors: { [key: string]: string } = {
+      'low': 'success',
+      'medium': 'warning',
+      'high': 'danger',
+      'urgent': 'danger'
+    };
+    return priorityColors[priority] || 'secondary';
+  }
+
+  getDisputeTypeIcon(type: string): string {
+    const typeIcons: { [key: string]: string } = {
+      'payment': 'pi-dollar',
+      'quality': 'pi-star',
+      'deadline': 'pi-clock',
+      'scope': 'pi-list',
+      'other': 'pi-question'
+    };
+    return typeIcons[type] || 'pi-question';
+  }
+
+  formatDisputeDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
-  /**
-   * Get dispute resolution history
-   */
-  getResolutionHistory(disputeId: number): Observable<DisputeResolution[]> {
-    return this.http.get<DisputeResolution[]>(`${this.baseUrl}${disputeId}/resolutions/`);
-  }
+  private handleError(error: any): Observable<never> {
+    console.error('Dispute service error:', error);
+    let errorMessage = 'An error occurred';
 
-  /**
-   * Get dispute summary for contract
-   */
-  getContractDisputeSummary(contractId: number): Observable<{
-    total_disputes: number;
-    open_disputes: number;
-    resolved_disputes: number;
-    latest_dispute?: Dispute;
-  }> {
-    return this.http.get<{
-      total_disputes: number;
-      open_disputes: number;
-      resolved_disputes: number;
-      latest_dispute?: Dispute;
-    }>(`${this.baseUrl}contract/${contractId}/`);
-  }
+    if (error.error?.detail) {
+      errorMessage = error.error.detail;
+    } else if (error.error?.message) {
+      errorMessage = error.error.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
 
+    return throwError(() => new Error(errorMessage));
+  }
 }

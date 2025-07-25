@@ -1,6 +1,8 @@
 import {Routes} from '@angular/router';
 import {LayoutComponent} from './layout/layout.component';
 import {OverviewComponent} from './overview/overview.component';
+import {ClientDashboardComponent} from './client-dashboard/client-dashboard.component';
+import {FreelancerDashboardComponent} from './freelancer-dashboard/freelancer-dashboard.component';
 import {ProjectComponent} from './project/project.component';
 import {ProjectDetailComponent} from './project/project-detail/project-detail.component';
 import {FormComponent as ProjectFormComponent} from './project/form/project-form.component';
@@ -23,7 +25,11 @@ export const dashboardRoutes: Routes = [
     path: '',
     component: LayoutComponent,
     children: [
-      { path: 'overview', component: OverviewComponent },
+      { path: 'freelancer-dashboard', component: FreelancerDashboardComponent },
+
+      // Specialized Dashboards
+      { path: 'client-dashboard', component: ClientDashboardComponent },
+      // { path: 'freelancer-dashboard', component: FreelancerDashboardComponent },
 
       // Project routes
       { path: 'projects', component: ProjectListComponent },
@@ -36,7 +42,7 @@ export const dashboardRoutes: Routes = [
       { path: 'projects/:id/proposals', component: ProjectProposalsComponent }, // add proposal
       { path: 'projects/:id', component: ProjectDetailComponent }, //product detail
 
-      // Legacy project routes (keep for compatibility)
+
       { path: 'project', redirectTo: 'projects', pathMatch: 'full' },
       { path: 'project/add', redirectTo: 'projects/form', pathMatch: 'full' },
 

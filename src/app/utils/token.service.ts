@@ -72,6 +72,9 @@ export class TokenService {
     return this.getLocal(ApiConst.tokenKey);
   }
 
+  getAccessKey(): any {
+    return this.getLocal(ApiConst.access);
+  }
   /**
    * Get the current user's role
    */

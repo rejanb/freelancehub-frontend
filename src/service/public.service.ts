@@ -38,7 +38,7 @@ export class PublicService {
   // Public Job Endpoints
   getPublicJobs(filters: PublicJobFilters = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== null && value !== undefined && value !== '') {
@@ -56,7 +56,7 @@ export class PublicService {
   // Public Project Endpoints
   getPublicProjects(filters: PublicProjectFilters = {}): Observable<any> {
     let params = new HttpParams();
-    
+
     Object.keys(filters).forEach(key => {
       const value = (filters as any)[key];
       if (value !== null && value !== undefined && value !== '') {
@@ -64,7 +64,7 @@ export class PublicService {
       }
     });
 
-    return this.http.get(`${this.baseUrl}/api/projects/public/`, { params });
+    return this.http.get(`${this.baseUrl}/api/projects/public/projects/`, { params });
   }
 
   getPublicProject(id: number): Observable<any> {

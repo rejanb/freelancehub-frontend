@@ -100,7 +100,8 @@ export interface Proposal {
 
 export interface Contract {
   id: number;
-  proposal: any;  // Prroposal model
+  proposal?: any;  // Proposal model (for job contracts)
+  project_proposal?: any;  // ProjectProposal model (for project contracts)
   start_date: string;
   end_date?: string;
   status: 'active' | 'completed' | 'cancelled';
@@ -111,10 +112,7 @@ export interface Contract {
   updated_at: string;
   client?: User;
   freelancer?: User;
-  proposal_count?: number;
-
-  //new
-
+  attachments?: any[];  // Contract attachments
 }
 
 export interface Milestone {

@@ -1,0 +1,25 @@
+<div class="star-rating-container" [class]="size">
+  <!-- Interactive Stars -->
+  <div class="stars" 
+       (mouseleave)="onMouseLeave()"
+       [class.readonly]="readonly"
+       [class.interactive]="!readonly">
+    <span *ngFor="let star of stars" 
+          [class]="getStarClass(star)"
+          (click)="onStarClick(star)"
+          (mouseenter)="onStarHover(star)"
+          [attr.title]="readonly ? '' : star + ' star' + (star > 1 ? 's' : '')">
+      ⭐
+    </span>
+  </div>
+
+  <!-- Rating Value -->
+  <span *ngIf="showValue && rating > 0" class="rating-value">
+    {{ formatRating(rating) }}
+  </span>
+
+  <!-- Review Count -->
+  <span *ngIf="showCount && count > 0" class="review-count">
+    ({{ formatCount(count) }})
+  </span>
+</div>

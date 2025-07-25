@@ -17,7 +17,7 @@ export interface ProjectFilters {
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
   private baseUrl = '/api/projects/projects/';
-  private categoryUrl = '/api/projects/categories/';
+  private categoryUrl = 'api/projects/categories/';
 
   constructor(private api: ApiService) {}
 
@@ -30,7 +30,7 @@ export class ProjectService {
    */
   getProjects(params: ProjectFilters = {}): Observable<ApiResponse<any>> {
     const queryParams = new URLSearchParams();
-    
+
     if (params.page) queryParams.set('page', params.page.toString());
     if (params.pageSize) queryParams.set('page_size', params.pageSize.toString());
     if (params.search) queryParams.set('search', params.search);
@@ -38,7 +38,7 @@ export class ProjectService {
     if (params.category) queryParams.set('category', params.category);
     if (params.budget_min) queryParams.set('budget_min', params.budget_min.toString());
     if (params.budget_max) queryParams.set('budget_max', params.budget_max.toString());
-    
+
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return this.api.get(`${this.baseUrl}${query}`);
   }
@@ -123,16 +123,28 @@ export class ProjectService {
   /**
    * Get freelancer's project applications
    */
-  getMyApplications(): Observable<any> {
-    return this.api.get(`${this.baseUrl}my_applications/`);
+  getMyApplications(params: { page?: number; pageSize?: number } = {}): Observable<any> {
+    const queryParams = new URLSearchParams();
+
+    if (params.page) queryParams.set('page', params.page.toString());
+    if (params.pageSize) queryParams.set('page_size', params.pageSize.toString());
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    return this.api.get(`${this.baseUrl}my_applications/${query}`);
   }
 
   // Proposal Management
   /**
    * Get all proposals (filtered by user role)
    */
-  getAllProposals(): Observable<any> {
-    return this.api.get('/api/projects/proposals/');
+  getAllProposals(params: { page?: number; pageSize?: number } = {}): Observable<any> {
+    const queryParams = new URLSearchParams();
+
+    if (params.page) queryParams.set('page', params.page.toString());
+    if (params.pageSize) queryParams.set('page_size', params.pageSize.toString());
+
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    return this.api.get(`/api/projects/proposals/${query}`);
   }
 
   /**

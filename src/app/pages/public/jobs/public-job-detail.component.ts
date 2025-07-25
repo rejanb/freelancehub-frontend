@@ -197,7 +197,8 @@ export class PublicJobDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private publicService: PublicService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.route.params.subscribe(params => {
@@ -223,13 +224,19 @@ export class PublicJobDetailComponent implements OnInit {
     });
   }
 
-  getStatusSeverity(status: string): "info" | "success" | "warn" | "danger" | "secondary" | "contrast" {
+  getStatusSeverity(status: string): any {
     switch (status) {
-      case 'open': return 'success';
-      case 'in_progress': return 'warn';
-      case 'completed': return 'info';
-      case 'cancelled': return 'danger';
-      default: return 'info';
+      case 'open':
+        return 'success';
+      case 'in_progress':
+        return 'warn';
+      case 'completed':
+        return 'info';
+      case 'cancelled':
+        return 'danger';
+      default:
+        return 'info';
     }
   }
+
 }

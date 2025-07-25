@@ -1,41 +1,41 @@
 <div class="profile-container">
   <p-toast></p-toast>
-  
+
   <p-card header="User Profile" class="w-full">
     <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="p-fluid">
       <!-- Profile Picture Section -->
-      <div class="flex flex-column align-items-center mb-4">
-        <p-avatar 
-          [image]="previewUrl || userProfile?.profile_picture || currentUser?.profile_picture || 'https://via.placeholder.com/150'" 
-          size="xlarge" 
-          shape="circle"
-          class="mb-3">
-        </p-avatar>
-        
-        <p-fileUpload 
-          mode="basic" 
-          chooseLabel="Change Photo"
-          accept="image/*"
-          maxFileSize="1000000"
-          (onSelect)="onFileSelect($event)"
-          class="mb-2">
-        </p-fileUpload>
-        
-        <!-- Remove selected image button -->
-        <button 
-          *ngIf="selectedFile" 
-          pButton 
-          type="button" 
-          label="Remove Selected" 
-          class="p-button-text p-button-sm mb-2"
-          (click)="clearSelectedFile()">
-        </button>
-        
-        <!-- Preview indicator -->
-        <small class="text-500" *ngIf="selectedFile">
-          Selected: {{ selectedFile.name }}
-        </small>
-      </div>
+<!--      <div class="flex flex-column align-items-center mb-4">-->
+<!--        <p-avatar-->
+<!--          [image]="'assets/fav.png'"-->
+<!--          size="xlarge"-->
+<!--          shape="circle"-->
+<!--          class="mb-3">-->
+<!--        </p-avatar>-->
+
+<!--        <p-fileUpload-->
+<!--          mode="basic"-->
+<!--          chooseLabel="Change Photo"-->
+<!--          accept="image/*"-->
+<!--          maxFileSize="1000000"-->
+<!--          (onSelect)="onFileSelect($event)"-->
+<!--          class="mb-2">-->
+<!--        </p-fileUpload>-->
+
+<!--        &lt;!&ndash; Remove selected image button &ndash;&gt;-->
+<!--        <button-->
+<!--          *ngIf="selectedFile"-->
+<!--          pButton-->
+<!--          type="button"-->
+<!--          label="Remove Selected"-->
+<!--          class="p-button-text p-button-sm mb-2"-->
+<!--          (click)="clearSelectedFile()">-->
+<!--        </button>-->
+
+<!--        &lt;!&ndash; Preview indicator &ndash;&gt;-->
+<!--        <small class="text-500" *ngIf="selectedFile">-->
+<!--          Selected: {{ selectedFile.name }}-->
+<!--        </small>-->
+<!--      </div>-->
 
       <p-divider></p-divider>
 
@@ -44,10 +44,11 @@
         <div class="col-12 md:col-6">
           <div class="field">
             <label for="username">Username *</label>
-            <input 
-              id="username" 
-              pInputText 
-              formControlName="username" 
+            <input
+              style="width: 100%"
+              id="username"
+              pInputText
+              formControlName="username"
               [disabled]="isLoading"
               placeholder="Enter your username" />
             <small class="p-error" *ngIf="profileForm.get('username')?.errors?.['required'] && profileForm.get('username')?.touched">
@@ -62,11 +63,13 @@
         <div class="col-12 md:col-6">
           <div class="field">
             <label for="email">Email *</label>
-            <input 
-              id="email" 
-              pInputText 
-              formControlName="email" 
-              [disabled]="isLoading"
+            <input
+              style="width: 100%"
+              id="email"
+              pInputText
+              formControlName="email"
+              [disabled]="true"
+              readonly
               placeholder="Enter your email" />
             <small class="p-error" *ngIf="profileForm.get('email')?.errors?.['required'] && profileForm.get('email')?.touched">
               Email is required
@@ -79,11 +82,13 @@
 
         <div class="col-12">
           <div class="field">
+
             <label for="bio">Bio</label>
-            <textarea 
-              id="bio" 
-              pTextarea 
-              formControlName="bio" 
+            <textarea
+              style="width: 100%"
+              id="bio"
+              pTextarea
+              formControlName="bio"
               rows="4"
               [disabled]="isLoading"
               placeholder="Tell us about yourself..."
@@ -96,11 +101,12 @@
         <div class="col-12">
           <div class="field">
             <label class="block text-900 mb-2">Skills</label>
-            
+
             <!-- Display existing skills -->
             <div class="flex flex-wrap gap-2 mb-3" *ngIf="skillControls.length > 0">
-              <p-chip 
-                *ngFor="let skill of skillControls; let i = index" 
+              <p-chip
+
+                *ngFor="let skill of skillControls; let i = index"
                 [label]="skill.value"
                 [removable]="true"
                 (onRemove)="removeSkill(i)"
@@ -110,17 +116,17 @@
 
             <!-- Add new skill -->
             <div class="p-inputgroup">
-              <input 
-                pInputText 
+              <input
+                pInputText
                 [(ngModel)]="newSkill"
                 [ngModelOptions]="{standalone: true}"
                 placeholder="Add a skill..."
                 (keyup.enter)="addSkill()"
                 [disabled]="isLoading" />
-              <button 
-                pButton 
-                type="button" 
-                icon="pi pi-plus" 
+              <button
+                pButton
+                type="button"
+                icon="pi pi-plus"
                 (click)="addSkill()"
                 [disabled]="!newSkill.trim() || isLoading">
               </button>
@@ -132,21 +138,20 @@
 
       <!-- Action Buttons -->
       <div class="flex gap-2 justify-content-end mt-4">
-        <!-- Debug info -->
-        <small class="text-500">Dialog visible: {{ showChangePasswordDialog }}</small>
-        
-        <button 
-          pButton 
-          type="button" 
-          label="Change Password" 
+
+
+        <button
+          pButton
+          type="button"
+          label="Change Password"
           class="p-button-outlined"
           (click)="onChangePassword()">
         </button>
-        
-        <button 
-          pButton 
-          type="submit" 
-          [label]="isLoading ? 'Saving...' : 'Save Changes'" 
+
+        <button
+          pButton
+          type="submit"
+          [label]="isLoading ? 'Saving...' : 'Save Changes'"
           class="p-button-primary"
           [disabled]="profileForm.invalid || isLoading"
           [loading]="isLoading">
@@ -162,10 +167,10 @@
       <p class="text-sm text-600 mb-3">
         Once you delete your account, there is no going back. Please be certain.
       </p>
-      <button 
-        pButton 
-        type="button" 
-        label="Delete Account" 
+      <button
+        pButton
+        type="button"
+        label="Delete Account"
         class="p-button-danger p-button-outlined"
         (click)="onDeleteAccount()">
       </button>
@@ -216,4 +221,4 @@
       </div>
     </div>
   </p-dialog>
-</div> 
+</div>

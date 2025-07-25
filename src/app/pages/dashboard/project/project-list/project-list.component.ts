@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
@@ -15,6 +15,9 @@ import { DialogModule } from 'primeng/dialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProjectService, ProjectFilters } from '../../../../../service/project.service';
 import { TokenService } from '../../../../../app/utils/token.service';
+import { Subscription, combineLatest } from 'rxjs';
+import {IconField} from "primeng/iconfield";
+import {InputIcon} from "primeng/inputicon";
 
 @Component({
   selector: 'app-project-list',
@@ -32,7 +35,9 @@ import { TokenService } from '../../../../../app/utils/token.service';
     ToastModule,
     PaginatorModule,
     CardModule,
-    DialogModule
+    DialogModule,
+    IconField,
+    InputIcon
   ],
   providers: [ConfirmationService, MessageService],
   template: `
@@ -48,50 +53,51 @@ import { TokenService } from '../../../../../app/utils/token.service';
             <span *ngSwitchCase="'available'">Available Projects</span>
             <span *ngSwitchCase="'applications'">My Applications</span>
             <span *ngSwitchCase="'saved'">Saved Projects</span>
+            <span *ngSwitchCase="'proposals'">Received Proposals</span>
             <span *ngSwitchDefault>All Projects</span>
           </ng-container>
         </h2>
-        
+
         <div class="flex gap-2">
           <!-- View Toggle Buttons -->
           <div class="flex gap-2" *ngIf="userRole === 'freelancer'">
-            <button pButton 
-                    label="Available Projects" 
+            <button pButton
+                    label="Available Projects"
                     [class]="currentView === 'available' ? 'p-button-sm' : 'p-button-outlined p-button-sm'"
                     (click)="switchView('available')">
             </button>
-            <button pButton 
-                    label="My Applications" 
+            <button pButton
+                    label="My Applications"
                     [class]="currentView === 'applications' ? 'p-button-sm' : 'p-button-outlined p-button-sm'"
                     (click)="switchView('applications')">
             </button>
-            <button pButton 
-                    label="Saved Projects" 
+            <button pButton
+                    label="Saved Projects"
                     [class]="currentView === 'saved' ? 'p-button-sm' : 'p-button-outlined p-button-sm'"
                     (click)="switchView('saved')">
             </button>
           </div>
-          
+
           <div class="flex gap-2" *ngIf="userRole === 'client'">
-            <button pButton 
-                    label="My Projects" 
+            <button pButton
+                    label="My Projects"
                     [class]="currentView === 'my' ? 'p-button-sm' : 'p-button-outlined p-button-sm'"
                     (click)="switchView('my')">
             </button>
           </div>
 
           <div class="flex gap-2" *ngIf="userRole === 'admin'">
-            <button pButton 
-                    label="All Projects" 
+            <button pButton
+                    label="All Projects"
                     [class]="currentView === 'all' ? 'p-button-sm' : 'p-button-outlined p-button-sm'"
                     (click)="switchView('all')">
             </button>
           </div>
 
           <!-- Create Project Button (Client and Admin only) -->
-          <button pButton 
-                  label="New Project" 
-                  icon="pi pi-plus" 
+          <button pButton
+                  label="New Project"
+                  icon="pi pi-plus"
                   class="p-button-success p-button-sm"
                   *ngIf="userRole === 'client' || userRole === 'admin'"
                   routerLink="./form">
@@ -102,20 +108,11 @@ import { TokenService } from '../../../../../app/utils/token.service';
       <!-- Filters -->
       <div class="card mb-4">
         <div class="grid">
-          <div class="col-12 md:col-4">
-            <span class="p-input-icon-left w-full">
-              <i class="pi pi-search"></i>
-              <input pInputText 
-                     [(ngModel)]="filters.search" 
-                     placeholder="Search projects..."
-                     class="w-full"
-                     (input)="onFilterChange()">
-            </span>
-          </div>
-          
+
+
           <div class="col-12 md:col-3">
-            <p-dropdown [(ngModel)]="filters.status" 
-                        [options]="statusOptions || []" 
+            <p-dropdown [(ngModel)]="filters.status"
+                        [options]="statusOptions || []"
                         placeholder="Filter by Status"
                         optionLabel="label"
                         optionValue="value"
@@ -124,10 +121,10 @@ import { TokenService } from '../../../../../app/utils/token.service';
                         (onChange)="onFilterChange()">
             </p-dropdown>
           </div>
-          
+
           <div class="col-12 md:col-3">
-            <p-dropdown [(ngModel)]="filters.category" 
-                        [options]="categories || []" 
+            <p-dropdown [(ngModel)]="filters.category"
+                        [options]="categories || []"
                         placeholder="Filter by Category"
                         optionLabel="name"
                         optionValue="id"
@@ -136,11 +133,27 @@ import { TokenService } from '../../../../../app/utils/token.service';
                         (onChange)="onFilterChange()">
             </p-dropdown>
           </div>
-          
+
+          <div class="col-12 md:col-4">
+            <p-iconfield styleClass="w-full" iconPosition="left">
+              <p-inputicon>
+                <i class="pi pi-search"></i>
+              </p-inputicon>
+              <input
+                  pInputText
+                  [(ngModel)]="filters.search"
+                  type="text"
+                  (input)="onFilterChange()"
+                  placeholder="Search"
+                  class="w-full"
+              />
+            </p-iconfield>
+          </div>
+
           <div class="col-12 md:col-2">
-            <button pButton 
-                    label="Clear" 
-                    icon="pi pi-filter-slash" 
+            <button pButton
+                    label="Clear"
+                    icon="pi pi-filter-slash"
                     class="p-button-outlined w-full"
                     (click)="clearFilters()">
             </button>
@@ -149,10 +162,10 @@ import { TokenService } from '../../../../../app/utils/token.service';
       </div>
 
       <!-- Projects Table/Cards -->
-      <div class="card">
-        <p-table [value]="projects" 
-                 [lazy]="true" 
-                 [paginator]="true" 
+      <div  class="card">
+        <p-table [value]="projects"
+                 [lazy]="true"
+                 [paginator]="true"
                  [rows]="pageSize"
                  [totalRecords]="totalRecords"
                  [loading]="loading"
@@ -161,7 +174,7 @@ import { TokenService } from '../../../../../app/utils/token.service';
                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects"
                  [rowsPerPageOptions]="[10, 25, 50]"
                  responsiveLayout="scroll">
-          
+
           <ng-template pTemplate="header">
             <tr>
               <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
@@ -169,101 +182,93 @@ import { TokenService } from '../../../../../app/utils/token.service';
               <th pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
               <th>Client</th>
               <th *ngIf="currentView !== 'applications'">Proposals</th>
-              <th *ngIf="currentView === 'applications'">Application Status</th>
               <th pSortableColumn="created_at">Posted <p-sortIcon field="created_at"></p-sortIcon></th>
               <th>Actions</th>
             </tr>
           </ng-template>
-          
+
+
           <ng-template pTemplate="body" let-project>
             <tr>
               <td>
-                <div class="font-medium">{{ project.title }}</div>
-                <div class="text-600 text-sm" *ngIf="project.category">{{ project.category.name }}</div>
+                <div class="font-medium">{{ getProjectTitle(project) }}</div>
+                <div class="text-600 text-sm" *ngIf="getProjectCategory(project)">{{ getProjectCategory(project) }}</div>
               </td>
-              
+
               <td>
-                <span class="font-bold text-green-600">\${{ project.budget | number:'1.0-0' }}</span>
+                <span class="font-bold text-green-600">\${{ getProjectBudget(project) | number:'1.0-0' }}</span>
               </td>
-              
-              <td>
-                <p-tag [value]="project.status" [severity]="getStatusSeverity(project.status)"></p-tag>
+
+              <td  *ngIf="currentView !== 'applications'">
+                <p-tag [value]="getProjectStatus(project)" [severity]="getStatusSeverity(getProjectStatus(project))"></p-tag>
               </td>
-              
+              <td  *ngIf="currentView == 'applications'">
+                <p-tag [value]="getProjectStatus(project)" [severity]="getApplicationStatusSeverity(getProjectStatus(project))"></p-tag>
+              </td>
+
               <td>
                 <div class="flex align-items-center gap-2">
-                  <div class="flex align-items-center justify-content-center bg-blue-100 text-blue-800 border-round"
-                       style="width: 2rem; height: 2rem; font-size: 0.875rem;">
-                    {{ project.client.username.charAt(0).toUpperCase() }}
-                  </div>
-                  <span>{{ project.client.username }}</span>
+                  <span>{{ getProjectClientName(project) }}</span>
                 </div>
               </td>
-              
+
               <td *ngIf="currentView !== 'applications'">
-                <span class="font-medium">{{ project.proposal_count || 0 }}</span>
+                <span class="font-medium">{{ getProjectProposalsCount(project) }}</span>
                 <span class="text-600 ml-1">proposals</span>
               </td>
-              
-              <td *ngIf="currentView === 'applications'">
-                <p-tag [value]="project.application_status" 
-                       [severity]="getApplicationStatusSeverity(project.application_status)">
-                </p-tag>
-              </td>
-              
+
               <td>
-                {{ project.created_at | date:'mediumDate' }}
+                {{ getProjectCreatedDate(project) | date:'mediumDate' }}
               </td>
-              
+
               <td>
                 <div class="flex gap-1">
                   <!-- View Details -->
-                  <button pButton 
-                          icon="pi pi-eye" 
+                  <button pButton
+                          icon="pi pi-eye"
                           class="p-button-rounded p-button-outlined p-button-sm"
-                          [routerLink]="['./', project.id]"
+                          [routerLink]="['/dashboard/projects/', getProjectId(project)]"
                           pTooltip="View Details">
                   </button>
-                  
+
                   <!-- Apply (Freelancer only, for available projects) -->
-                  <button pButton 
-                          icon="pi pi-send" 
-                          class="p-button-rounded p-button-success p-button-sm"
-                          *ngIf="userRole === 'freelancer' && currentView === 'available' && project.status === 'open'"
-                          (click)="showApplyDialog(project)"
-                          pTooltip="Apply for Project">
+                  <button pButton
+                          icon="pi pi-send"
+                          class="p-button-rounded p-button-info p-button-sm"
+                          [routerLink]="['/dashboard/projects', getProjectId(project), 'proposals']"
+                          pTooltip="View Proposals">
                   </button>
-                  
+
                   <!-- Withdraw Application (Freelancer only) -->
-                  <button pButton 
-                          icon="pi pi-times" 
+                  <button pButton
+                          icon="pi pi-times"
                           class="p-button-rounded p-button-danger p-button-sm"
                           *ngIf="userRole === 'freelancer' && currentView === 'applications' && project.application_status === 'pending'"
                           (click)="withdrawApplication(project)"
                           pTooltip="Withdraw Application">
                   </button>
-                  
+
                   <!-- View Proposals (Client/Admin only) -->
-                  <button pButton 
-                          icon="pi pi-users" 
+                  <button pButton
+                          icon="pi pi-users"
                           class="p-button-rounded p-button-info p-button-sm"
-                          *ngIf="(userRole === 'client' || userRole === 'admin') && project.proposal_count > 0"
+                          *ngIf="(userRole === 'client' || userRole === 'admin') && project.proposals_count > 0"
                           (click)="viewProposals(project)"
                           pTooltip="View Proposals">
                   </button>
-                  
+
                   <!-- Edit (Client/Admin only, for own projects) -->
-                  <button pButton 
-                          icon="pi pi-pencil" 
+                  <button pButton
+                          icon="pi pi-pencil"
                           class="p-button-rounded p-button-outlined p-button-sm"
                           *ngIf="canEditProject(project)"
                           [routerLink]="['./form', project.id]"
                           pTooltip="Edit Project">
                   </button>
-                  
+
                   <!-- Delete (Client/Admin only, for own projects) -->
-                  <button pButton 
-                          icon="pi pi-trash" 
+                  <button pButton
+                          icon="pi pi-trash"
                           class="p-button-rounded p-button-danger p-button-sm"
                           *ngIf="canDeleteProject(project)"
                           (click)="deleteProject(project)"
@@ -273,7 +278,7 @@ import { TokenService } from '../../../../../app/utils/token.service';
               </td>
             </tr>
           </ng-template>
-          
+
           <ng-template pTemplate="emptymessage">
             <tr>
               <td colspan="8" class="text-center py-6">
@@ -294,70 +299,6 @@ import { TokenService } from '../../../../../app/utils/token.service';
           </ng-template>
         </p-table>
       </div>
-
-      <!-- Apply Dialog -->
-      <p-dialog header="Apply for Project" 
-                [(visible)]="showApplyDialogFlag" 
-                [modal]="true" 
-                [style]="{ width: '500px' }"
-                [draggable]="false" 
-                [resizable]="false">
-        <form *ngIf="selectedProject" (ngSubmit)="submitApplication()">
-          <div class="mb-3">
-            <h4 class="mt-0">{{ selectedProject.title }}</h4>
-            <p class="text-600">Budget: <span class="font-bold">\${{ selectedProject.budget }}</span></p>
-          </div>
-          
-          <div class="mb-3">
-            <label for="coverLetter" class="block text-900 font-medium mb-2">Cover Letter *</label>
-            <textarea id="coverLetter" 
-                      [(ngModel)]="applicationData.cover_letter" 
-                      name="coverLetter"
-                      rows="6" 
-                      class="w-full"
-                      placeholder="Explain why you're the perfect fit for this project..."
-                      required>
-            </textarea>
-          </div>
-          
-          <div class="mb-3">
-            <label for="proposedBudget" class="block text-900 font-medium mb-2">Proposed Budget *</label>
-            <input type="number" 
-                   id="proposedBudget" 
-                   [(ngModel)]="applicationData.proposed_budget" 
-                   name="proposedBudget"
-                   class="w-full" 
-                   placeholder="Enter your budget proposal"
-                   [min]="1"
-                   required>
-          </div>
-          
-          <div class="mb-3">
-            <label for="timeline" class="block text-900 font-medium mb-2">Estimated Timeline</label>
-            <input type="text" 
-                   id="timeline" 
-                   [(ngModel)]="applicationData.estimated_timeline" 
-                   name="timeline"
-                   class="w-full" 
-                   placeholder="e.g., 2 weeks, 1 month">
-          </div>
-          
-          <div class="flex gap-2 justify-content-end">
-            <button pButton 
-                    label="Cancel" 
-                    type="button"
-                    class="p-button-outlined" 
-                    (click)="closeApplyDialog()">
-            </button>
-            <button pButton 
-                    label="Submit Application" 
-                    type="submit"
-                    [disabled]="!applicationData.cover_letter || !applicationData.proposed_budget"
-                    [loading]="submittingApplication">
-            </button>
-          </div>
-        </form>
-      </p-dialog>
     </div>
   `,
   styles: [`
@@ -365,7 +306,7 @@ import { TokenService } from '../../../../../app/utils/token.service';
       padding: 1rem 0.75rem;
       vertical-align: top;
     }
-    
+
     :host ::ng-deep .p-paginator {
       border: none;
       padding-left: 0;
@@ -373,29 +314,31 @@ import { TokenService } from '../../../../../app/utils/token.service';
     }
   `]
 })
-export class ProjectListComponent implements OnInit {
+export class ProjectListComponent implements OnInit, OnDestroy {
   projects: any[] = [];
   totalRecords = 0;
   pageSize = 10;
   loading = false;
-  
-  currentView: 'all' | 'my' | 'available' | 'applications' | 'saved' = 'all';
+  view:any = '';
+  private routeSubscription: Subscription = new Subscription();
+
+  currentView: 'all' | 'my' | 'available' | 'applications' | 'saved' | 'proposals' = 'all';
   userRole: string = '';
-  
+
   filters: ProjectFilters = {
     page: 1,
     pageSize: 10
   };
-  
+
   statusOptions = [
     { label: 'Open', value: 'open' },
     { label: 'In Progress', value: 'in_progress' },
     { label: 'Completed', value: 'completed' },
     { label: 'Cancelled', value: 'cancelled' }
   ];
-  
+
   categories: any[] = []; // Ensure it's always an array
-  
+
   // Application dialog
   showApplyDialogFlag = false;
   selectedProject: any = null;
@@ -422,19 +365,47 @@ export class ProjectListComponent implements OnInit {
     // Ensure arrays are initialized before any operations
     this.categories = [];
     this.projects = [];
-    
+
     this.userRole = this.tokenService.getUserRole();
-    
-    // Check route data for viewType first
-    const routeViewType = this.route.snapshot.data['viewType'];
-    if (routeViewType) {
-      this.currentView = routeViewType;
-    } else {
-      this.setInitialView();
-    }
-    
-    this.loadCategories();
-    this.loadProjects({ first: 0, rows: this.pageSize });
+
+    if (this.userRole)
+    // Subscribe to both route data and query params changes
+    this.routeSubscription = combineLatest([
+      this.route.data,
+      this.route.queryParams
+    ]).subscribe(([data, params]) => {
+      console.log('Route data:', data);
+      console.log('Query params:', params);
+
+      let targetView: string | null = null;
+
+      // Check route data first (for routes like /projects/available)
+      if (data['viewType']) {
+        targetView = data['viewType'];
+      }
+      // Then check query params (for routes like /projects?view=my)
+      else if (params['view']) {
+        targetView = params['view'];
+      }
+      // Handle filter param as well (for routes like /projects?filter=proposals)
+      else if (params['filter']) {
+        targetView = params['filter'];
+      }
+
+      if (targetView) {
+        this.currentView = targetView as 'all' | 'my' | 'available' | 'applications' | 'saved' | 'proposals';
+        this.view = targetView;
+      } else {
+        this.setInitialView();
+      }
+
+      this.loadCategories();
+      this.switchView(this.currentView);
+    });
+  }
+
+  ngOnDestroy() {
+    this.routeSubscription.unsubscribe();
   }
 
   setInitialView() {
@@ -453,7 +424,7 @@ export class ProjectListComponent implements OnInit {
     }
   }
 
-  switchView(view: 'all' | 'my' | 'available' | 'applications' | 'saved') {
+  switchView(view: 'all' | 'my' | 'available' | 'applications' | 'saved' | 'proposals') {
     this.currentView = view;
     this.clearFilters();
     this.loadProjects({ first: 0, rows: this.pageSize });
@@ -466,7 +437,7 @@ export class ProjectListComponent implements OnInit {
         this.categories = Array.isArray(categories) ? categories : [];
       },
       error: (error) => {
-        console.error('Error loading categories:', error);
+        console.log('Error loading categories:', error);
         // Set to empty array on error to prevent dropdown issues
         this.categories = [];
       }
@@ -479,7 +450,7 @@ export class ProjectListComponent implements OnInit {
     this.filters.pageSize = event.rows;
 
     let serviceCall;
-    
+    console.log(this.currentView)
     switch (this.currentView) {
       case 'my':
         serviceCall = this.projectService.getMyProjects();
@@ -488,10 +459,19 @@ export class ProjectListComponent implements OnInit {
         serviceCall = this.projectService.getAvailableProjects();
         break;
       case 'applications':
-        serviceCall = this.projectService.getMyApplications();
+        serviceCall = this.projectService.getMyApplications({
+          page: this.filters.page,
+          pageSize: this.filters.pageSize
+        });
         break;
       case 'saved':
         serviceCall = this.projectService.getSavedProjects();
+        break;
+      case 'proposals':
+        serviceCall = this.projectService.getAllProposals({
+          page: this.filters.page,
+          pageSize: this.filters.pageSize
+        });
         break;
       default:
         serviceCall = this.projectService.getProjects(this.filters);
@@ -532,17 +512,21 @@ export class ProjectListComponent implements OnInit {
     this.onFilterChange();
   }
 
-  getStatusSeverity(status: string): "info" | "success" | "warn" | "danger" | "secondary" | "contrast" {
+  getStatusSeverity(status: string): any {
     switch (status) {
       case 'open': return 'success';
       case 'in_progress': return 'warn';
       case 'completed': return 'info';
       case 'cancelled': return 'danger';
+      case 'pending': return 'secondary';
+        case 'accepted': return 'success';
+        case 'rejected': return 'danger';
+        case 'withdrawn': return 'secondary';
       default: return 'info';
     }
   }
 
-  getApplicationStatusSeverity(status: string): "info" | "success" | "warn" | "danger" | "secondary" | "contrast" {
+  getApplicationStatusSeverity(status: string): any {
     switch (status) {
       case 'pending': return 'warn';
       case 'accepted': return 'success';
@@ -553,14 +537,21 @@ export class ProjectListComponent implements OnInit {
   }
 
   canEditProject(project: any): boolean {
-    if (this.userRole === 'admin') return true;
-    if (this.userRole === 'client' && project.client.id === this.tokenService.getUserId()) return true;
+    if (this.userRole === 'admin' || 'client') return true;
+
     return false;
   }
 
   canDeleteProject(project: any): boolean {
     if (this.userRole === 'admin') return true;
-    if (this.userRole === 'client' && project.client.id === this.tokenService.getUserId() && project.status === 'open') return true;
+
+    const clientId = project?.client?.id || project?.project?.client?.id;
+    const projectStatus = project?.status || project?.project?.status;
+
+    if (this.userRole === 'client' &&
+        clientId === this.tokenService.getUserId() &&
+        projectStatus === 'open') return true;
+
     return false;
   }
 
@@ -574,40 +565,9 @@ export class ProjectListComponent implements OnInit {
     this.showApplyDialogFlag = true;
   }
 
-  closeApplyDialog() {
-    this.showApplyDialogFlag = false;
-    this.selectedProject = null;
-  }
 
-  submitApplication() {
-    if (!this.selectedProject || !this.applicationData.cover_letter || !this.applicationData.proposed_budget) {
-      return;
-    }
 
-    this.submittingApplication = true;
-    
-    this.projectService.applyForProject(this.selectedProject.id, this.applicationData).subscribe({
-      next: (response) => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Application submitted successfully!'
-        });
-        this.closeApplyDialog();
-        this.loadProjects({ first: 0, rows: this.pageSize });
-        this.submittingApplication = false;
-      },
-      error: (error) => {
-        console.error('Error submitting application:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.error?.detail || 'Failed to submit application'
-        });
-        this.submittingApplication = false;
-      }
-    });
-  }
+
 
   withdrawApplication(project: any) {
     this.confirmationService.confirm({
@@ -639,6 +599,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   viewProposals(project: any) {
+    console.log('triggered')
     // Navigate to proposals view - implement this route
     // this.router.navigate(['/dashboard/projects', project.id, 'proposals']);
     console.log('View proposals for project:', project.id);
@@ -650,7 +611,7 @@ export class ProjectListComponent implements OnInit {
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.projectService.deleteProject(project.id).subscribe({
+        this.projectService.deleteProject(this.getProjectId(project)).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
@@ -670,5 +631,43 @@ export class ProjectListComponent implements OnInit {
         });
       }
     });
+  }
+
+  // Helper methods for safe property access
+  getProjectTitle(project: any): string {
+    return project?.title || project?.project?.title || 'Untitled Project';
+  }
+
+  getProjectCategory(project: any): string {
+    return project?.category?.name || project?.project?.category?.name || '';
+  }
+
+  getProjectBudget(project: any): number {
+    return project?.budget || project?.proposed_budget || project?.project?.budget || 0;
+  }
+
+  getProjectStatus(project: any): string {
+    return project?.status || project?.project?.status || 'unknown';
+  }
+
+  getProjectClientName(project: any): string {
+    return project?.client?.username ||
+           project?.client?.first_name ||
+           project?.project?.client?.username ||
+           project?.project?.client?.first_name ||
+           'Unknown Client';
+  }
+
+  getProjectProposalsCount(project: any): number {
+    return project?.proposals_count || project?.project?.proposals_count || 0;
+  }
+
+  getProjectCreatedDate(project: any): string {
+    return project?.created_at || project?.project?.created_at || new Date().toISOString();
+  }
+
+  getProjectId(project: any): string {
+    const id = project?.id || project?.project?.id;
+    return id ? String(id) : '';
   }
 }
