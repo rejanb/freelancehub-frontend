@@ -10,14 +10,12 @@ import {ProjectListComponent} from './project/project-list/project-list.componen
 import {ProjectProposalsComponent} from './project/project-proposals/project-proposals.component';
 import {jobsRoutes} from './jobs/jobs.routes';
 import {authGuard} from '../../guards/auth.guard';
-import {settingsRoutes} from './settings/settings.routes';
 import {reviewsRoutes} from './reviews/reviews.routes';
 import {ProfileComponent} from './profile/profile.component';
 import {messagesRoutes} from './messages/messages.routes';
 import {notificationsRoutes} from './notifications/notifications.routes';
 import {disputesRoutes} from './disputes/disputes.routes';
 import {contractsRoutes} from './contracts/contracts.routes';
-import {analyticsRoutes} from './analytics/analytics.routes';
 import {paymentsRoutes} from './payments/payments.routes';
 
 export const dashboardRoutes: Routes = [
@@ -48,7 +46,6 @@ export const dashboardRoutes: Routes = [
 
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
       { path: 'job', children: jobsRoutes, canActivate: [authGuard] },
-      { path: 'settings', children: settingsRoutes, canActivate: [authGuard] },
       { path: 'review', children: reviewsRoutes, canActivate: [authGuard] },
       { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
       { path: 'messages', children: messagesRoutes, canActivate: [authGuard] },
@@ -58,7 +55,6 @@ export const dashboardRoutes: Routes = [
       { path: 'contract', children: contractsRoutes, canActivate: [authGuard] },
       { path: 'contracts', children: contractsRoutes, canActivate: [authGuard] },
       { path: 'payments', children: paymentsRoutes, canActivate: [authGuard] },
-      { path: 'analyst', children: analyticsRoutes, canActivate: [authGuard] }
     ]
   }
 ]
